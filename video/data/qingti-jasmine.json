@@ -1,0 +1,45 @@
+{
+  "brandName": "元气森林",
+  "productName": "元气森林青提茉莉气泡茶",
+  "shortName": "青提茉莉气泡茶",
+  "category": "花果香气泡茶概念产品",
+  "primaryColor": "#DDF4C8",
+  "secondaryColor": "#F7FFF2",
+  "accentColor": "#D9272E",
+  "flavorOne": {
+    "name": "青提果香",
+    "description": "清甜鲜活，入口清爽",
+    "asset": "/assets/products/qingti-jasmine/grape-cluster.png"
+  },
+  "flavorTwo": {
+    "name": "茉莉茶香",
+    "description": "花香轻盈，余味舒展",
+    "asset": "/assets/products/qingti-jasmine/jasmine-flower.png"
+  },
+  "benefits": [
+    "清爽",
+    "轻盈",
+    "花果香",
+    "细密气泡感"
+  ],
+  "scenes": [
+    "午后学习",
+    "日常通勤",
+    "轻松休息"
+  ],
+  "slogan": "一口青提，一缕茉莉，让今天轻一点。",
+  "conceptLabel": "概念产品演示",
+  "disclaimer": "具体配方、营养信息及上市计划需经研发与合规确认。",
+  "assets": {
+    "productFront": "/assets/products/qingti-jasmine/product-front.png",
+    "productThreeView": "/assets/products/qingti-jasmine/product-three-view.png",
+    "productHero": "/assets/products/qingti-jasmine/product-hero.png",
+    "background": "/assets/products/qingti-jasmine/background.png",
+    "grapeSingle": "/assets/products/qingti-jasmine/grape-single.png",
+    "grapeSlice": "/assets/products/qingti-jasmine/grape-slice.png",
+    "jasminePetals": "/assets/products/qingti-jasmine/jasmine-petals.png",
+    "iceCube": "/assets/products/qingti-jasmine/ice-cube.png",
+    "waterSplash": "/assets/products/qingti-jasmine/water-splash.png",
+    "logo": "/assets/products/qingti-jasmine/logo.png"
+  }
+}

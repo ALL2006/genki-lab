@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remotion 饮料广告动效"
+  short_description: "打造丝滑、动感且产品清晰的60fps竖屏饮料广告模板"
+  default_prompt: "使用 $remotion-beverage-ad-motion 审计并优化这条 Remotion 饮料广告的60fps动效、产品分离和转场。"

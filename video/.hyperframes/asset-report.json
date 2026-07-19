@@ -1,0 +1,16 @@
+{
+  "config": "qingti-jasmine",
+  "totalDuration": 27,
+  "missingAssets": [
+    "assets/product-front.png",
+    "assets/product-hero.png",
+    "assets/product-three-view.png",
+    "assets/background.jpg",
+    "assets/logo.png",
+    "assets/flavor-grape.png",
+    "assets/flavor-jasmine.png",
+    "assets/lifestyle-study.jpg",
+    "assets/lifestyle-commute.jpg",
+    "assets/lifestyle-relax.jpg"
+  ]
+}

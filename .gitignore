@@ -1,0 +1,12 @@
+node_modules
+dist
+.DS_Store
+*.local
+*.log
+.vite
+tmp/
+video/renders/
+video-remotion/build/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

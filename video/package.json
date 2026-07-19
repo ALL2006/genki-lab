@@ -1,0 +1,18 @@
+{
+  "name": "genki-beverage-product-ad",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:template": "node scripts/build.mjs --config data/qingti-jasmine.json --output index.html",
+    "predev": "npm run build:template",
+    "dev": "npx --yes hyperframes@0.7.63 preview",
+    "check": "npm run build:template && npx --yes hyperframes@0.7.63 check",
+    "snapshot": "npm run build:template && npx --yes hyperframes@0.7.63 snapshot --at 1.8,5.5,9,13,17,20.5,24.5",
+    "render": "npm run build:template && npx --yes hyperframes@0.7.63 render --quality high --fps 30 --skill product-launch-video --output renders/qingti-jasmine.mp4",
+    "render:product": "node scripts/render-product.mjs",
+    "publish": "npx --yes hyperframes@0.7.63 publish"
+  },
+  "dependencies": {
+    "gsap": "3.14.2"
+  }
+}
