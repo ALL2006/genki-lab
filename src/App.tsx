@@ -1,11 +1,12 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layouts/AppLayout'
 import { ConceptsPage } from './pages/ConceptsPage'
-import { ContentPage } from './pages/ContentPage'
+import { DataSourcesPage } from './pages/DataSourcesPage'
 import { DashboardPage } from './pages/DashboardPage'
-import { ResearchPage } from './pages/ResearchPage'
 import { TrendsPage } from './pages/TrendsPage'
 import { ValidationPage } from './pages/ValidationPage'
+import { EvaluationPage } from './pages/EvaluationPage'
+import { AnalysisBatchesPage } from './pages/AnalysisBatchesPage'
 
 export default function App() {
   return (
@@ -14,11 +15,14 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/research" element={<ResearchPage />} />
+          <Route path="/data-sources" element={<DataSourcesPage />} />
           <Route path="/trends" element={<TrendsPage />} />
           <Route path="/concepts" element={<ConceptsPage />} />
-          <Route path="/content" element={<ContentPage />} />
           <Route path="/validation" element={<ValidationPage />} />
+          <Route path="/analysis-batches" element={<AnalysisBatchesPage />} />
+          <Route path="/evaluation" element={<EvaluationPage />} />
+          <Route path="/research" element={<Navigate to="/data-sources" replace />} />
+          <Route path="/content" element={<Navigate to="/concepts" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>

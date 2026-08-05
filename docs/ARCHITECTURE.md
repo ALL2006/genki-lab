@@ -1,56 +1,56 @@
-# GENKI LAB 系统架构
+# GENKI LAB MVP 架构
 
-## 1. 当前架构目标
+## 目标
 
-GENKI LAB 当前版本仅建立前端业务骨架、数据接口和扩展边界。所有页面使用本地空数据与明确的空状态，不连接外部平台、AI 模型或真实数据库。
+在第一阶段闭环上，把采集入口扩展为 DEMO / LIVE 双模式，同时保持 AI、飞书和视频边界不变。
 
-## 2. 分层架构
-
-```text
-外部资料层
-  ↓
-飞书数据层
-  ↓
-WorkBuddy 任务执行层
-  ↓
-Codex 开发与处理层
-  ↓
-业务应用层
-  ↓
-用户反馈层
-  └──────────────→ 数据回流与下一轮迭代
-```
-
-| 层级 | 规划职责 | 当前状态 |
-| --- | --- | --- |
-| 外部资料层 | 行业报告、竞品案例、真实用户评论等经过核验的输入 | 未接入 |
-| 飞书数据层 | 研究资料管理、表单收集与结果汇总 | 未连接 API |
-| WorkBuddy 任务执行层 | 文件整理、数据处理、素材检查和阶段结果输出 | 未配置自动化 |
-| Codex 开发与处理层 | 页面开发、结构化处理和工程维护 | 已建立前端框架 |
-| 业务应用层 | 趋势、产品、内容、验证等六个页面 | 已建立页面结构 |
-| 用户反馈层 | 真实用户测试与结果回流 | 仅预留表单和面板 |
-
-## 3. 前端模块
-
-- `src/pages`：六个业务页面。
-- `src/components`：可复用界面组件。
-- `src/types`：跨模块 TypeScript 数据契约。
-- `src/data`：本地空数据文件。
-- `src/services`：本地读取服务与未来集成边界。
-- `src/utils`：localStorage 等通用能力。
-
-## 4. 当前数据流
+## 运行结构
 
 ```text
-src/data 空数组 → src/services 本地读取 → 页面空状态
+React/Vite
+  └─ /api → Express API
+              ├─ JobService（业务编排、计时、异常）
+              ├─ DataRepository
+              │    ├─ MockRepository（当前，JSON 持久化）
+              │    └─ FeishuBitableRepository（占位）
+              ├─ CollectorRouter
+              │    ├─ MockCollector（DEMO）
+              │    ├─ RSSCollector（RSS / Atom）
+              │    ├─ GenericArticleCollector（单篇文章）
+              │    └─ ConfigurableListCollector（列表 + 正文）
+              ├─ LiveHttpClient（超时、重试、限频、正文上限）
+              └─ AIProvider
+                   ├─ MockAIProvider（离线基线，DEMO）
+                   ├─ ArkDoubaoAIProvider（Responses API）
+                   ├─ MiaodaWebhookAIProvider（仅 HTTP 适配）
+                   └─ ManualJsonAIProvider（导出 / 导入）
+              ├─ AIAnalysisService（批次、Schema、逐字引文、幂等、审核）
+              └─ EvaluationService（冻结 39/10 评测与指标）
 ```
 
-页面当前不会调用网络请求，也不会生成、推断或补写行业结论。
+## 关键边界
 
-## 5. 后续扩展原则
+- 前端只依赖 HTTP API，不读取 `server/` 或运行时 JSON。
+- `JobService` 不感知飞书妙搭；后续由妙搭通过 HTTP 调用受保护任务端点。
+- 正式任务端点验证 `X-JOB-SECRET`。本地网页使用可关闭的 `/api/demo/jobs/*`。
+- Repository、Collector、AIProvider 通过接口替换，页面和核心流程不绑定具体平台。
+- LIVE 来源失败按来源隔离；一次批任务同时记录总指标与 `sourceResults`。
+- 实时采集默认关闭，不支持登录态、验证码、绕过反爬或社交平台抓取。
+- `ProductConcept → ProductVideoConfig` 不属于第一阶段。
+- `video-remotion/` 不依赖本系统运行，也未在本阶段修改。
 
-1. 研究资料必须保留来源链接、机构、发布时间和审核状态。
-2. 用户评论必须完成来源核验、匿名化和合规检查。
-3. AI 生成结果需要区分“生成内容”和“研究证据”。
-4. 外部连接应通过服务层替换，不让页面直接依赖具体平台 API。
-5. 真实数据接入前应补齐权限、错误处理、加载状态和审计记录。
+## 持久化与并发
+
+默认数据库文件是 `data/mock-db.json`，首次访问时写入数据源配置和明确标记的模拟验证反馈。每次写入进入串行队列，避免同一进程内并发写互相覆盖。该实现适合单机 Demo，不适合作为生产数据库。
+
+## 任务生命周期
+
+1. 先保存 `status=running` 的 JobRun。
+2. 执行业务步骤并累计 fetched/new/duplicate/processed/failed。
+3. 采集任务逐源执行，每个来源单独保存耗时、计数和错误。
+4. 部分成功时总任务为 success，同时保留失败源的 errorMessage；全部失败时总任务为 failed。
+5. 所有结果保存 finishedAt 与 durationMs。
+
+## 部署演进
+
+第二阶段 A 已完成公开采集。第二阶段 B1 已完成可替换 AI 基础设施、证据校验、Manual JSON 兜底、49 条评论评测集和 39/10 冻结评测；本机无 Ark 凭证，因此 Ark 在线成功调用仍是 B2 前置验证。飞书 Repository、妙搭云端编排、问卷和视频转换仍不在 B1 范围。

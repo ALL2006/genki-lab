@@ -26,8 +26,8 @@ const assetSections = [
 export function ContentPage() {
   return (
     <div className="page-container">
-      <PageTitle eyebrow="CONTENT FACTORY" title="营销内容工厂" description="把已确认的产品定义转化为可审核、可复用的营销内容资产。" />
-      <SectionCard className="content-flow-card" title="内容生产流程" description="当前仅建立流程节点，不调用任何真实 AI 模型。" icon={Megaphone} tone="soft"><FlowDiagram steps={contentFlow} compact /></SectionCard>
+      <PageTitle eyebrow="CONTENT ASSETS" title="内容资产" description="把已确认的产品定义转化为可审核、可复用的内容资产。" />
+      <SectionCard className="content-flow-card" title="内容生产流程" description="当前仅建立流程节点，不调用真实模型服务。" icon={Megaphone} tone="soft"><FlowDiagram steps={contentFlow} compact /></SectionCard>
 
       <SectionCard title="产品信息输入区" description="选择已评审产品后，自动带入产品定义字段。" icon={FileInput}>
         <div className="product-input-shell">

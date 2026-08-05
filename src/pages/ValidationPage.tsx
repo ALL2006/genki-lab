@@ -1,36 +1,45 @@
-import { BarChart3, CircleDollarSign, ClipboardList, Heart, Lightbulb, MessageSquareText, PackageCheck, ShoppingBag, Users } from 'lucide-react'
+import { useCallback } from 'react'
+import { GitCompareArrows, MessageSquareWarning, RefreshCw, ShoppingBag, Users } from 'lucide-react'
+import { ErrorState, LoadingState } from '../components/ApiState'
+import { DemoDataBanner } from '../components/DemoDataBanner'
 import { MetricCard } from '../components/MetricCard'
 import { PageTitle } from '../components/PageTitle'
-import { ResultChartCard } from '../components/ResultChartCard'
 import { SectionCard } from '../components/SectionCard'
-import { StatusBadge } from '../components/StatusBadge'
-import { ValidationForm } from '../components/ValidationForm'
+import { useApiResource } from '../hooks/useApiResource'
+import { api } from '../services/api'
 
 export function ValidationPage() {
+  const loader = useCallback(() => api.getValidationSummary(), [])
+  const { data, loading, error, reload } = useApiResource(loader)
+
   return (
     <div className="page-container">
-      <PageTitle eyebrow="USER VALIDATION" title="新品概念用户验证" description="产品概念确定后，将在此开展真实用户测试。" actions={<StatusBadge tone="warning">尚未开放</StatusBadge>} />
-      <SectionCard title="用户测试表单" description="表单字段已建立，当前不绑定具体产品，也不收集数据。" icon={ClipboardList}>
-        <ValidationForm />
-      </SectionCard>
-
-      <div className="results-heading">
-        <div><span className="eyebrow">RESULTS PANEL</span><h2>验证结果面板</h2><p>仅展示结果结构，完成真实用户测试后再接入统计结果。</p></div>
-        <span className="results-heading__status"><i />等待数据回流</span>
-      </div>
-
-      <div className="metric-grid metric-grid--validation">
-        <MetricCard label="参与人数" icon={Users} />
-        <MetricCard label="产品兴趣" icon={Heart} />
-        <MetricCard label="购买意愿" icon={ShoppingBag} />
-        <MetricCard label="价格区间" icon={CircleDollarSign} />
-      </div>
-      <div className="result-grid">
-        <ResultChartCard title="包装偏好" icon={PackageCheck} variant="bars" />
-        <ResultChartCard title="饮用场景" icon={BarChart3} variant="donut" />
-        <ResultChartCard title="高频反馈" icon={MessageSquareText} variant="line" />
-        <ResultChartCard title="产品调整建议" icon={Lightbulb} variant="radar" />
-      </div>
+      <PageTitle eyebrow="USER VALIDATION" title="用户验证" description="当前展示服务器端保存的模拟反馈与 V1/V2 归纳结构。" actions={<button className="secondary-button" onClick={() => void reload()}><RefreshCw size={16} />刷新</button>} />
+      <DemoDataBanner>本页全部为模拟用户反馈，不得写入“真实用户验证”或作为市场结论。</DemoDataBanner>
+      {loading && <LoadingState />}
+      {error && <ErrorState message={error} onRetry={() => void reload()} />}
+      {data && (
+        <>
+          <div className="metric-grid metric-grid--validation">
+            <MetricCard label="模拟反馈数量" value={data.responseCount} hint="仅用于演示数据回流" icon={Users} />
+            <MetricCard label="购买意愿" value={`${data.averagePurchaseIntent}%`} hint="5 分量表换算" icon={ShoppingBag} />
+            <MetricCard label="拒绝原因类型" value={data.rejectionReasons.length} hint="结构化多选标签" icon={MessageSquareWarning} />
+          </div>
+          <div className="validation-grid">
+            <SectionCard title="主要拒绝原因" description="模拟反馈的标签计数。" icon={MessageSquareWarning}>
+              <div className="reason-bars">{data.rejectionReasons.map((reason) => <div key={reason.label}><span>{reason.label}</span><i style={{ width: `${Math.max(12, reason.count * 28)}%` }} /><strong>{reason.count}</strong></div>)}</div>
+            </SectionCard>
+            <SectionCard title="版本对比" description="V1/V2 的模拟购买意愿与场景匹配。" icon={GitCompareArrows}>
+              <div className="version-comparison">{data.versionComparison.map((version) => <div key={version.version}><strong>{version.version}</strong><span>购买意愿 {version.purchaseIntent}%</span><span>场景匹配 {version.sceneMatch}%</span></div>)}</div>
+            </SectionCard>
+          </div>
+          <div className="iteration-grid">
+            <section><span>KEEP / 保留</span>{data.keep.map((item) => <strong key={item}>{item}</strong>)}</section>
+            <section><span>MODIFY / 修改</span>{data.modify.map((item) => <strong key={item}>{item}</strong>)}</section>
+            <section><span>ELIMINATE / 淘汰</span>{data.eliminate.map((item) => <strong key={item}>{item}</strong>)}</section>
+          </div>
+        </>
+      )}
     </div>
   )
 }

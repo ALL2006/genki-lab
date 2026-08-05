@@ -4,22 +4,45 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n api,web -c green,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:web": "vite",
+    "dev:api": "tsx watch server/index.ts",
+    "start": "tsx server/index.ts",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty false",
+    "test:api": "tsx tests/api.integration.ts",
+    "test:collectors": "tsx tests/collectors.integration.ts",
+    "test:ai": "tsx tests/ai.integration.ts",
+    "test:ai:live": "tsx tests/ark-ai.smoke.ts",
+    "test:live": "tsx tests/live-collection.smoke.ts",
+    "check": "npm run lint && npm run typecheck && npm run test:collectors && npm run test:api && npm run test:ai && npm run build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
+    "cheerio": "^1.2.0",
+    "express": "^5.1.0",
+    "fast-xml-parser": "^5.10.1",
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-router-dom": "latest",
-    "recharts": "latest"
+    "react-router-dom": "^7.18.2",
+    "recharts": "latest",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.1.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.32.0",
+    "globals": "^16.3.0",
+    "tsx": "^4.20.3",
     "typescript": "latest",
+    "typescript-eslint": "^8.38.0",
     "vite": "latest"
   }
 }
