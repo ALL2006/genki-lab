@@ -3,6 +3,9 @@ import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import assert from 'node:assert/strict'
 
+let localSecrets: Record<string, string> = {}
+try { localSecrets = JSON.parse(await readFile(resolve('.wrangler/production-secrets.local.json'), 'utf8')) as Record<string, string> } catch { /* optional */ }
+
 let publicUrl = process.env.CLOUDFLARE_PUBLIC_URL?.replace(/\/+$/, '')
 if (!publicUrl) {
   try { publicUrl = (await readFile(resolve('.wrangler/genki-lab-url.txt'), 'utf8')).trim().replace(/\/+$/, '') } catch { /* handled below */ }
@@ -24,10 +27,11 @@ assert.match(missing.headers.get('content-type') ?? '', /application\/json/)
 assert.equal((await fetch(`${publicUrl}/api/automation/daily`, { method: 'POST' })).status, 401)
 assert.ok(!healthText.includes('AUTOMATION_SECRET') && !healthText.includes('AI_IMPORT_SECRET'))
 
-if (process.env.AUTOMATION_SECRET) {
+const automationSecret = process.env.AUTOMATION_SECRET ?? localSecrets.AUTOMATION_SECRET
+if (automationSecret) {
   const response = await fetch(`${publicUrl}/api/automation/daily`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-AUTOMATION-SECRET': process.env.AUTOMATION_SECRET, 'Idempotency-Key': `verify:${new Date().toISOString().slice(0, 10)}` },
+    headers: { 'Content-Type': 'application/json', 'X-AUTOMATION-SECRET': automationSecret, 'Idempotency-Key': `verify:${new Date().toISOString().slice(0, 10)}` },
     body: JSON.stringify({ triggerType: 'test' }),
   })
   assert.ok(response.ok, `authorized automation returned ${response.status}`)

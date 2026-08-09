@@ -36,15 +36,6 @@ config.d1_databases[0].database_id = databaseId
 await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, 'utf8')
 console.log('[cloudflare:setup] wrote the real D1 database_id to wrangler.jsonc')
 
-const secrets = parseJson<Array<{ name: string }>>(run(['secret', 'list', '--format', 'json'], { capture: true }))
-const names = new Set(secrets.map((item) => item.name))
-const missing = ['AUTOMATION_SECRET', 'AI_IMPORT_SECRET'].filter((name) => !names.has(name))
-if (missing.length) {
-  console.error(`BLOCKED_REQUIRED_SECRETS: ${missing.join(', ')}`)
-  for (const name of missing) console.error(`Run: npx wrangler secret put ${name}`)
-  process.exit(3)
-}
-
 run(['d1', 'migrations', 'apply', 'genki-lab-production', '--remote'])
 const prepare = spawnSync(process.execPath, [resolve('node_modules/tsx/dist/cli.mjs'), 'scripts/export-json-to-d1.ts'], { cwd: process.cwd(), env, stdio: 'inherit' })
 if (prepare.status !== 0) throw new Error('D1 import preparation failed.')
@@ -57,6 +48,8 @@ const deploy = run(['deploy'], { capture: true })
 process.stdout.write(deploy)
 const url = deploy.match(/https:\/\/[^\s]+\.workers\.dev/)?.[0]
 if (!url) throw new Error('Wrangler deploy succeeded but the workers.dev URL could not be parsed.')
+const configureSecrets = spawnSync(process.execPath, [resolve('node_modules/tsx/dist/cli.mjs'), 'scripts/configure-cloudflare-secrets.ts'], { cwd: process.cwd(), env, stdio: 'inherit' })
+if (configureSecrets.status !== 0) throw new Error('Cloudflare Secret configuration failed.')
 await mkdir(resolve('.wrangler'), { recursive: true })
 await writeFile(resolve('.wrangler/genki-lab-url.txt'), `${url}\n`, 'utf8')
 console.log(`[cloudflare:setup] deployed ${url}`)

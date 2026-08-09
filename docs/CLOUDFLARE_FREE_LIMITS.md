@@ -1,14 +1,19 @@
 # Cloudflare Free 运行门
 
-## Collector 审计
+## Collector 预算
 
-| 本地实现 | Worker 风险 | 生产处理 |
-| --- | --- | --- |
-| RSSCollector + fast-xml-parser | 可运行但会解析完整 XML 树，CPU/内存随 feed 增长 | WorkerCollector 使用有界文本提取，只取最多 2 条 |
-| GenericArticleCollector + Cheerio | 大 DOM 构建对 Free CPU 有风险 | WorkerCollector 使用流式字节上限和保守正文区块提取 |
-| ConfigurableListCollector | 列表再逐页请求，subrequest 易放大 | 列表最多 2 条，总请求受 8 次全局预算限制 |
-| LiveHttpClient | Node 运行可用；限频等待会占 Worker 生命周期 | Worker 直接使用 fetch + AbortController，不做无边界等待 |
+| 控制项 | 生产上限 |
+| --- | ---: |
+| 每次自动化来源 | 3 |
+| 单来源结果 | 2 |
+| 总外部请求预算 | 8 |
+| 单来源超时 | 8 秒 |
+| 单响应正文 | 1 MB |
 
-Worker 路径的 production dry-run bundle 不包含 `node:fs`、Express、Cheerio 或 fast-xml-parser。默认门限：来源 3、单源结果 2、总外部请求 8、超时 8 秒、响应 1 MB；失败来源由 Orchestrator 最多重试一次。重定向仍可能增加平台 subrequest，故总预算保持保守。
+Worker 生产 bundle 不包含 `node:fs`、Express、Cheerio 或 fast-xml-parser。采集使用有界 fetch、AbortController 与保守正文提取；来源失败最多重试一次。
 
-本地 workerd runtime 已通过 API、D1、Cron、SPA 与锁测试。Free Plan 真实 CPU、subrequest、内存和远端日志仍必须在认证后的真实 workers.dev 部署验证；当前状态不是“Free 已通过”。不会自动升级付费套餐。
+## 真实生产验证
+
+2026-08-09 16:15 UTC，Cloudflare Cron 实际执行一次完整流程：3 个来源、1 条新增、2 条跨任务重复、0 条失败，AutomationRun 总耗时 3986 ms。Pepsi 正文 3462 字符并生成 1 个待处理批次。任务没有因 CPU、subrequest、内存或 timeout 限制被平台中断，也没有启用任何自动付费升级。
+
+当前网络无法维持 `wrangler tail` WebSocket，因此没有宣称取得平台 CPU 分位数。Free Plan 兼容结论依据实际 Cloudflare 生产调用成功与应用级完整运行记录；预算继续保持保守，不扩大来源或抓取深度。

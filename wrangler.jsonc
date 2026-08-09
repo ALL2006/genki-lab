@@ -15,6 +15,7 @@
     {
       "binding": "DB",
       "database_name": "genki-lab-production",
+      "database_id": "cf94786f-d4cd-4c0d-adc7-84f76fff35de",
       "migrations_dir": "migrations"
     }
   ],

@@ -2,6 +2,8 @@
 
 面向“2026 AI先锋未来人才大赛｜元气森林企业命题”的可运行 MVP。本地继续使用 React/Vite + Express + JSON；生产目标为 Cloudflare Workers Static Assets + Worker API + D1 + Cron。
 
+Cloudflare 生产地址：[https://genki-lab.genki-lab.workers.dev](https://genki-lab.genki-lab.workers.dev)
+
 > 真实性边界：`MockCollector`、`MockAIProvider` 和验证反馈仍为 DEMO；真实采集资料标记为 LIVE。当前环境未配置 Ark 密钥，因此没有声称已经完成豆包在线调用。公开资料、消费者评论证据和市场背景严格分层；青提茉莉仍是待验证的概念产品。
 
 ## 当前完成范围

@@ -39,7 +39,11 @@ const comparison = Object.entries(entities).map(([entity]) => ({
   entity,
   jsonCount: manifest.counts[entity] ?? 0,
   d1Count: counts.get(entity) ?? -1,
-  matched: (manifest.counts[entity] ?? 0) === (counts.get(entity) ?? -1),
+  // Production can legitimately contain rows written after the seed import.
+  // Keep local verification exact while protecting the complete seed floor remotely.
+  matched: remote
+    ? (counts.get(entity) ?? -1) >= (manifest.counts[entity] ?? 0)
+    : (manifest.counts[entity] ?? 0) === (counts.get(entity) ?? -1),
 }))
 
 const placeholders = (values: string[]) => values.map((value) => `'${value.replaceAll("'", "''")}'`).join(',') || "''"
