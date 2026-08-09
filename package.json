@@ -26,6 +26,20 @@
     "test:live": "tsx tests/live-collection.smoke.ts",
     "test:automation": "tsx tests/automation.integration.ts",
     "test:bootstrap": "tsx tests/bootstrap.integration.ts",
+    "cf:dev": "wrangler dev",
+    "cf:dev:scheduled": "wrangler dev --test-scheduled",
+    "cf:test": "npm run build && npm run cf:bundle && tsx scripts/cf-runtime-test.ts",
+    "cf:bundle": "wrangler deploy --dry-run --outdir tmp/cloudflare-worker-bundle",
+    "cf:deploy": "wrangler deploy",
+    "cf:tail": "wrangler tail genki-lab",
+    "d1:migrations:local": "wrangler d1 migrations apply genki-lab-production --local",
+    "d1:migrations:remote": "wrangler d1 migrations apply genki-lab-production --remote",
+    "d1:prepare-import": "tsx scripts/export-json-to-d1.ts",
+    "d1:import:remote": "wrangler d1 execute genki-lab-production --remote --file data/migrations/generated/genki-lab-production-seed.sql",
+    "d1:verify": "tsx scripts/verify-d1.ts",
+    "d1:verify:remote": "tsx scripts/verify-d1.ts --remote",
+    "cloudflare:setup": "tsx scripts/cloudflare-setup.ts",
+    "cloudflare:verify": "tsx scripts/cloudflare-verify.ts",
     "check": "npm run lint && npm run typecheck && npm run test:collectors && npm run test:api && npm run test:ai && npm run test:analysis-batches && npm run test:automation && npm run test:bootstrap && npm run build"
   },
   "dependencies": {
@@ -41,6 +55,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260809.1",
     "@eslint/js": "^9.32.0",
     "@types/express": "^5.0.3",
     "@types/node": "^24.1.0",
@@ -52,6 +67,7 @@
     "tsx": "^4.20.3",
     "typescript": "latest",
     "typescript-eslint": "^8.38.0",
-    "vite": "latest"
+    "vite": "latest",
+    "wrangler": "^4.120.0"
   }
 }

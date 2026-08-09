@@ -1,5 +1,4 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
 import { performance } from 'node:perf_hooks'
 import type {
   AIAnalysisMode,
@@ -7,7 +6,6 @@ import type {
   AIAnalysisRun,
   AIBatch,
   AIResultImport,
-  ConsumerCommentEvaluationItem,
   DataSourceRoleHint,
   EvidenceAnalysisData,
   AnalysisValidationStatus,
@@ -19,6 +17,7 @@ import { QuoteRepairService } from '../ai/QuoteRepairService.js'
 import { ValidationFlagService } from '../ai/ValidationFlagService.js'
 import type { AIProvider, AIProviderExecution, EvidenceInputItem } from '../providers/AIProvider.js'
 import type { DataRepository } from '../repositories/DataRepository.js'
+import type { EvaluationDataLoader } from '../evaluation/EvaluationDataLoader.js'
 
 const PROMPT_VERSION = 'evidence-analysis-v1'
 const SCHEMA_VERSION = 'evidence-analysis-v1'
@@ -55,9 +54,6 @@ interface CatalogEntry {
   invalidReason: string | null
 }
 
-interface EvaluationDatasetFile { items: ConsumerCommentEvaluationItem[] }
-interface EvaluationSplitFile { developmentIds: string[]; holdoutIds: string[] }
-
 export interface ImportPayload {
   batchId: string
   provider?: string
@@ -85,8 +81,7 @@ export class AIAnalysisService {
   constructor(
     private readonly repository: DataRepository,
     private readonly provider: AIProvider,
-    private readonly evaluationDatasetPath?: string,
-    private readonly evaluationSplitPath?: string,
+    private readonly evaluationDataLoader?: EvaluationDataLoader,
   ) {}
 
   getProviderInfo() {
@@ -554,16 +549,9 @@ export class AIAnalysisService {
     return [...rawEntries, ...commentEntries]
   }
 
-  private async loadEvaluationData(): Promise<{ dataset: EvaluationDatasetFile; split: EvaluationSplitFile } | null> {
-    if (!this.evaluationDatasetPath || !this.evaluationSplitPath) return null
-    const [datasetText, splitText] = await Promise.all([
-      readFile(this.evaluationDatasetPath, 'utf8'),
-      readFile(this.evaluationSplitPath, 'utf8'),
-    ])
-    return {
-      dataset: JSON.parse(datasetText) as EvaluationDatasetFile,
-      split: JSON.parse(splitText) as EvaluationSplitFile,
-    }
+  private async loadEvaluationData() {
+    if (!this.evaluationDataLoader) return null
+    return this.evaluationDataLoader.load()
   }
 
   private async requireBatch(id: string) {

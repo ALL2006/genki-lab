@@ -1,6 +1,6 @@
 # GENKI LAB｜元气创新引擎
 
-面向“2026 AI先锋未来人才大赛｜元气森林企业命题”的可运行 MVP。第一阶段闭环保留不变，第二阶段 A 已加入真实公开数据采集；第二阶段 B1 已加入真实 AI 接入基础设施、严格证据校验、Manual JSON 导入和冻结评论评测集。
+面向“2026 AI先锋未来人才大赛｜元气森林企业命题”的可运行 MVP。本地继续使用 React/Vite + Express + JSON；生产目标为 Cloudflare Workers Static Assets + Worker API + D1 + Cron。
 
 > 真实性边界：`MockCollector`、`MockAIProvider` 和验证反馈仍为 DEMO；真实采集资料标记为 LIVE。当前环境未配置 Ark 密钥，因此没有声称已经完成豆包在线调用。公开资料、消费者评论证据和市场背景严格分层；青提茉莉仍是待验证的概念产品。
 
@@ -27,6 +27,7 @@
 - 后端：Node.js、Express、TypeScript。
 - 采集：Node 原生 Fetch、Cheerio、fast-xml-parser。
 - 持久化：本地 JSON 文件（默认 `data/mock-db.json`）。
+- 生产持久化：Cloudflare D1；Worker 运行路径不依赖 `fs`、`DATA_DIR` 或 Express `listen()`。
 - 验证：TypeScript、ESLint、Node 集成测试、Vite production build。
 
 ## 快速启动
@@ -93,6 +94,12 @@ npm run ai:evaluate-holdout # 仅在显式解锁后运行holdout
 npm run start:prod   # Express托管dist与API
 npm run build        # TypeScript + Vite production build
 npm run check        # 依次执行全部检查
+npm run cf:dev       # Worker + Static Assets + 本地 D1
+npm run cf:dev:scheduled # 同上，并开放本地 /__scheduled 测试
+npm run cf:test      # production build、Worker bundle、本地 D1/API/Cron 验收
+npm run d1:prepare-import # JSON生成幂等D1导入SQL（生成目录不提交）
+npm run cloudflare:setup  # 登录后自动建库、迁移、导入、验证、构建和部署
+npm run cloudflare:verify # 验收真实 workers.dev 与远端D1
 ```
 
 ## 目录
@@ -125,6 +132,12 @@ video/                  历史 HyperFrames 工程，独立保留
 - [AI Provider](docs/AI_PROVIDER.md)
 - [评论评测集](docs/EVALUATION_DATASET.md)
 - [部署](docs/DEPLOYMENT.md)
+- [Cloudflare 部署](docs/CLOUDFLARE_DEPLOY.md)
+- [D1 Schema](docs/D1_SCHEMA.md)
+- [D1 迁移报告](docs/D1_MIGRATION_REPORT.md)
+- [Cloudflare Free 限制](docs/CLOUDFLARE_FREE_LIMITS.md)
+- [Cloudflare 验收](docs/CLOUDFLARE_ACCEPTANCE.md)
+- [Cloudflare 迁移报告](docs/CLOUDFLARE_MIGRATION_REPORT.md)
 - [Demo 脚本](docs/DEMO_SCRIPT.md)
 - [12 天路线图](docs/ROADMAP_12_DAYS.md)
 - [夜间冲刺报告](docs/OVERNIGHT_SPRINT_REPORT.md)

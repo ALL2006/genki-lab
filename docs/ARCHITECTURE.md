@@ -28,6 +28,16 @@ React/Vite
               └─ EvaluationService（冻结 39/10 评测与指标）
 ```
 
+生产环境使用同一业务 Service，但替换运行适配器：
+
+```text
+React dist ── Workers Static Assets
+/api/*     ── worker/index.ts ── Service ── D1Repository ── D1
+Cron 01:00 UTC ──────────────── DailyAutomationOrchestrator
+```
+
+本地 `MockRepository` 与 Node Collector 保留；Worker 使用受请求数、响应字节和超时约束的 Web API Collector。两种运行时共享 `DataRepository`、`JobService`、`AIAnalysisService` 与每日自动化逻辑。D1 的部分唯一索引负责 running lock 和 Idempotency-Key，不依赖 Worker 进程内状态。
+
 ## 关键边界
 
 - 前端只依赖 HTTP API，不读取 `server/` 或运行时 JSON。

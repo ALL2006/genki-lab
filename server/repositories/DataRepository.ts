@@ -19,6 +19,11 @@ import type {
   ValidationResponse,
 } from '../../shared/types.js'
 
+export type AutomationClaimResult =
+  | { outcome: 'claimed'; run: AutomationRun }
+  | { outcome: 'idempotency_replayed'; run: AutomationRun }
+  | { outcome: 'already_running'; run: AutomationRun }
+
 export interface DataRepository {
   getDataSources(): Promise<DataSource[]>
   getDataSource(id: string): Promise<DataSource | undefined>
@@ -53,6 +58,7 @@ export interface DataRepository {
   getEvaluationRuns(): Promise<EvaluationRun[]>
   saveEvaluationRun(run: EvaluationRun): Promise<void>
   getAutomationRuns(): Promise<AutomationRun[]>
+  claimAutomationRun(run: AutomationRun, staleBefore: string): Promise<AutomationClaimResult>
   saveAutomationRun(run: AutomationRun): Promise<void>
   getValidationFlags(): Promise<ValidationFlag[]>
   saveValidationFlags(flags: ValidationFlag[]): Promise<void>

@@ -15,7 +15,7 @@ export type AIBatchStatus = 'pending' | 'dispatched' | 'completed' | 'failed'
 export type EvaluationSplit = 'development' | 'holdout'
 export type DataSourceRoleHint = 'consumer_candidate' | 'market_candidate' | 'background_candidate'
 export type DataSourceHealthStatus = 'healthy' | 'warning' | 'failing' | 'disabled'
-export type AutomationTriggerType = 'manual' | 'miaoda' | 'local-cron' | 'test'
+export type AutomationTriggerType = 'manual' | 'miaoda' | 'local-cron' | 'cloudflare-cron' | 'test'
 export type AutomationStatus = 'running' | 'success' | 'partial_success' | 'failed' | 'stale_failed'
 export type NotificationStatus = 'pending' | 'sent' | 'skipped' | 'failed'
 export type AnalysisValidationStatus = 'validated' | 'auto_repaired' | 'needs_review' | 'rejected'
@@ -494,6 +494,16 @@ export interface SystemReadiness {
   dataDirectoryWritable: boolean
   notificationWebhookConfigured: boolean
   overall: 'ready' | 'partially_ready' | 'blocked'
+  runtime?: 'node' | 'cloudflare-workers'
+  repositoryType?: 'json' | 'd1'
+  d1Configured?: boolean
+  d1Writable?: boolean
+  staticAssetsReady?: boolean
+  cronConfigured?: boolean
+  miaodaConfigured?: boolean
+  notificationConfigured?: boolean
+  filesystemPersistence?: boolean
+  databasePersistence?: boolean
 }
 
 export interface ValidationSummary {

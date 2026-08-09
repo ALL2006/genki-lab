@@ -1,10 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { performance } from 'node:perf_hooks'
-import type {
-  AutomationRun,
-  AutomationTriggerType,
-  CollectionSourceResult,
-} from '../../shared/types.js'
+import type { AutomationRun, AutomationTriggerType, CollectionSourceResult } from '../../shared/types.js'
 import type { NotificationProvider } from '../notifications/NotificationProvider.js'
 import type { DataRepository } from '../repositories/DataRepository.js'
 import type { AIAnalysisService } from './AIAnalysisService.js'
@@ -13,6 +9,7 @@ import type { JobService } from './JobService.js'
 export interface DailyAutomationOptions {
   triggerType?: AutomationTriggerType
   idempotencyKey?: string | null
+  maxSources?: number
 }
 
 export interface DailyAutomationResponse {
@@ -21,22 +18,16 @@ export interface DailyAutomationResponse {
   reason?: 'automation_already_running' | 'idempotency_key_replayed'
   automationRunId: string
   status: AutomationRun['status']
-  collection: {
-    sources: number
-    fetched: number
-    new: number
-    duplicates: number
-    failed: number
-  }
-  analysis: {
-    status: AutomationRun['analysisStatus']
-    pendingItems: number
-    createdBatches: number
-  }
+  collection: { sources: number; fetched: number; new: number; duplicates: number; failed: number }
+  analysis: { status: AutomationRun['analysisStatus']; pendingItems: number; createdBatches: number }
   durationMs: number
 }
 
-const terminalResponse = (run: AutomationRun, skipped = false, reason?: DailyAutomationResponse['reason']): DailyAutomationResponse => ({
+const terminalResponse = (
+  run: AutomationRun,
+  skipped = false,
+  reason?: DailyAutomationResponse['reason'],
+): DailyAutomationResponse => ({
   success: run.status === 'success' || run.status === 'partial_success' || skipped,
   skipped: skipped || undefined,
   reason,
@@ -58,8 +49,6 @@ const terminalResponse = (run: AutomationRun, skipped = false, reason?: DailyAut
 })
 
 export class DailyAutomationOrchestrator {
-  private activeRunId: string | null = null
-
   constructor(
     private readonly repository: DataRepository,
     private readonly jobs: JobService,
@@ -85,29 +74,6 @@ export class DailyAutomationOrchestrator {
 
   async run(options: DailyAutomationOptions = {}): Promise<DailyAutomationResponse> {
     const idempotencyKey = options.idempotencyKey?.trim() || null
-    const existingRuns = await this.repository.getAutomationRuns()
-    if (idempotencyKey) {
-      const replay = existingRuns.find((run) => run.idempotencyKey === idempotencyKey)
-      if (replay) return terminalResponse(replay, true, 'idempotency_key_replayed')
-    }
-
-    const now = Date.now()
-    for (const existing of existingRuns.filter((run) => run.status === 'running')) {
-      if (now - new Date(existing.startedAt).getTime() > this.staleAfterMs) {
-        existing.status = 'stale_failed'
-        existing.finishedAt = new Date().toISOString()
-        existing.durationMs = Math.max(1, now - new Date(existing.startedAt).getTime())
-        existing.errorSummary = '自动任务超过运行时限，已标记为stale_failed。'
-        await this.repository.saveAutomationRun(existing)
-      } else {
-        return terminalResponse(existing, true, 'automation_already_running')
-      }
-    }
-    if (this.activeRunId) {
-      const active = (await this.repository.getAutomationRuns()).find((run) => run.id === this.activeRunId)
-      if (active) return terminalResponse(active, true, 'automation_already_running')
-    }
-
     const started = performance.now()
     const run: AutomationRun = {
       id: `automation-${randomUUID()}`,
@@ -132,12 +98,19 @@ export class DailyAutomationOrchestrator {
       durationMs: 0,
       isDemo: false,
     }
-    this.activeRunId = run.id
-    await this.repository.saveAutomationRun(run)
+    const staleBefore = new Date(Date.now() - this.staleAfterMs).toISOString()
+    const claim = await this.repository.claimAutomationRun(run, staleBefore)
+    if (claim.outcome === 'idempotency_replayed') {
+      return terminalResponse(claim.run, true, 'idempotency_key_replayed')
+    }
+    if (claim.outcome === 'already_running') {
+      return terminalResponse(claim.run, true, 'automation_already_running')
+    }
 
     try {
       const sources = (await this.repository.getDataSources())
         .filter((source) => source.enabled && source.collectionMode === 'live')
+        .slice(0, Math.max(0, options.maxSources ?? Number.POSITIVE_INFINITY))
       run.sourceCount = sources.length
       const finalResults: CollectionSourceResult[] = []
       const newItemIds: string[] = []
@@ -174,7 +147,7 @@ export class DailyAutomationOrchestrator {
           } catch (error) {
             run.analysisFailedCount = newItemIds.length
             run.analysisStatus = 'failed'
-            run.errorSummary = error instanceof Error ? error.message : '自动AI执行失败。'
+            run.errorSummary = error instanceof Error ? error.message : '自动 AI 执行失败。'
           }
         } else {
           run.analysisStatus = 'pending_provider_configuration'
@@ -182,7 +155,10 @@ export class DailyAutomationOrchestrator {
       }
 
       run.status = run.failedCount > 0 || run.analysisFailedCount > 0 ? 'partial_success' : 'success'
-      run.errorSummary ??= finalResults.filter((item) => item.status === 'failed').map((item) => `${item.sourceId}: ${item.errorMessage ?? '采集失败'}`).join('；') || null
+      run.errorSummary ??= finalResults
+        .filter((item) => item.status === 'failed')
+        .map((item) => `${item.sourceId}: ${item.errorMessage ?? '采集失败'}`)
+        .join('；') || null
     } catch (error) {
       run.status = 'failed'
       run.errorSummary = error instanceof Error ? error.message : '每日自动任务失败。'
@@ -198,7 +174,6 @@ export class DailyAutomationOrchestrator {
         if (run.status === 'success') run.status = 'partial_success'
       }
       await this.repository.saveAutomationRun(run)
-      this.activeRunId = null
     }
     return terminalResponse(run)
   }

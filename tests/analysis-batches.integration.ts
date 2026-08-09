@@ -6,6 +6,7 @@ import type { AIBatch, AIAnalysisRecord, EvidenceAnalysisData, RawItem } from '.
 import { ManualJsonAIProvider } from '../server/providers/ManualJsonAIProvider.js'
 import { MockRepository } from '../server/repositories/MockRepository.js'
 import { AIAnalysisService } from '../server/services/AIAnalysisService.js'
+import { NodeEvaluationDataLoader } from '../server/evaluation/NodeEvaluationDataLoader.js'
 import {
   buildB2PilotSelection,
   countPilotRoles,
@@ -139,8 +140,10 @@ try {
   const service = new AIAnalysisService(
     repository,
     new ManualJsonAIProvider(),
-    resolve('data/evaluation/consumer-comments-v1.json'),
-    resolve('data/evaluation/split-v1.json'),
+    new NodeEvaluationDataLoader(
+      resolve('data/evaluation/consumer-comments-v1.json'),
+      resolve('data/evaluation/split-v1.json'),
+    ),
   )
   const candidates = await service.getBatchCandidates()
   assert.ok(candidates.length >= 17, 'candidate catalog must expose at least 17 records')

@@ -20,13 +20,14 @@ import type {
   ValidationFlag,
   ValidationResponse,
 } from '../../shared/types.js'
-import type { DataRepository } from './DataRepository.js'
+import type { AutomationClaimResult, DataRepository } from './DataRepository.js'
 import { createSeedDatabase, defaultDataSources } from './seed.js'
 import { readJsonStrict, writeJsonAtomic } from '../storage/AtomicJsonFile.js'
 
 export class MockRepository implements DataRepository {
   private database: MockDatabase | null = null
   private writeQueue: Promise<void> = Promise.resolve()
+  private claimQueue: Promise<void> = Promise.resolve()
 
   constructor(private readonly filePath = resolve(process.cwd(), 'data/mock-db.json')) {}
 
@@ -216,6 +217,39 @@ export class MockRepository implements DataRepository {
     await this.persist()
   }
   async getAutomationRuns() { return [...(await this.load()).automationRuns].sort((a, b) => b.startedAt.localeCompare(a.startedAt)) }
+  async claimAutomationRun(run: AutomationRun, staleBefore: string): Promise<AutomationClaimResult> {
+    let result: AutomationClaimResult | undefined
+    const claim = async () => {
+      const db = await this.load()
+      const now = new Date()
+      for (const existing of db.automationRuns) {
+        if (existing.status === 'running' && existing.startedAt < staleBefore) {
+          existing.status = 'stale_failed'
+          existing.finishedAt = now.toISOString()
+          existing.durationMs = Math.max(1, now.getTime() - new Date(existing.startedAt).getTime())
+          existing.errorSummary = '自动任务超过运行时限，已标记为 stale_failed。'
+        }
+      }
+      const replay = run.idempotencyKey
+        ? db.automationRuns.find((item) => item.idempotencyKey === run.idempotencyKey)
+        : undefined
+      if (replay) result = { outcome: 'idempotency_replayed', run: replay }
+      else {
+        const active = db.automationRuns.find((item) => item.status === 'running')
+        if (active) result = { outcome: 'already_running', run: active }
+        else {
+          db.automationRuns.unshift(run)
+          result = { outcome: 'claimed', run }
+        }
+      }
+      await this.persist()
+    }
+    const queued = this.claimQueue.then(claim, claim)
+    this.claimQueue = queued.then(() => undefined, () => undefined)
+    await queued
+    if (!result) throw new Error('自动化运行锁定结果缺失。')
+    return result
+  }
   async saveAutomationRun(run: AutomationRun) {
     const db = await this.load()
     const index = db.automationRuns.findIndex((item) => item.id === run.id)

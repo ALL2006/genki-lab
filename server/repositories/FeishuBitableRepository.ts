@@ -18,7 +18,7 @@ import type {
   ValidationFlag,
   ValidationResponse,
 } from '../../shared/types.js'
-import type { DataRepository } from './DataRepository.js'
+import type { AutomationClaimResult, DataRepository } from './DataRepository.js'
 
 export class FeishuBitableRepository implements DataRepository {
   private unavailable(): never {
@@ -54,6 +54,7 @@ export class FeishuBitableRepository implements DataRepository {
   async getEvaluationRuns(): Promise<EvaluationRun[]> { return this.unavailable() }
   async saveEvaluationRun(_run: EvaluationRun): Promise<void> { return this.unavailable() }
   async getAutomationRuns(): Promise<AutomationRun[]> { return this.unavailable() }
+  async claimAutomationRun(_run: AutomationRun, _staleBefore: string): Promise<AutomationClaimResult> { return this.unavailable() }
   async saveAutomationRun(_run: AutomationRun): Promise<void> { return this.unavailable() }
   async getValidationFlags(): Promise<ValidationFlag[]> { return this.unavailable() }
   async saveValidationFlags(_flags: ValidationFlag[]): Promise<void> { return this.unavailable() }

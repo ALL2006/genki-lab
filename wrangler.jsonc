@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "genki-lab",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-09",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/__scheduled"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "genki-lab-production",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    "crons": ["0 1 * * *"]
+  },
+  "vars": {
+    "MAX_SOURCES_PER_AUTOMATION": "3",
+    "MAX_FETCHES_PER_SOURCE": "2",
+    "MAX_TOTAL_EXTERNAL_FETCHES": "8",
+    "SOURCE_TIMEOUT_MS": "8000",
+    "MAX_RESPONSE_BYTES": "1000000",
+    "AUTOMATION_STALE_MS": "1800000",
+    "BUILD_VERSION": "cloudflare-production-v1"
+  }
+}

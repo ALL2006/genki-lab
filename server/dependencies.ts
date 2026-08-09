@@ -10,6 +10,7 @@ import { createAIProvider } from './providers/createAIProvider.js'
 import { MockRepository } from './repositories/MockRepository.js'
 import { JobService } from './services/JobService.js'
 import { AIAnalysisService } from './services/AIAnalysisService.js'
+import { NodeEvaluationDataLoader } from './evaluation/NodeEvaluationDataLoader.js'
 import { EvaluationService } from './services/EvaluationService.js'
 import { DailyAutomationOrchestrator } from './services/DailyAutomationOrchestrator.js'
 import { createNotificationProvider } from './notifications/createNotificationProvider.js'
@@ -34,7 +35,8 @@ export function createDependencies(config: AppConfig) {
   })
   const aiProvider = createAIProvider(config)
   const jobs = new JobService(repository, collector, new MockAIProvider(), config.enableLiveCollection)
-  const aiAnalysis = new AIAnalysisService(repository, aiProvider, config.evaluationDatasetPath, config.evaluationSplitPath)
+  const evaluationDataLoader = new NodeEvaluationDataLoader(config.evaluationDatasetPath, config.evaluationSplitPath)
+  const aiAnalysis = new AIAnalysisService(repository, aiProvider, evaluationDataLoader)
   const evaluations = new EvaluationService(repository, aiProvider, config.evaluationDatasetPath, config.evaluationSplitPath)
   const notification = createNotificationProvider(config.feishuNotificationWebhook)
   const automaticProviderReady = (config.aiProvider === 'ark-doubao' && Boolean(config.arkApiKey && config.arkModelId))
