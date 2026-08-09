@@ -27,6 +27,7 @@
 | GET | `/api/ai-batches/candidates` | 查询RawItem与冻结评论的批次资格、两类状态和禁用原因 |
 | GET | `/api/ai-batches/:id/export` | 导出固定 prompt、Schema、原文与编号 |
 | POST | `/api/ai-batches/:id/execute` | 用当前同步 Provider 执行，或向妙搭 Webhook 派发 |
+| POST | `/api/ai-pilots/b2-auto` | 受 `X-JOB-SECRET` 保护；仅复制已完成的原 6 条 Manual Pilot 到 `B2-AUTO-PILOT-01` 并用 Ark 执行，不扩大到 development/holdout |
 | POST | `/api/evaluations/run` | `{split:"development"|"holdout"}`，运行受保护评测 |
 
 缺少或错误密钥返回 `401 INVALID_JOB_SECRET`。

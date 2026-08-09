@@ -199,6 +199,7 @@ export interface AIAnalysisRun {
   failedCount: number
   retryCount: number
   schemaValidCount: number
+  itemIdValidCount?: number
   quoteValidCount: number
   lowConfidenceCount: number
   inputCharacters: number

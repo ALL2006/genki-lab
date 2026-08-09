@@ -28,8 +28,9 @@ function createProvider(env: Env): { provider: AIProvider; ready: boolean } {
         apiKey: env.ARK_API_KEY,
         model: env.ARK_MODEL_ID,
         baseUrl: env.ARK_BASE_URL ?? 'https://ark.cn-beijing.volces.com/api/v3',
-        timeoutMs: 30_000,
-        maxRetries: 1,
+        timeoutMs: 45_000,
+        maxRetries: 0,
+        maxInputCharactersPerRequest: 7_000,
       }),
       ready: true,
     }

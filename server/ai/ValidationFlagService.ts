@@ -22,6 +22,9 @@ export class ValidationFlagService {
     if (repairs.some((repair) => repair.quoteAutoRepaired)) {
       add('quote_mismatch', 'info', '引文已通过确定性规范化匹配，并替换为原始连续文本。', 'evidenceQuotes')
     }
+    if (data.evidenceQuotes.length === 0) {
+      add('quote_mismatch', 'high', 'evidenceQuotes 为空，缺少可逐字核验的原文证据。', 'evidenceQuotes')
+    }
     if (repairs.some((repair) => repair.repairMethod === 'normalized_multiple')) {
       add('quote_mismatch', 'warning', '规范化引文在原文中存在多个匹配，需要人工选择。', 'evidenceQuotes')
     }

@@ -23,7 +23,7 @@ B1 使用火山方舟 OpenAI 兼容的 Responses 路径：
 - 模型：由 `ARK_MODEL_ID` 显式配置，不在代码中写死“最新模型”
 - 结构化输出：请求体使用 `text.format.type=json_schema` 与 strict Schema
 
-依据是火山方舟[官方快速入门](https://www.volcengine.com/docs/82379/1795150)和[官方 Structured Output 文档](https://www.volcengine.com/docs/82379/1958523)。由于本机当前没有 `ARK_API_KEY` 与 `ARK_MODEL_ID`，B1 只完成离线请求契约、重试/超时测试和 Manual JSON 真实可用路径；正式模型兼容性必须在有凭证后运行 smoke test确认，不能写成已调用成功。
+依据是火山方舟[官方快速入门](https://www.volcengine.com/docs/82379/1795150)和[官方 Structured Output 文档](https://www.volcengine.com/docs/82379/1958523)。Cloudflare 生产现已配置 Ark，并完成 `B2-AUTO-PILOT-01` 六条真实调用；详见 `B2_AUTO_AI_REPORT.md`。Pilot 为 partial_success，不能据此扩大到 development 或宣称模型质量门槛已通过。
 
 ## 证据 Schema
 

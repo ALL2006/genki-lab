@@ -19,8 +19,8 @@ import type { AIProvider, AIProviderExecution, EvidenceInputItem } from '../prov
 import type { DataRepository } from '../repositories/DataRepository.js'
 import type { EvaluationDataLoader } from '../evaluation/EvaluationDataLoader.js'
 
-const PROMPT_VERSION = 'evidence-analysis-v1'
-const SCHEMA_VERSION = 'evidence-analysis-v1'
+const PROMPT_VERSION = 'evidence-analysis-v2'
+const SCHEMA_VERSION = 'evidence-analysis-v2'
 
 export type BatchCandidateDataType = 'public_material' | 'consumer_comment'
 export type BatchCandidateDataset = 'development' | 'holdout' | null
@@ -171,6 +171,54 @@ export class AIAnalysisService {
     return (await this.repository.getAIBatches()).filter((batch) => batch.status === 'pending' || batch.status === 'dispatched')
   }
 
+  async createComparisonPilot(sourceBatchId: string, pilotId = 'B2-AUTO-PILOT-01') {
+    if (pilotId !== 'B2-AUTO-PILOT-01') throw new Error('只允许执行已批准的 B2-AUTO-PILOT-01。')
+    if (this.provider.name !== 'ark-doubao' || !this.provider.isAutomated || this.provider.delivery !== 'synchronous' || !this.provider.model) {
+      throw new Error('Ark Doubao Provider 尚未就绪。')
+    }
+    const existing = await this.repository.getAIBatch(pilotId)
+    if (existing) {
+      if (existing.provider !== 'ark-doubao' || existing.itemIds.length !== 6) throw new Error('已有同名 Pilot，但配置不一致。')
+      return existing
+    }
+    const sourceBatch = await this.requireBatch(sourceBatchId)
+    if (sourceBatch.status !== 'completed' || sourceBatch.itemIds.length !== 6) throw new Error('对照 Manual 批次必须已完成且恰好包含 6 条资料。')
+    const catalog = await this.getCatalog()
+    const entryById = new Map(catalog.map((entry) => [entry.input.id, entry]))
+    const entries = sourceBatch.itemIds.map((itemId) => entryById.get(itemId))
+    if (entries.some((entry) => !entry)) throw new Error('Manual 批次包含已不存在的资料。')
+    if (entries.some((entry) => entry?.candidate.dataset === 'holdout')) throw new Error('Pilot 禁止包含 holdout。')
+    const commentCount = entries.filter((entry) => entry?.candidate.dataType === 'consumer_comment').length
+    const materialCount = entries.filter((entry) => entry?.candidate.dataType === 'public_material').length
+    if (commentCount !== 2 || materialCount !== 4) throw new Error('Pilot 必须保持原 2 条评论 + 4 条公开资料结构。')
+    const now = new Date().toISOString()
+    const batch: AIBatch = {
+      id: pilotId,
+      provider: 'ark-doubao',
+      model: this.provider.model,
+      status: 'pending',
+      itemIds: [...sourceBatch.itemIds],
+      createdAt: now,
+      updatedAt: now,
+      promptVersion: PROMPT_VERSION,
+      schemaVersion: SCHEMA_VERSION,
+      importedResultHashes: [],
+      validationMode: 'automated',
+      isDemo: false,
+    }
+    await this.repository.saveAIBatch(batch)
+    return batch
+  }
+
+  async runComparisonPilot(sourceBatchId: string, pilotId = 'B2-AUTO-PILOT-01') {
+    const batch = await this.createComparisonPilot(sourceBatchId, pilotId)
+    if (batch.status === 'completed') {
+      return { batch, records: await this.recordsForBatch(batch.id), validationFlags: [], dispatched: false, idempotent: true }
+    }
+    if (batch.status === 'failed') throw new Error('Pilot 已失败；必须先检查失败记录，禁止自动重跑。')
+    return { ...await this.executeBatch(batch.id), idempotent: false }
+  }
+
   async exportBatch(id: string) {
     const batch = await this.requireBatch(id)
     const inputs = await this.getInputs(batch)
@@ -205,19 +253,45 @@ export class AIAnalysisService {
         await this.saveRun(batch, execution, startedAt, started, 0, 0, null)
         return { batch, records: [], dispatched: true }
       }
-      const records = await this.validateAndBuildRecords(batch, inputs, execution.outputs, {
+      const metadata = {
         provider: this.provider.name,
         model: this.provider.model,
         mode: this.provider.mode,
         isAutomated: this.provider.isAutomated,
         rawModelResponse: execution.rawResponse,
-      })
+      }
+      const validationResult = this.provider.isAutomated
+        ? await this.validateAutomatedAndBuildRecords(batch, inputs, execution.outputs, metadata)
+        : {
+          records: await this.validateAndBuildRecords(batch, inputs, execution.outputs, metadata),
+          flags: [],
+          status: 'success' as const,
+        }
+      const records = validationResult.records
       await this.repository.saveAIAnalysisRecords(records)
-      batch.status = 'completed'
+      await this.repository.saveValidationFlags(validationResult.flags)
+      batch.model = this.provider.model
+      batch.status = validationResult.status === 'failed' ? 'failed' : 'completed'
+      batch.validationMode = this.provider.isAutomated ? 'automated' : 'strict'
+      batch.validationStatus = validationResult.status
       batch.updatedAt = new Date().toISOString()
       await this.repository.saveAIBatch(batch)
-      await this.saveRun(batch, execution, startedAt, started, records.length, records.filter((record) => record.quoteValid).length, null)
-      return { batch, records, dispatched: false }
+      const successfulRecords = records.filter((record) => record.validationStatus === 'validated' || record.validationStatus === 'auto_repaired')
+      await this.saveRun(
+        batch,
+        execution,
+        startedAt,
+        started,
+        successfulRecords.length,
+        records.filter((record) => record.quoteValid).length,
+        null,
+        this.provider.name,
+        this.provider.model,
+        this.provider.mode,
+        this.provider.isAutomated,
+        { schemaValidCount: records.length, itemIdValidCount: records.length },
+      )
+      return { batch, records, validationFlags: validationResult.flags, dispatched: false }
     } catch (error) {
       batch.status = 'failed'
       batch.updatedAt = new Date().toISOString()
@@ -287,7 +361,7 @@ export class AIAnalysisService {
       batch.importedResultHashes = [...batch.importedResultHashes, hash]
       await this.repository.saveAIBatch(batch)
       const successfulRecords = records.filter((record) => record.validationStatus === 'validated' || record.validationStatus === 'auto_repaired')
-      await this.saveRun(batch, { outputs: payload.results, rawResponse: payload.rawModelResponse, retryCount: 0, tokenUsage: null, outputCharacters: canonical(payload.results).length }, startedAt, started, successfulRecords.length, records.filter((record) => record.quoteValid).length, null, provider, model, mode, mode !== 'manual_import')
+      await this.saveRun(batch, { outputs: payload.results, rawResponse: payload.rawModelResponse, retryCount: 0, tokenUsage: null, outputCharacters: canonical(payload.results).length }, startedAt, started, successfulRecords.length, records.filter((record) => record.quoteValid).length, null, provider, model, mode, mode !== 'manual_import', { schemaValidCount: records.length, itemIdValidCount: records.length })
       return { idempotent: false, resultImport, records, validationStatus: validationResult.status, validationFlags: validationResult.flags }
     } catch (error) {
       const message = error instanceof Error ? error.message : '未知导入错误'
@@ -426,7 +500,7 @@ export class AIAnalysisService {
       const context = { itemId: input.id, rawText: input.rawText, sourceKind: input.sourceKind, dataSourceType: input.dataSourceType }
       const itemFlags = this.validationFlags.create(recordId, repairedData, context, repairs)
       flags.push(...itemFlags)
-      const hasMissing = repairs.some((repair) => repair.repairMethod === 'not_found')
+      const hasMissing = parsed.data.evidenceQuotes.length === 0 || repairs.some((repair) => repair.repairMethod === 'not_found')
       const hasMultiple = repairs.some((repair) => repair.repairMethod === 'normalized_multiple')
       const hasHighConflict = itemFlags.some((flag) => flag.severity === 'high' && flag.type === 'role_conflict')
       const autoRepaired = repairs.some((repair) => repair.quoteAutoRepaired)
@@ -576,6 +650,7 @@ export class AIAnalysisService {
     model = this.provider.model,
     mode = this.provider.mode,
     isAutomated = this.provider.isAutomated,
+    validationCounts?: { schemaValidCount: number; itemIdValidCount: number },
   ) {
     const inputs = await this.getInputs(batch)
     const run: AIAnalysisRun = {
@@ -591,7 +666,8 @@ export class AIAnalysisService {
       successCount,
       failedCount: inputs.length - successCount,
       retryCount: execution?.retryCount ?? 0,
-      schemaValidCount: successCount,
+      schemaValidCount: validationCounts?.schemaValidCount ?? successCount,
+      itemIdValidCount: validationCounts?.itemIdValidCount ?? successCount,
       quoteValidCount,
       lowConfidenceCount: execution?.outputs.filter((output) => output && typeof output === 'object' && typeof (output as { confidence?: unknown }).confidence === 'number' && (output as { confidence: number }).confidence < 0.6).length ?? 0,
       inputCharacters: inputs.reduce((sum, item) => sum + item.rawText.length, 0),

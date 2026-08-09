@@ -36,7 +36,7 @@
 
 ## NOT_STARTED
 
-- `ARK_API_KEY` / `ARK_MODEL_ID` 尚未配置，自动化分析维持 `pending_provider_configuration`，不影响 Manual Doubao 工作流。
+- `ARK_API_KEY` / `ARK_MODEL_ID` 已配置并完成 B2 六条真实 Pilot；因 quote 硬指标未通过，尚未扩大到 development。
 - `MIAODA_WEBHOOK_URL` 与 `FEISHU_NOTIFICATION_WEBHOOK` 尚未配置；它们是后续通知/编排能力，不是本次 Worker、D1、Static Assets、Cron 上线的必要条件。
 - 自定义域名尚未绑定；当前正式体验地址使用 workers.dev。
 

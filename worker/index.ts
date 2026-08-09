@@ -145,6 +145,14 @@ async function api(request: Request, env: Env): Promise<Response> {
       const itemIds = Array.isArray(payload.itemIds) ? payload.itemIds.filter((value): value is string => typeof value === 'string') : undefined
       return json(await deps.aiAnalysis.createBatch(itemIds, { manualDoubao: payload.provider === 'manual-doubao' }), 201, false, requestId)
     }
+    if (method === 'POST' && path === '/api/ai-pilots/b2-auto') {
+      requireSecret(request, 'X-JOB-SECRET', env.JOB_SECRET, 'INVALID_JOB_SECRET')
+      const payload = await body(request)
+      const sourceBatchId = typeof payload.sourceBatchId === 'string' ? payload.sourceBatchId : ''
+      if (!sourceBatchId) throw new HttpError(400, 'SOURCE_BATCH_REQUIRED', 'sourceBatchId 必填。')
+      const pilotId = typeof payload.pilotId === 'string' ? payload.pilotId : 'B2-AUTO-PILOT-01'
+      return json(await deps.aiAnalysis.runComparisonPilot(sourceBatchId, pilotId), 201, false, requestId)
+    }
     if (method === 'POST' && path === '/api/jobs/collect') {
       requireSecret(request, 'X-JOB-SECRET', env.JOB_SECRET, 'INVALID_JOB_SECRET')
       const payload = await body(request)
