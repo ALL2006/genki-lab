@@ -24,11 +24,14 @@
 | POST | `/api/jobs/weekly-report` | 生成当前周报快照并记录任务 |
 | POST | `/api/ai-batches` | 创建待分析批次；可选 `{itemIds}`，缺省只选待分析 LIVE 资料 |
 | GET | `/api/ai-batches/pending` | 查询 pending / dispatched 批次 |
+| GET | `/api/ai-batches/candidates` | 查询RawItem与冻结评论的批次资格、两类状态和禁用原因 |
 | GET | `/api/ai-batches/:id/export` | 导出固定 prompt、Schema、原文与编号 |
 | POST | `/api/ai-batches/:id/execute` | 用当前同步 Provider 执行，或向妙搭 Webhook 派发 |
 | POST | `/api/evaluations/run` | `{split:"development"|"holdout"}`，运行受保护评测 |
 
 缺少或错误密钥返回 `401 INVALID_JOB_SECRET`。
+
+`POST /api/ai-batches` 支持 `{itemIds, provider:"manual-doubao"}`。资格判断不使用 `RawItem.status` 代表模型状态：processed资料仍可进入真实分析；有效Manual/Ark结果、活动批次、空原文、无效资料和holdout会被拒绝。development评论与RawItem可以组成同一批次。
 
 采集请求体：
 
@@ -64,6 +67,13 @@
 | GET | `/api/ai-analysis-runs` | AI 调用、导入、耗时、重试、Schema/引文与错误日志 |
 | GET | `/api/evaluations` | 冻结评测集摘要与 development / holdout 运行记录 |
 | GET | `/api/trend-candidates` | B1 趋势候选数据契约；当前不批量生成 |
+| POST | `/api/automation/daily` | 每日采集、去重、运行记录与待分析批次准备；`X-AUTOMATION-SECRET` |
+| GET | `/api/automation-runs` | 自动化工作流运行记录 |
+| GET | `/api/system/readiness` | 只返回配置布尔值和overall，不返回密钥 |
+| GET | `/api/validation-flags` | 确定性校验异常队列 |
+| GET | `/api/trend-aggregation/status` | 返回候选聚合或`insufficient_evidence`，不伪造趋势 |
+| GET | `/api/experiment-runs` | 效率实验计时记录 |
+| POST | `/api/experiment-runs` | 新建实验记录；`X-JOB-SECRET` |
 
 ## AI 结果导入
 
@@ -79,7 +89,7 @@
 }
 ```
 
-服务端对整个请求做稳定序列化后计算 SHA-256。相同批次与相同内容重放返回 `idempotent=true` 且不重复写入；已完成批次的新内容被拒绝。Schema、编号或逐字引文任一失败会整批拒绝并留下失败运行记录。
+服务端对整个请求做稳定序列化后计算 SHA-256。相同批次与相同内容重放返回 `idempotent=true` 且不重复写入；已完成批次的新内容被拒绝。默认STRICT模式下Schema、编号或逐字引文任一失败会整批拒绝并留下失败运行记录；受控AUTOMATED模式逐条校验并允许partial success。
 
 审核状态：`pending / confirmed / needs_revision / rejected`。产品状态：`candidate / selected / rejected`。人工评分范围为 0—100。
 

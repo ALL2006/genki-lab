@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Play, RefreshCw } from 'lucide-react'
-import type { EvaluationRun } from '../../shared/types'
+import type { EvaluationRun, SystemReadiness } from '../../shared/types'
 import { ErrorState, LoadingState } from '../components/ApiState'
 import { EmptyState } from '../components/EmptyState'
 import { PageTitle } from '../components/PageTitle'
@@ -22,9 +22,15 @@ function getDifferenceRows(run: EvaluationRun) {
   ]
 }
 
+function readinessLabel(value: boolean, partial = false) {
+  return value ? '已配置' : partial ? '部分就绪' : '未配置'
+}
+
 export function EvaluationPage() {
   const loader = useCallback(() => api.getEvaluations(), [])
   const { data, loading, error, reload } = useApiResource(loader)
+  const readinessLoader = useCallback(() => api.getSystemReadiness(), [])
+  const { data: readiness } = useApiResource<SystemReadiness>(readinessLoader)
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
   const [running, setRunning] = useState<'development' | 'holdout' | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -53,6 +59,13 @@ export function EvaluationPage() {
       description="按固定数据集查看批次、质量指标、差异维度与人工复核边界。"
       actions={<button className="secondary-button" onClick={() => void reload()}><RefreshCw size={14} />刷新数据</button>}
     />
+    <section className="system-readiness-strip" aria-label="系统状态">
+      <div><span>公网部署</span><strong>{readinessLabel(false, readiness?.server)}</strong></div>
+      <div><span>自动采集</span><strong>{readinessLabel(Boolean(readiness?.liveCollection && readiness?.automationSecretConfigured), Boolean(readiness?.liveCollection || readiness?.automationSecretConfigured))}</strong></div>
+      <div><span>妙搭调度</span><strong>{readinessLabel(Boolean(readiness?.miaodaWebhookConfigured))}</strong></div>
+      <div><span>豆包 Provider</span><strong>{readinessLabel(Boolean(readiness?.arkConfigured), Boolean(readiness?.aiImportSecretConfigured))}</strong></div>
+      <div><span>通知 Webhook</span><strong>{readinessLabel(Boolean(readiness?.notificationWebhookConfigured))}</strong></div>
+    </section>
     {loading && <LoadingState />}
     {error && <ErrorState message={error} onRetry={() => void reload()} />}
 

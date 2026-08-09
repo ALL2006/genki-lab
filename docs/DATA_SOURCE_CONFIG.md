@@ -30,5 +30,9 @@
 | `source-rss-fsa-research` | LIVE | RSS 研究资料 | rss |
 | `source-brand-coca-media` | LIVE | 品牌官方媒体中心 | configurable_list |
 | `source-industry-qj-statistics` | LIVE | 政府公开统计文章 | generic_article |
+| `source-brand-pepsico-prebiotic-cola` | LIVE | 品牌官方新品发布（主来源，当前直连返回 403） | generic_article |
+| `source-brand-kdp-innovation-2026` | LIVE | 品牌官方新品发布（B2 备用来源） | generic_article |
+
+品牌来源只配置 `roleHint / selectionRole = market_candidate`，表示市场证据候选；正式 `evidenceRole` 仍由真实分析结果、证据校验与人工审核决定。品牌宣传表述不得直接转写为消费者真实偏好。
 
 新增来源前先人工确认公开访问、robots/使用条款、页面稳定性、采集必要性和合理频率。遇到登录、验证码、403 或明确禁止时应停用来源，不做绕过。

@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, rm } from 'node:fs/promises'
 import type { AddressInfo } from 'node:net'
 import { resolve } from 'node:path'
-import type { AIBatch, ApiResponse, JobRun, ProductConcept, RawItem, TrendSignal } from '../shared/types.js'
+import type { AIBatch, ApiResponse, ExperimentRun, JobRun, ProductConcept, RawItem, SystemReadiness, TrendSignal } from '../shared/types.js'
 import { createApp } from '../server/app.js'
 import { getConfig } from '../server/config.js'
 
@@ -11,7 +11,7 @@ const tempDir = resolve('tmp', `api-test-${randomUUID()}`)
 const dbPath = resolve(tempDir, 'mock-db.json')
 await mkdir(tempDir, { recursive: true })
 const secret = 'integration-test-secret'
-const app = createApp(getConfig({ port: 0, jobSecret: secret, aiImportSecret: 'integration-import-secret', mockDbPath: dbPath, enableDemoActions: true }))
+const app = createApp(getConfig({ port: 0, jobSecret: secret, aiImportSecret: 'integration-import-secret', automationSecret: 'integration-automation-secret', mockDbPath: dbPath, enableDemoActions: true }))
 const server = app.listen(0)
 await new Promise<void>((resolveReady) => server.once('listening', resolveReady))
 const { port } = server.address() as AddressInfo
@@ -31,10 +31,26 @@ try {
   assert.equal(health.response.status, 200)
   assert.equal(health.body.success && health.body.data.status, 'ok')
 
+  const readiness = await call<SystemReadiness>('/api/system/readiness')
+  assert.equal(readiness.response.status, 200)
+  assert.equal(readiness.body.success && readiness.body.data.repository, true)
+  assert.equal(readiness.body.success && readiness.body.data.automationSecretConfigured, true)
+
+  const unauthorizedAutomation = await call('/api/automation/daily', { method: 'POST', body: '{}' })
+  assert.equal(unauthorizedAutomation.response.status, 401)
+
+  const lockedHoldout = await call('/api/demo/evaluations/run', { method: 'POST', body: JSON.stringify({ split: 'holdout' }) })
+  assert.equal(lockedHoldout.response.status, 403)
+
   const unauthorized = await call('/api/jobs/collect', { method: 'POST', body: '{}' })
   assert.equal(unauthorized.response.status, 401)
 
   const headers = { 'X-JOB-SECRET': secret }
+  const experiment = await call<ExperimentRun>('/api/experiment-runs', {
+    method: 'POST', headers, body: JSON.stringify({ experimentType: 'collection', mode: 'manual', sampleCount: 5, operator: '集成测试' }),
+  })
+  assert.equal(experiment.response.status, 201)
+  assert.equal(experiment.body.success && experiment.body.data.sampleCount, 5)
   const firstCollect = await call<{ run: JobRun }>('/api/jobs/collect', { method: 'POST', headers, body: '{}' })
   assert.equal(firstCollect.response.status, 201)
   assert.equal(firstCollect.body.success && firstCollect.body.data.run.newCount, 5)
@@ -69,6 +85,24 @@ try {
 
   const analysis = await call<{ run: JobRun }>('/api/jobs/analyze', { method: 'POST', headers, body: '{}' })
   assert.equal(analysis.body.success && analysis.body.data.run.processedCount, 5)
+
+  const candidates = await call<Array<{ itemId: string; dataType: string; dataset: string | null; processingStatus: string; selectable: boolean }>>('/api/ai-batches/candidates', { headers })
+  assert.equal(candidates.response.status, 200)
+  const candidateItems = candidates.body.success ? candidates.body.data : []
+  const processedPublic = candidateItems.filter((item) => item.dataType === 'public_material' && item.processingStatus === 'processed' && item.selectable)
+  const developmentComments = candidateItems.filter((item) => item.dataType === 'consumer_comment' && item.dataset === 'development' && item.selectable)
+  assert.ok(processedPublic.length >= 4)
+  assert.ok(developmentComments.length >= 2)
+  const mixedIds = [...processedPublic.slice(0, 4), ...developmentComments.slice(0, 2)].map((item) => item.itemId)
+  const mixedBatch = await call<AIBatch>('/api/ai-batches', {
+    method: 'POST', headers, body: JSON.stringify({ itemIds: mixedIds, provider: 'manual-doubao' }),
+  })
+  assert.equal(mixedBatch.response.status, 201, JSON.stringify(mixedBatch.body))
+  assert.equal(mixedBatch.body.success && mixedBatch.body.data.itemIds.length, 6)
+  const mixedBatchId = mixedBatch.body.success ? mixedBatch.body.data.id : ''
+  const mixedExport = await call<{ items: Array<{ sourceKind: string }> }>(`/api/ai-batches/${mixedBatchId}/export`, { headers })
+  assert.equal(mixedExport.body.success && mixedExport.body.data.items.filter((item) => item.sourceKind === 'raw_item').length, 4)
+  assert.equal(mixedExport.body.success && mixedExport.body.data.items.filter((item) => item.sourceKind === 'consumer_comment').length, 2)
 
   const trends = await call<TrendSignal[]>('/api/trend-signals')
   assert.ok(trends.body.success && trends.body.data.length === 5)

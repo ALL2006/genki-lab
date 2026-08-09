@@ -12,8 +12,19 @@ export function htmlToText(value: string) {
 }
 
 export function normalizePublishedAt(value: string | undefined | null): string | null {
-  if (!value?.trim()) return null
-  const timestamp = Date.parse(value)
+  const normalized = value?.trim()
+  if (!normalized) return null
+  const usDateOnly = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(normalized)
+  if (usDateOnly) {
+    const [, month, day, year] = usDateOnly
+    return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day))).toISOString()
+  }
+  const isoDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(normalized)
+  if (isoDateOnly) {
+    const [, year, month, day] = isoDateOnly
+    return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day))).toISOString()
+  }
+  const timestamp = Date.parse(normalized)
   return Number.isNaN(timestamp) ? null : new Date(timestamp).toISOString()
 }
 

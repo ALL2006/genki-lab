@@ -3,8 +3,10 @@ import type {
   AIAnalysisRun,
   AIBatch,
   AIResultImport,
+  AutomationRun,
   DataSource,
   EvaluationRun,
+  ExperimentRun,
   JobRun,
   ProductConcept,
   ProductConceptStatus,
@@ -13,6 +15,7 @@ import type {
   ReviewStatus,
   TrendSignal,
   TrendCandidate,
+  ValidationFlag,
   ValidationResponse,
 } from '../../shared/types.js'
 import type { DataRepository } from './DataRepository.js'
@@ -50,4 +53,10 @@ export class FeishuBitableRepository implements DataRepository {
   async saveTrendCandidates(_candidates: TrendCandidate[]): Promise<void> { return this.unavailable() }
   async getEvaluationRuns(): Promise<EvaluationRun[]> { return this.unavailable() }
   async saveEvaluationRun(_run: EvaluationRun): Promise<void> { return this.unavailable() }
+  async getAutomationRuns(): Promise<AutomationRun[]> { return this.unavailable() }
+  async saveAutomationRun(_run: AutomationRun): Promise<void> { return this.unavailable() }
+  async getValidationFlags(): Promise<ValidationFlag[]> { return this.unavailable() }
+  async saveValidationFlags(_flags: ValidationFlag[]): Promise<void> { return this.unavailable() }
+  async getExperimentRuns(): Promise<ExperimentRun[]> { return this.unavailable() }
+  async saveExperimentRun(_run: ExperimentRun): Promise<void> { return this.unavailable() }
 }

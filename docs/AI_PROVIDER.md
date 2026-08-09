@@ -40,7 +40,9 @@ B1 使用火山方舟 OpenAI 兼容的 Responses 路径：
 5. 只有 `consumer_evidence` 可直接设置 `eligibleForConceptGeneration=true`。
 6. `irrelevant` 的 `signalType` 必须为 `other`。
 
-任一条失败会拒绝整次导入，不写入部分有效结果；失败仍写 `AIAnalysisRun`。原始 AI JSON 保存在 `originalAIOutput`，人工审核版本另存为 `finalHumanVersion`，不能覆盖原输出。
+STRICT模式下任一条失败会拒绝整次导入；失败仍写 `AIAnalysisRun`。AUTOMATED模式按条校验，唯一Unicode/空白等价命中可保存RawItem中的真实连续原文并标记auto_repaired，0次命中拒绝，多次命中进入needs_review。原始 AI JSON保存在 `originalAIOutput`，人工审核版本另存为 `finalHumanVersion`，不能覆盖原输出。
+
+确定性规则将可判断异常写入 `ValidationFlag`，包括quote_mismatch、role_conflict与weak_relevance。当前没有第二模型审核Agent；用户只需优先检查open flags。
 
 ## 超时与重试
 

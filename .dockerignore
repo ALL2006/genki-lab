@@ -1,0 +1,16 @@
+node_modules
+dist
+.git
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+tmp
+data/mock-db.json
+data/*.tmp
+data/batches
+data/manual-batches
+docs/ui-linear-review
+video/renders
+video-remotion/build

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import type { DataSource } from '../shared/types.js'
 import { CollectorRouter } from '../server/collectors/CollectorRouter.js'
@@ -11,8 +10,10 @@ import type { HttpFetcher, HttpResponseData } from '../server/collectors/http/Li
 import { LiveHttpClient } from '../server/collectors/http/LiveHttpClient.js'
 import { MockCollector } from '../server/collectors/MockCollector.js'
 import { RSSCollector } from '../server/collectors/RSSCollector.js'
+import { normalizePublishedAt } from '../server/collectors/content.js'
 import { MockAIProvider } from '../server/providers/MockAIProvider.js'
 import { MockRepository } from '../server/repositories/MockRepository.js'
+import { defaultDataSources } from '../server/repositories/seed.js'
 import { JobService } from '../server/services/JobService.js'
 import { createContentHash, normalizeUrl } from '../server/utils/content.js'
 
@@ -46,6 +47,7 @@ async function testParsers() {
     ['https://fixture.local/news', await fixture('list.html')],
     ['https://fixture.local/news/grape?utm_campaign=list', await fixture('list-article-grape.html')],
     ['https://fixture.local/news/jasmine', await fixture('list-article-jasmine.html')],
+    ['https://www.pepsico.com/newsroom/press-releases/2025/pepsico-launches-first-ever-prebiotic-cola-in-traditional-cola-category', '<html><head><meta property="article:published_time" content="2025-07-21"></head><body><main><article><h1>PepsiCo launches first ever Prebiotic Cola in traditional cola category</h1><p>PepsiCo officially introduced Pepsi Prebiotic Cola with five grams of sugar, thirty calories, no artificial sweeteners and prebiotic fiber as a new product launch.</p></article></main></body></html>'],
   ])
   const http = new FixtureHttpFetcher(responses)
   const rss = await new RSSCollector(http).collect(source({}))
@@ -71,9 +73,31 @@ async function testParsers() {
   assert.equal(list.length, 2)
   assert.equal(list[0].originalUrl, 'https://fixture.local/news/grape?utm_campaign=list')
   assert.equal(list[1].qualityStatus, 'good')
+
+  const pepsicoSource = defaultDataSources.find((item) => item.id === 'source-brand-pepsico-prebiotic-cola')
+  assert.ok(pepsicoSource)
+  const router = new CollectorRouter({
+    mock: new MockCollector(), rss: new RSSCollector(http), generic_article: new GenericArticleCollector(http), configurable_list: new ConfigurableListCollector(http),
+  })
+  const pepsico = await router.collect(pepsicoSource)
+  assert.equal(pepsico[0].title, 'PepsiCo launches first ever Prebiotic Cola in traditional cola category')
+  assert.equal(pepsico[0].isDemo, false)
+  assert.equal(pepsicoSource.roleHint, 'market_candidate')
+  assert.equal(pepsicoSource.selectionRole, 'market_candidate')
+  assert.equal('evidenceRole' in pepsicoSource, false)
 }
 
 async function testNormalizationAndJobs() {
+  assert.equal(normalizePublishedAt('02/18/2026'), '2026-02-18T00:00:00.000Z')
+  assert.equal(normalizePublishedAt('2026-02-18'), '2026-02-18T00:00:00.000Z')
+  const pepsicoSource = defaultDataSources.find((item) => item.id === 'source-brand-pepsico-prebiotic-cola')
+  const fallbackSource = defaultDataSources.find((item) => item.id === 'source-brand-kdp-innovation-2026')
+  assert.equal(pepsicoSource?.collectorType, 'generic_article')
+  assert.equal(pepsicoSource?.collectionMode, 'live')
+  assert.equal(pepsicoSource?.roleHint, 'market_candidate')
+  assert.equal(pepsicoSource?.selectionRole, 'market_candidate')
+  assert.equal(fallbackSource?.collectorConfig?.dateSelector, '.post-single__date')
+  assert.equal(fallbackSource?.roleHint, 'market_candidate')
   assert.equal(
     normalizeUrl('HTTPS://Fixture.Local/news/grape/?utm_source=x&b=2&a=1#top'),
     'https://fixture.local/news/grape?a=1&b=2',
@@ -90,7 +114,9 @@ async function testNormalizationAndJobs() {
   const router = new CollectorRouter({
     mock: new MockCollector(), rss: new RSSCollector(http), generic_article: new GenericArticleCollector(http), configurable_list: new ConfigurableListCollector(http),
   })
-  const directory = await mkdtemp(join(tmpdir(), 'genki-collectors-'))
+  const testTempRoot = resolve('tmp', 'test-runs')
+  await mkdir(testTempRoot, { recursive: true })
+  const directory = await mkdtemp(join(testTempRoot, 'genki-collectors-'))
   try {
     const repository = new MockRepository(join(directory, 'db.json'))
     const good = source({

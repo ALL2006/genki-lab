@@ -8,6 +8,12 @@
     "dev:web": "vite",
     "dev:api": "tsx watch server/index.ts",
     "start": "tsx server/index.ts",
+    "start:prod": "tsx server/index.ts",
+    "automation:daily": "tsx server/cli/automationDaily.ts",
+    "automation:daily:dry": "tsx server/cli/automationDaily.ts --dry-run",
+    "ai:prepare-development": "tsx server/cli/prepareDevelopment.ts",
+    "ai:import-b2-pilot": "tsx server/cli/importB2Pilot.ts",
+    "ai:evaluate-holdout": "tsx server/cli/evaluateHoldout.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -15,9 +21,12 @@
     "test:api": "tsx tests/api.integration.ts",
     "test:collectors": "tsx tests/collectors.integration.ts",
     "test:ai": "tsx tests/ai.integration.ts",
+    "test:analysis-batches": "tsx tests/analysis-batches.integration.ts",
     "test:ai:live": "tsx tests/ark-ai.smoke.ts",
     "test:live": "tsx tests/live-collection.smoke.ts",
-    "check": "npm run lint && npm run typecheck && npm run test:collectors && npm run test:api && npm run test:ai && npm run build"
+    "test:automation": "tsx tests/automation.integration.ts",
+    "test:bootstrap": "tsx tests/bootstrap.integration.ts",
+    "check": "npm run lint && npm run typecheck && npm run test:collectors && npm run test:api && npm run test:ai && npm run test:analysis-batches && npm run test:automation && npm run test:bootstrap && npm run build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

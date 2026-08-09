@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { AlertCircle, ChevronDown, ExternalLink, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import type { AIAnalysisRecord, DashboardSummary, EvidenceRole, JobRun, RawItem, TrendSignal } from '../../shared/types'
+import type { AIAnalysisRecord, AutomationRun, DashboardSummary, EvidenceRole, JobRun, RawItem, SystemReadiness, TrendSignal } from '../../shared/types'
 import { LoadingState } from '../components/ApiState'
 import { EmptyState } from '../components/EmptyState'
 import { runPageFixture } from '../data/runPageFixture'
@@ -23,6 +23,8 @@ interface RunPageSnapshot {
   rawItems: RawItem[]
   analysisRecords: AIAnalysisRecord[]
   trendSignals: TrendSignal[]
+  automationRuns: AutomationRun[]
+  readiness: SystemReadiness | null
   savedAt: string
   issues: RunPageIssue[]
   dataSource: 'live' | 'cache' | 'fixture'
@@ -111,11 +113,15 @@ export function DashboardPage() {
       : api.getRawItems()
     const analysisRecordsPromise = api.getAIAnalysisRecords()
     const trendSignalsPromise = api.getTrendSignals()
-    const [summaryResult, rawItemsResult, analysisRecordsResult, trendSignalsResult] = await Promise.allSettled([
+    const automationRunsPromise = api.getAutomationRuns()
+    const readinessPromise = api.getSystemReadiness()
+    const [summaryResult, rawItemsResult, analysisRecordsResult, trendSignalsResult, automationRunsResult, readinessResult] = await Promise.allSettled([
       summaryPromise,
       rawItemsPromise,
       analysisRecordsPromise,
       trendSignalsPromise,
+      automationRunsPromise,
+      readinessPromise,
     ])
     const issues: RunPageIssue[] = []
 
@@ -123,6 +129,8 @@ export function DashboardPage() {
     if (rawItemsResult.status === 'rejected') issues.push(toIssue(rawItemsResult.reason, '最近资料'))
     if (analysisRecordsResult.status === 'rejected') issues.push(toIssue(analysisRecordsResult.reason, '证据角色'))
     if (trendSignalsResult.status === 'rejected') issues.push(toIssue(trendSignalsResult.reason, '流程状态'))
+    if (automationRunsResult.status === 'rejected') issues.push(toIssue(automationRunsResult.reason, '自动运行'))
+    if (readinessResult.status === 'rejected') issues.push(toIssue(readinessResult.reason, '系统就绪状态'))
 
     const summary = summaryResult.status === 'fulfilled'
       ? summaryResult.value
@@ -136,15 +144,23 @@ export function DashboardPage() {
     const trendSignals = trendSignalsResult.status === 'fulfilled'
       ? trendSignalsResult.value
       : cached?.trendSignals ?? []
+    const automationRuns = automationRunsResult.status === 'fulfilled'
+      ? automationRunsResult.value
+      : cached?.automationRuns ?? []
+    const readiness = readinessResult.status === 'fulfilled'
+      ? readinessResult.value
+      : cached?.readiness ?? null
     const savedAt = issues.length === 0 ? new Date().toISOString() : cached?.savedAt ?? new Date().toISOString()
 
-    if (issues.length === 0) saveCachedSnapshot({ summary, rawItems, analysisRecords, trendSignals, savedAt })
+    if (issues.length === 0) saveCachedSnapshot({ summary, rawItems, analysisRecords, trendSignals, automationRuns, readiness, savedAt })
 
     return {
       summary,
       rawItems,
       analysisRecords,
       trendSignals,
+      automationRuns,
+      readiness,
       savedAt,
       issues,
       dataSource: issues.length === 0 ? 'live' : cached ? 'cache' : 'fixture',
@@ -176,6 +192,7 @@ export function DashboardPage() {
   const rawItems = data?.rawItems ?? runPageFixture.rawItems
   const analysisRecords = data?.analysisRecords ?? []
   const trendSignals = data?.trendSignals ?? []
+  const latestAutomation = data?.automationRuns[0] ?? null
   const latestRun = summary.latestRuns[0]
   const filteredRuns = summary.latestRuns.filter((run) => taskLayerFilter === 'all' || (taskLayerFilter === 'demo') === run.isDemo)
   const evidenceRoleByItem = new Map(analysisRecords.map((record) => [
@@ -217,6 +234,12 @@ export function DashboardPage() {
       <span>待审核 <strong>{flowCounts.pendingReview}</strong></span><i>→</i>
       <span>已确认 <strong>{flowCounts.confirmed}</strong></span>
     </nav>
+
+    <section className="run-automation-strip" aria-label="自动化状态">
+      <div><span>最近自动运行</span><strong>{latestAutomation ? formatDateTime(latestAutomation.startedAt) : '暂无记录'}</strong></div>
+      <div><span>下次触发</span><strong>由妙搭定时任务触发</strong></div>
+      <div><span>自动化配置</span><strong>{data?.readiness?.automationSecretConfigured && data.readiness.liveCollection ? '已配置' : '未配置'}</strong></div>
+    </section>
 
     {data && data.issues.length > 0 && <section className="run-partial-notice" role="status">
       <AlertCircle size={15} />

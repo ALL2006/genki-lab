@@ -6,6 +6,10 @@
 
 数据源配置在原字段上新增：`collectionMode, collectorType, collectorConfig, lastError, lastRunNewCount`。旧 JSON 数据启动时自动迁移，不改变原字段语义。
 
+`roleHint` 与 `selectionRole` 仅是后续人工选证据时的候选角色建议，可取 `consumer_candidate / market_candidate / background_candidate`。它们不是正式 `evidenceRole`，不得绕过模型输出校验和人工审核。品牌官方发布默认只能建议为 `market_candidate`，不能直接证明消费者偏好。
+
+`publisherName, displaySummary, roleGuidance` 是分析批次页面的显示元数据。候选接口同时返回原始标题、中文摘要、来源名称和建议角色，但不返回预设 `evidenceRole`。
+
 ## RawItem
 
 原始资料新增：`collectorType, httpStatus, contentLength, qualityStatus, failureReason`；`publishedAt` 允许为 `null`，避免伪造不存在的发布日期。
@@ -48,3 +52,11 @@ AI 生成默认 `candidate`；只有人工操作可以改成 `selected`。同一
 - `EvaluationRun`：数据集版本、development/holdout、Provider、模型、质量与工程指标、真实性声明。
 
 `EvidenceAnalysisData` 的所有枚举和必填字段由 `server/ai/evidenceSchema.ts` 同时提供 Zod 校验和 JSON Schema 导出。趋势可进入概念生成前至少需要两个独立资料编号，并且必须包含消费者证据；没有反向证据时只能展示“当前样本未发现”，不能写成“没有反向证据”。
+
+## 自动化与实验模型
+
+- `AutomationRun`：整条每日工作流，包含triggerType、幂等键、状态、JobRun/分析批次编号、采集/分析汇总、通知状态、错误摘要、耗时和isDemo。它不替代JobRun。
+- `ValidationFlag`：分析记录上的确定性异常，包含type、severity、message、field、status和createdAt。
+- `QuoteRepairResult`：originalQuote、RawItem真实连续原文repairedQuote、repairMethod、唯一匹配位置和是否自动修复。
+- `ExperimentRun`：experimentType、manual/ai_assisted模式、起止时间、durationMs、样本量、备注与操作者。没有实验就不生成效率结论。
+- `DataSource`健康字段：healthStatus、lastFailureAt、consecutiveFailures、lastHttpStatus，并沿用lastError和lastRunNewCount。

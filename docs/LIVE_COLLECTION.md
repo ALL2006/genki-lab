@@ -38,3 +38,7 @@ npm run test:live
 - 以上数字是采集运行事实，不是趋势结论、消费者反馈或市场验证结果。
 
 本地数据库已保留这两次运行记录；再次运行通常会产生重复命中，这是预期行为。
+
+## 每日自动运行
+
+`npm run automation:daily:dry`只读列出即将运行的enabled LIVE来源、Provider状态和下一步动作。`npm run automation:daily`执行真实链路。妙搭上线后只需调用 `/api/automation/daily`；每个来源失败隔离并最多重试一次，第二次失败会进入AutomationRun异常摘要而不会阻断其他来源。

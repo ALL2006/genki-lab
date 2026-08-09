@@ -158,6 +158,9 @@ export class JobService {
             ...source,
             lastSuccessAt: new Date().toISOString(),
             failureCount: 0,
+            healthStatus: source.enabled ? 'healthy' : 'disabled',
+            consecutiveFailures: 0,
+            lastHttpStatus: fetched.find((item) => item.httpStatus !== null)?.httpStatus ?? source.lastHttpStatus ?? null,
             lastError: null,
             lastRunNewCount: sourceItems.length,
           })
@@ -176,6 +179,9 @@ export class JobService {
           await this.repository.saveDataSource({
             ...source,
             failureCount: source.failureCount + 1,
+            healthStatus: source.enabled ? (source.failureCount + 1 >= 2 ? 'failing' : 'warning') : 'disabled',
+            lastFailureAt: new Date().toISOString(),
+            consecutiveFailures: (source.consecutiveFailures ?? source.failureCount) + 1,
             lastError: message,
             lastRunNewCount: 0,
           })

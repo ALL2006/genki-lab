@@ -1,12 +1,13 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import type {
   AIAnalysisRecord,
   AIAnalysisRun,
   AIBatch,
   AIResultImport,
+  AutomationRun,
   DataSource,
   EvaluationRun,
+  ExperimentRun,
   JobRun,
   MockDatabase,
   ProductConcept,
@@ -16,10 +17,12 @@ import type {
   ReviewStatus,
   TrendSignal,
   TrendCandidate,
+  ValidationFlag,
   ValidationResponse,
 } from '../../shared/types.js'
 import type { DataRepository } from './DataRepository.js'
 import { createSeedDatabase, defaultDataSources } from './seed.js'
+import { readJsonStrict, writeJsonAtomic } from '../storage/AtomicJsonFile.js'
 
 export class MockRepository implements DataRepository {
   private database: MockDatabase | null = null
@@ -30,7 +33,7 @@ export class MockRepository implements DataRepository {
   private async load(): Promise<MockDatabase> {
     if (this.database) return this.database
     try {
-      this.database = this.migrate(JSON.parse(await readFile(this.filePath, 'utf8')) as MockDatabase)
+      this.database = this.migrate(await readJsonStrict<MockDatabase>(this.filePath))
       await this.persist()
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
@@ -57,6 +60,10 @@ export class MockRepository implements DataRepository {
           lastRunNewCount: 0,
         }),
         ...source,
+        healthStatus: source.enabled === false ? 'disabled' : (source.consecutiveFailures ?? source.failureCount ?? 0) >= 2 ? 'failing' : (source.consecutiveFailures ?? source.failureCount ?? 0) === 1 ? 'warning' : 'healthy',
+        consecutiveFailures: source.consecutiveFailures ?? source.failureCount ?? 0,
+        lastFailureAt: source.lastFailureAt ?? null,
+        lastHttpStatus: source.lastHttpStatus ?? null,
       }))
     for (const source of defaultDataSources) {
       if (!database.dataSources.some((item) => item.id === source.id)) database.dataSources.push({ ...source })
@@ -86,14 +93,15 @@ export class MockRepository implements DataRepository {
     database.aiResultImports ??= []
     database.trendCandidates ??= []
     database.evaluationRuns ??= []
+    database.automationRuns ??= []
+    database.validationFlags ??= []
+    database.experimentRuns ??= []
     return database
   }
 
   private async persist(): Promise<void> {
     if (!this.database) return
-    await mkdir(dirname(this.filePath), { recursive: true })
-    const content = JSON.stringify(this.database, null, 2)
-    this.writeQueue = this.writeQueue.then(() => writeFile(this.filePath, content, 'utf8'))
+    this.writeQueue = this.writeQueue.then(() => writeJsonAtomic(this.filePath, this.database))
     await this.writeQueue
   }
 
@@ -205,6 +213,32 @@ export class MockRepository implements DataRepository {
   async getEvaluationRuns() { return [...(await this.load()).evaluationRuns].sort((a, b) => b.startedAt.localeCompare(a.startedAt)) }
   async saveEvaluationRun(run: EvaluationRun) {
     ;(await this.load()).evaluationRuns.unshift(run)
+    await this.persist()
+  }
+  async getAutomationRuns() { return [...(await this.load()).automationRuns].sort((a, b) => b.startedAt.localeCompare(a.startedAt)) }
+  async saveAutomationRun(run: AutomationRun) {
+    const db = await this.load()
+    const index = db.automationRuns.findIndex((item) => item.id === run.id)
+    if (index >= 0) db.automationRuns[index] = run
+    else db.automationRuns.unshift(run)
+    await this.persist()
+  }
+  async getValidationFlags() { return [...(await this.load()).validationFlags] }
+  async saveValidationFlags(flags: ValidationFlag[]) {
+    const db = await this.load()
+    for (const flag of flags) {
+      const index = db.validationFlags.findIndex((item) => item.id === flag.id)
+      if (index >= 0) db.validationFlags[index] = flag
+      else db.validationFlags.unshift(flag)
+    }
+    await this.persist()
+  }
+  async getExperimentRuns() { return [...(await this.load()).experimentRuns].sort((a, b) => b.startedAt.localeCompare(a.startedAt)) }
+  async saveExperimentRun(run: ExperimentRun) {
+    const db = await this.load()
+    const index = db.experimentRuns.findIndex((item) => item.id === run.id)
+    if (index >= 0) db.experimentRuns[index] = run
+    else db.experimentRuns.unshift(run)
     await this.persist()
   }
 }

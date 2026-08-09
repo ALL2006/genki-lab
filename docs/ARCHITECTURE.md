@@ -51,6 +51,14 @@ React/Vite
 4. 部分成功时总任务为 success，同时保留失败源的 errorMessage；全部失败时总任务为 failed。
 5. 所有结果保存 finishedAt 与 durationMs。
 
+## 每日自动化与安全持久化
+
+妙搭后续只调用一次 `POST /api/automation/daily`。`DailyAutomationOrchestrator` 在GENKI LAB内部完成来源枚举、逐源采集、有限重试、去重、AutomationRun汇总和待分析批次准备。AutomationRun描述整条工作流，JobRun继续描述单个采集业务任务，两者不混用。
+
+同一进程和持久化running记录共同阻止并发执行；相同 `Idempotency-Key` 返回已有结果。超时running记录只标记 `stale_failed`，不删除。所有JSON通过 `DataPathResolver(DATA_DIR)` 定位，并使用临时文件+rename原子替换；损坏文件保留并阻止覆盖。
+
+AI导入提供STRICT和AUTOMATED两种校验：STRICT任一失败整批拒绝；AUTOMATED逐条产生validated/auto_repaired/needs_review/rejected，并用确定性ValidationFlag把异常送入人工复核。
+
 ## 部署演进
 
 第二阶段 A 已完成公开采集。第二阶段 B1 已完成可替换 AI 基础设施、证据校验、Manual JSON 兜底、49 条评论评测集和 39/10 冻结评测；本机无 Ark 凭证，因此 Ark 在线成功调用仍是 B2 前置验证。飞书 Repository、妙搭云端编排、问卷和视频转换仍不在 B1 范围。

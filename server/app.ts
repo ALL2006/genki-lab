@@ -1,8 +1,8 @@
-import { timingSafeEqual } from 'node:crypto'
+import { randomUUID, timingSafeEqual } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import express from 'express'
-import type { EvaluationSplit, ProductConceptStatus, ReviewStatus } from '../shared/types.js'
+import type { EvaluationSplit, ExperimentMode, ExperimentType, ProductConceptStatus, ReviewStatus, SystemReadiness } from '../shared/types.js'
 import type { AppConfig } from './config.js'
 import { createDependencies } from './dependencies.js'
 import { ApiError, asyncHandler, errorHandler, sendSuccess } from './http.js'
@@ -27,7 +27,7 @@ async function useCase<T>(operation: () => Promise<T>): Promise<T> {
 
 export function createApp(config: AppConfig) {
   const app = express()
-  const { repository, aiAnalysis, evaluations, jobs } = createDependencies(config)
+  const { repository, aiAnalysis, evaluations, jobs, automation, notification, dataPaths, trendAggregation } = createDependencies(config)
   app.disable('x-powered-by')
   app.use(express.json({ limit: '1mb' }))
 
@@ -41,6 +41,11 @@ export function createApp(config: AppConfig) {
     if (!secretsMatch(value, config.aiImportSecret)) return next(new ApiError(401, 'INVALID_AI_IMPORT_SECRET', 'X-AI-IMPORT-SECRET 缺失或无效。'))
     next()
   }
+  const requireAutomationSecret = (request: express.Request, _response: express.Response, next: express.NextFunction) => {
+    const value = request.header('X-AUTOMATION-SECRET')
+    if (!secretsMatch(value, config.automationSecret)) return next(new ApiError(401, 'INVALID_AUTOMATION_SECRET', 'X-AUTOMATION-SECRET 缺失或无效。'))
+    next()
+  }
 
   app.get('/api/health', (_request, response) => {
     sendSuccess(response, {
@@ -51,6 +56,43 @@ export function createApp(config: AppConfig) {
       liveCollectionEnabled: config.enableLiveCollection,
     }, true)
   })
+
+  app.get('/api/system/readiness', asyncHandler(async (_request, response) => {
+    let repositoryReady = true
+    try {
+      await repository.getDataSources()
+    } catch {
+      repositoryReady = false
+    }
+    const dataDirectoryWritable = await dataPaths.isWritable()
+    const readiness: SystemReadiness = {
+      server: true,
+      repository: repositoryReady,
+      liveCollection: config.enableLiveCollection,
+      automationSecretConfigured: config.automationSecret !== 'local-automation-secret-change-me',
+      miaodaWebhookConfigured: Boolean(config.aiBatchCallbackUrl),
+      arkConfigured: Boolean(config.arkApiKey && config.arkModelId),
+      aiImportSecretConfigured: config.aiImportSecret !== 'local-ai-import-secret-change-me',
+      dataDirectoryWritable,
+      notificationWebhookConfigured: notification.configured,
+      overall: !repositoryReady || !dataDirectoryWritable
+        ? 'blocked'
+        : config.enableLiveCollection && config.automationSecret !== 'local-automation-secret-change-me'
+          ? 'ready'
+          : 'partially_ready',
+    }
+    sendSuccess(response, readiness)
+  }))
+
+  app.post('/api/automation/daily', requireAutomationSecret, asyncHandler(async (request, response) => {
+    const triggerType = request.body?.triggerType ?? 'miaoda'
+    if (!['manual', 'miaoda', 'local-cron', 'test'].includes(triggerType)) throw new ApiError(400, 'INVALID_TRIGGER_TYPE', 'triggerType 无效。')
+    const idempotencyKey = request.header('Idempotency-Key') ?? request.body?.idempotencyKey ?? null
+    sendSuccess(response, await automation.run({ triggerType, idempotencyKey }), false, 201)
+  }))
+  app.get('/api/automation-runs', asyncHandler(async (_request, response) => {
+    sendSuccess(response, await repository.getAutomationRuns())
+  }))
 
   const runCollect = async (request: express.Request, response: express.Response) => {
     const mode = request.body?.mode === undefined ? 'demo' : request.body.mode
@@ -79,10 +121,14 @@ export function createApp(config: AppConfig) {
     const itemIds = Array.isArray(request.body?.itemIds)
       ? request.body.itemIds.filter((value: unknown): value is string => typeof value === 'string')
       : undefined
-    sendSuccess(response, await useCase(() => aiAnalysis.createBatch(itemIds)), undefined, 201)
+    const manualDoubao = request.body?.provider === 'manual-doubao'
+    sendSuccess(response, await useCase(() => aiAnalysis.createBatch(itemIds, { manualDoubao })), undefined, 201)
   }))
   app.get('/api/ai-batches/pending', requireJobSecret, asyncHandler(async (_request, response) => {
     sendSuccess(response, await aiAnalysis.getPendingBatches())
+  }))
+  app.get('/api/ai-batches/candidates', requireJobSecret, asyncHandler(async (_request, response) => {
+    sendSuccess(response, await aiAnalysis.getBatchCandidates())
   }))
   app.get('/api/ai-batches/:id/export', requireJobSecret, asyncHandler(async (request, response) => {
     const payload = await useCase(() => aiAnalysis.exportBatch(String(request.params.id)))
@@ -115,10 +161,42 @@ export function createApp(config: AppConfig) {
   app.post('/api/evaluations/run', requireJobSecret, asyncHandler(async (request, response) => {
     const split = request.body?.split as EvaluationSplit
     if (!['development', 'holdout'].includes(split)) throw new ApiError(400, 'INVALID_EVALUATION_SPLIT', 'split 必须是 development 或 holdout。')
+    if (split === 'holdout' && !config.enableHoldoutEvaluation) throw new ApiError(403, 'HOLDOUT_LOCKED', 'holdout评测仅能在提示词冻结后通过专用命令运行一次。')
     sendSuccess(response, await useCase(() => evaluations.run(split)), config.aiProvider === 'mock', 201)
   }))
   app.get('/api/trend-candidates', asyncHandler(async (_request, response) => {
     sendSuccess(response, await repository.getTrendCandidates())
+  }))
+  app.get('/api/trend-aggregation/status', asyncHandler(async (_request, response) => {
+    sendSuccess(response, await trendAggregation.aggregate())
+  }))
+  app.get('/api/validation-flags', asyncHandler(async (_request, response) => {
+    sendSuccess(response, await repository.getValidationFlags())
+  }))
+
+  app.get('/api/experiment-runs', asyncHandler(async (_request, response) => {
+    sendSuccess(response, await repository.getExperimentRuns())
+  }))
+  app.post('/api/experiment-runs', requireJobSecret, asyncHandler(async (request, response) => {
+    const experimentType = request.body?.experimentType as ExperimentType
+    const mode = request.body?.mode as ExperimentMode
+    if (!['collection', 'comment_tagging', 'concept_generation', 'feedback_summary', 'video_variant'].includes(experimentType)) throw new ApiError(400, 'INVALID_EXPERIMENT_TYPE', 'experimentType 无效。')
+    if (!['manual', 'ai_assisted'].includes(mode)) throw new ApiError(400, 'INVALID_EXPERIMENT_MODE', 'mode 无效。')
+    const startedAt = typeof request.body?.startedAt === 'string' ? request.body.startedAt : new Date().toISOString()
+    const finishedAt = typeof request.body?.finishedAt === 'string' ? request.body.finishedAt : null
+    const run = {
+      id: `experiment-${randomUUID()}`,
+      experimentType,
+      mode,
+      startedAt,
+      finishedAt,
+      durationMs: finishedAt ? Math.max(0, new Date(finishedAt).getTime() - new Date(startedAt).getTime()) : 0,
+      sampleCount: Math.max(0, Number(request.body?.sampleCount ?? 0)),
+      notes: typeof request.body?.notes === 'string' ? request.body.notes : '',
+      operator: typeof request.body?.operator === 'string' ? request.body.operator : '',
+    }
+    await repository.saveExperimentRun(run)
+    sendSuccess(response, run, false, 201)
   }))
 
   if (config.enableDemoActions) {
@@ -130,6 +208,7 @@ export function createApp(config: AppConfig) {
       if (config.aiProvider !== 'mock') throw new ApiError(403, 'DEMO_PROVIDER_REQUIRED', '公开演示评测入口只允许 MockAIProvider。')
       const split = request.body?.split as EvaluationSplit
       if (!['development', 'holdout'].includes(split)) throw new ApiError(400, 'INVALID_EVALUATION_SPLIT', 'split 必须是 development 或 holdout。')
+      if (split === 'holdout' && !config.enableHoldoutEvaluation) throw new ApiError(403, 'HOLDOUT_LOCKED', 'holdout评测仅能在提示词冻结后通过专用命令运行一次。')
       sendSuccess(response, await useCase(() => evaluations.run(split)), true, 201)
     }))
   }

@@ -3,8 +3,10 @@ import type {
   AIAnalysisRun,
   AIBatch,
   AIResultImport,
+  AutomationRun,
   DataSource,
   EvaluationRun,
+  ExperimentRun,
   JobRun,
   ProductConcept,
   ProductConceptStatus,
@@ -13,6 +15,7 @@ import type {
   ReviewStatus,
   TrendSignal,
   TrendCandidate,
+  ValidationFlag,
   ValidationResponse,
 } from '../../shared/types.js'
 
@@ -49,4 +52,10 @@ export interface DataRepository {
   saveTrendCandidates(candidates: TrendCandidate[]): Promise<void>
   getEvaluationRuns(): Promise<EvaluationRun[]>
   saveEvaluationRun(run: EvaluationRun): Promise<void>
+  getAutomationRuns(): Promise<AutomationRun[]>
+  saveAutomationRun(run: AutomationRun): Promise<void>
+  getValidationFlags(): Promise<ValidationFlag[]>
+  saveValidationFlags(flags: ValidationFlag[]): Promise<void>
+  getExperimentRuns(): Promise<ExperimentRun[]>
+  saveExperimentRun(run: ExperimentRun): Promise<void>
 }

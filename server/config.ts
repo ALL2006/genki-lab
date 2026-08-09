@@ -1,8 +1,10 @@
 import { resolve } from 'node:path'
 import type { AIProviderName } from '../shared/types.js'
+import { DataPathResolver } from './storage/DataPathResolver.js'
 
 export interface AppConfig {
   port: number
+  dataDir: string
   jobSecret: string
   mockDbPath: string
   enableDemoActions: boolean
@@ -19,15 +21,21 @@ export interface AppConfig {
   arkMaxRetries: number
   aiImportSecret: string
   aiBatchCallbackUrl: string
+  automationSecret: string
+  automationStaleMs: number
+  feishuNotificationWebhook: string
+  enableHoldoutEvaluation: boolean
   evaluationDatasetPath: string
   evaluationSplitPath: string
 }
 
 export function getConfig(overrides: Partial<AppConfig> = {}): AppConfig {
+  const dataPaths = new DataPathResolver(overrides.dataDir ?? process.env.DATA_DIR ?? 'data')
   return {
     port: Number(process.env.PORT ?? 8787),
+    dataDir: dataPaths.dataDir,
     jobSecret: process.env.X_JOB_SECRET ?? 'local-demo-secret-change-me',
-    mockDbPath: resolve(process.env.MOCK_DB_PATH ?? 'data/mock-db.json'),
+    mockDbPath: overrides.mockDbPath ?? dataPaths.resolve('mock-db.json'),
     enableDemoActions: process.env.ENABLE_DEMO_ACTIONS !== 'false',
     enableLiveCollection: process.env.ENABLE_LIVE_COLLECTION === 'true',
     liveCollectionUserAgent: process.env.LIVE_COLLECTION_USER_AGENT ?? 'GENKI-LAB/0.2 (+https://example.invalid/contact)',
@@ -42,6 +50,10 @@ export function getConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     arkMaxRetries: Number(process.env.ARK_MAX_RETRIES ?? 2),
     aiImportSecret: process.env.AI_IMPORT_SECRET ?? 'local-ai-import-secret-change-me',
     aiBatchCallbackUrl: process.env.AI_BATCH_CALLBACK_URL ?? '',
+    automationSecret: process.env.X_AUTOMATION_SECRET ?? 'local-automation-secret-change-me',
+    automationStaleMs: Number(process.env.AUTOMATION_STALE_MS ?? 30 * 60 * 1000),
+    feishuNotificationWebhook: process.env.FEISHU_NOTIFICATION_WEBHOOK ?? '',
+    enableHoldoutEvaluation: process.env.ENABLE_HOLDOUT_EVALUATION === 'true',
     evaluationDatasetPath: resolve(process.env.EVALUATION_DATASET_PATH ?? 'data/evaluation/consumer-comments-v1.json'),
     evaluationSplitPath: resolve(process.env.EVALUATION_SPLIT_PATH ?? 'data/evaluation/split-v1.json'),
     ...overrides,

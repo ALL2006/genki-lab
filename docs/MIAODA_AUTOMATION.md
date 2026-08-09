@@ -4,19 +4,19 @@
 
 ## 建议流程
 
-1. 定时触发（例如每日 09:00）。
-2. 调用 `POST /api/jobs/collect`，请求头写入保密变量 `X-JOB-SECRET`。
-3. 检查 HTTP 状态和 `success`；失败按 1、5、15 分钟退避重试，最多 3 次。
-4. 采集成功且 newCount > 0 时调用 `/api/jobs/analyze`。
-5. 将 JobRun 摘要写入飞书消息；有 pending 趋势时通知审核人。
-6. 只有审核人在系统或多维表格将趋势改为 confirmed 后，才允许调用 `/api/jobs/generate-products`。
-7. 每周调用 `/api/jobs/weekly-report`，把效率与失败摘要发送到项目群。
+1. 定时触发（例如每日 08:30）。
+2. 只调用 `POST /api/automation/daily`，请求头使用保密变量 `X-AUTOMATION-SECRET`，并按日期设置 `Idempotency-Key`。
+3. GENKI LAB内部完成逐源采集、一次有限重试、去重、AutomationRun保存与待分析批次准备。
+4. 检查HTTP状态、`success`与`data.status`；失败只重试1次。
+5. `partial_success`或第二次失败时发送飞书通知；`skipped=true`不重试。
+
+详细节点配置、body和响应示例见 `MIAODA_DAILY_AUTOMATION_SETUP.md`。
 
 ## 失败策略
 
 - 401：密钥配置错误，不重试，立即通知管理员。
 - 4xx 业务错误：不自动重试；例如没有 confirmed 趋势。
-- 5xx/超时：指数退避，最多 3 次。
+- 5xx/超时：妙搭层最多额外重试 1 次；GENKI内部对单来源也只重试1次。
 - 连续失败达到 3 次：停用对应自动化分支，通知人工检查。
 
 ## 安全

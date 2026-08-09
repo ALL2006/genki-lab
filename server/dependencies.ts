@@ -11,9 +11,14 @@ import { MockRepository } from './repositories/MockRepository.js'
 import { JobService } from './services/JobService.js'
 import { AIAnalysisService } from './services/AIAnalysisService.js'
 import { EvaluationService } from './services/EvaluationService.js'
+import { DailyAutomationOrchestrator } from './services/DailyAutomationOrchestrator.js'
+import { createNotificationProvider } from './notifications/createNotificationProvider.js'
+import { DataPathResolver } from './storage/DataPathResolver.js'
+import { TrendAggregationService } from './services/TrendAggregationService.js'
 
 export function createDependencies(config: AppConfig) {
   const repository = new MockRepository(config.mockDbPath)
+  const dataPaths = new DataPathResolver(config.dataDir)
   const http = new LiveHttpClient({
     userAgent: config.liveCollectionUserAgent,
     timeoutMs: config.liveCollectionTimeoutMs,
@@ -29,7 +34,19 @@ export function createDependencies(config: AppConfig) {
   })
   const aiProvider = createAIProvider(config)
   const jobs = new JobService(repository, collector, new MockAIProvider(), config.enableLiveCollection)
-  const aiAnalysis = new AIAnalysisService(repository, aiProvider)
+  const aiAnalysis = new AIAnalysisService(repository, aiProvider, config.evaluationDatasetPath, config.evaluationSplitPath)
   const evaluations = new EvaluationService(repository, aiProvider, config.evaluationDatasetPath, config.evaluationSplitPath)
-  return { repository, collector, aiProvider, aiAnalysis, evaluations, jobs }
+  const notification = createNotificationProvider(config.feishuNotificationWebhook)
+  const automaticProviderReady = (config.aiProvider === 'ark-doubao' && Boolean(config.arkApiKey && config.arkModelId))
+    || (config.aiProvider === 'miaoda-webhook' && Boolean(config.aiBatchCallbackUrl))
+  const automation = new DailyAutomationOrchestrator(
+    repository,
+    jobs,
+    aiAnalysis,
+    notification,
+    automaticProviderReady,
+    config.automationStaleMs,
+  )
+  const trendAggregation = new TrendAggregationService(repository)
+  return { repository, collector, aiProvider, aiAnalysis, evaluations, jobs, automation, notification, dataPaths, automaticProviderReady, trendAggregation }
 }

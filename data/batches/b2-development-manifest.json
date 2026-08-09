@@ -1,0 +1,92 @@
+{
+  "version": "b2-development-manifest-v1",
+  "datasetVersion": "consumer-comments-v1",
+  "generatedAt": "2026-08-08T17:05:41.675Z",
+  "itemCount": 39,
+  "holdoutIncluded": false,
+  "batches": [
+    {
+      "batchName": "B2-DEV-01",
+      "itemIds": [
+        "R001",
+        "R002",
+        "R003",
+        "R004",
+        "R005",
+        "R006",
+        "R007",
+        "R009",
+        "R010",
+        "R011"
+      ],
+      "itemCount": 10,
+      "dataset": "development",
+      "promptVersion": "evidence-analysis-v1",
+      "schemaVersion": "evidence-analysis-v1",
+      "status": "prepared",
+      "inputFile": "batches/B2-DEV-01-input.json"
+    },
+    {
+      "batchName": "B2-DEV-02",
+      "itemIds": [
+        "R012",
+        "R013",
+        "R014",
+        "R015",
+        "R016",
+        "R017",
+        "R018",
+        "R019",
+        "R020",
+        "R021"
+      ],
+      "itemCount": 10,
+      "dataset": "development",
+      "promptVersion": "evidence-analysis-v1",
+      "schemaVersion": "evidence-analysis-v1",
+      "status": "prepared",
+      "inputFile": "batches/B2-DEV-02-input.json"
+    },
+    {
+      "batchName": "B2-DEV-03",
+      "itemIds": [
+        "R022",
+        "R024",
+        "R026",
+        "R027",
+        "R028",
+        "R029",
+        "R030",
+        "R031",
+        "R035",
+        "R036"
+      ],
+      "itemCount": 10,
+      "dataset": "development",
+      "promptVersion": "evidence-analysis-v1",
+      "schemaVersion": "evidence-analysis-v1",
+      "status": "prepared",
+      "inputFile": "batches/B2-DEV-03-input.json"
+    },
+    {
+      "batchName": "B2-DEV-04",
+      "itemIds": [
+        "R039",
+        "R040",
+        "R041",
+        "R043",
+        "R045",
+        "R046",
+        "R047",
+        "R048",
+        "R049"
+      ],
+      "itemCount": 9,
+      "dataset": "development",
+      "promptVersion": "evidence-analysis-v1",
+      "schemaVersion": "evidence-analysis-v1",
+      "status": "prepared",
+      "inputFile": "batches/B2-DEV-04-input.json"
+    }
+  ]
+}

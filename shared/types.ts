@@ -13,6 +13,18 @@ export type AIProviderName = 'mock' | 'ark-doubao' | 'miaoda-webhook' | 'manual-
 export type AIAnalysisMode = 'mock' | 'api' | 'webhook' | 'manual_import'
 export type AIBatchStatus = 'pending' | 'dispatched' | 'completed' | 'failed'
 export type EvaluationSplit = 'development' | 'holdout'
+export type DataSourceRoleHint = 'consumer_candidate' | 'market_candidate' | 'background_candidate'
+export type DataSourceHealthStatus = 'healthy' | 'warning' | 'failing' | 'disabled'
+export type AutomationTriggerType = 'manual' | 'miaoda' | 'local-cron' | 'test'
+export type AutomationStatus = 'running' | 'success' | 'partial_success' | 'failed' | 'stale_failed'
+export type NotificationStatus = 'pending' | 'sent' | 'skipped' | 'failed'
+export type AnalysisValidationStatus = 'validated' | 'auto_repaired' | 'needs_review' | 'rejected'
+export type ValidationMode = 'strict' | 'automated'
+export type ValidationFlagType = 'quote_mismatch' | 'unsupported_claim' | 'role_conflict' | 'title_only_evidence' | 'weak_relevance' | 'possible_overgeneralization'
+export type ValidationFlagSeverity = 'info' | 'warning' | 'high'
+export type ValidationFlagStatus = 'open' | 'resolved' | 'dismissed'
+export type ExperimentType = 'collection' | 'comment_tagging' | 'concept_generation' | 'feedback_summary' | 'video_variant'
+export type ExperimentMode = 'manual' | 'ai_assisted'
 
 export interface DataSourceCollectorConfig {
   maxItems?: number
@@ -39,8 +51,17 @@ export interface DataSource {
   collectorConfig: DataSourceCollectorConfig | null
   lastSuccessAt: string | null
   failureCount: number
+  healthStatus?: DataSourceHealthStatus
+  lastFailureAt?: string | null
+  consecutiveFailures?: number
+  lastHttpStatus?: number | null
   lastError: string | null
   lastRunNewCount: number
+  publisherName?: string
+  displaySummary?: string
+  roleHint?: DataSourceRoleHint
+  selectionRole?: DataSourceRoleHint
+  roleGuidance?: string
   notes: string
 }
 
@@ -126,6 +147,8 @@ export interface AIAnalysisRecord {
   finalHumanVersion: EvidenceAnalysisData | null
   schemaValid: boolean
   quoteValid: boolean
+  validationStatus?: AnalysisValidationStatus
+  quoteRepairs?: QuoteRepairResult[]
   reviewStatus: ReviewStatus
   reviewer: string | null
   reviewedAt: string | null
@@ -133,6 +156,26 @@ export interface AIAnalysisRecord {
   editedFields: string[]
   isAutomated: boolean
   isDemo: boolean
+  createdAt: string
+}
+
+export interface QuoteRepairResult {
+  originalQuote: string
+  repairedQuote: string | null
+  repairMethod: 'exact' | 'normalized_unique' | 'normalized_multiple' | 'not_found'
+  quoteAutoRepaired: boolean
+  matchedStart: number | null
+  matchedEnd: number | null
+}
+
+export interface ValidationFlag {
+  id: string
+  analysisRecordId: string
+  type: ValidationFlagType
+  severity: ValidationFlagSeverity
+  message: string
+  field: string | null
+  status: ValidationFlagStatus
   createdAt: string
 }
 
@@ -178,6 +221,8 @@ export interface AIBatch {
   promptVersion: string
   schemaVersion: string
   importedResultHashes: string[]
+  validationMode?: ValidationMode
+  validationStatus?: 'success' | 'partial_success' | 'failed'
   isDemo: boolean
 }
 
@@ -191,6 +236,8 @@ export interface AIResultImport {
   analysisIds: string[]
   importedAt: string
   isAutomated: boolean
+  validationMode?: ValidationMode
+  validationStatus?: 'success' | 'partial_success' | 'failed'
 }
 
 export interface TrendCandidateEvidence {
@@ -339,6 +386,42 @@ export interface CollectionSourceResult {
   durationMs: number
 }
 
+export interface AutomationRun {
+  id: string
+  idempotencyKey: string | null
+  triggerType: AutomationTriggerType
+  startedAt: string
+  finishedAt: string | null
+  status: AutomationStatus
+  collectionRunIds: string[]
+  analysisBatchIds: string[]
+  sourceCount: number
+  fetchedCount: number
+  newCount: number
+  duplicateCount: number
+  failedCount: number
+  analysisPendingCount: number
+  analysisCompletedCount: number
+  analysisFailedCount: number
+  analysisStatus: 'not_needed' | 'pending_provider_configuration' | 'pending' | 'completed' | 'partial_success' | 'failed'
+  notificationStatus: NotificationStatus
+  errorSummary: string | null
+  durationMs: number
+  isDemo: boolean
+}
+
+export interface ExperimentRun {
+  id: string
+  experimentType: ExperimentType
+  mode: ExperimentMode
+  startedAt: string
+  finishedAt: string | null
+  durationMs: number
+  sampleCount: number
+  notes: string
+  operator: string
+}
+
 export interface MockDatabase {
   dataSources: DataSource[]
   rawItems: RawItem[]
@@ -352,6 +435,9 @@ export interface MockDatabase {
   aiResultImports: AIResultImport[]
   trendCandidates: TrendCandidate[]
   evaluationRuns: EvaluationRun[]
+  automationRuns: AutomationRun[]
+  validationFlags: ValidationFlag[]
+  experimentRuns: ExperimentRun[]
 }
 
 export interface ApiSuccess<T> {
@@ -392,7 +478,22 @@ export interface DashboardSummary {
   recentAIError: string | null
   latestRuns: JobRun[]
   failedRuns: JobRun[]
+  latestAutomationRun?: AutomationRun | null
+  automationConfigured?: boolean
   isDemo: boolean
+}
+
+export interface SystemReadiness {
+  server: boolean
+  repository: boolean
+  liveCollection: boolean
+  automationSecretConfigured: boolean
+  miaodaWebhookConfigured: boolean
+  arkConfigured: boolean
+  aiImportSecretConfigured: boolean
+  dataDirectoryWritable: boolean
+  notificationWebhookConfigured: boolean
+  overall: 'ready' | 'partially_ready' | 'blocked'
 }
 
 export interface ValidationSummary {

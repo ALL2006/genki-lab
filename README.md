@@ -85,6 +85,12 @@ npm run test:api     # API 闭环集成测试
 npm run test:collectors # 本地 fixtures 与采集安全测试（不联网）
 npm run test:ai      # Schema、引文、Ark 重试/超时、导入幂等、39/10 隔离
 npm run test:live    # 可选公网冒烟测试，要求显式启用 LIVE
+npm run test:automation # 自动化、幂等、校验、批次与holdout保护测试
+npm run automation:daily:dry # 只读展示每日自动化计划
+npm run automation:daily # 执行每日真实自动化链路
+npm run ai:prepare-development # 固定生成39条development的4个批次文件
+npm run ai:evaluate-holdout # 仅在显式解锁后运行holdout
+npm run start:prod   # Express托管dist与API
 npm run build        # TypeScript + Vite production build
 npm run check        # 依次执行全部检查
 ```
@@ -114,8 +120,12 @@ video/                  历史 HyperFrames 工程，独立保留
 - [数据模型](docs/DATA_MODEL.md)
 - [飞书表结构](docs/FEISHU_TABLE_SCHEMA.md)
 - [妙搭自动化](docs/MIAODA_AUTOMATION.md)
+- [妙搭每日配置手册](docs/MIAODA_DAILY_AUTOMATION_SETUP.md)
+- [妙搭早晨清单](docs/MIAODA_MORNING_CHECKLIST.md)
 - [AI Provider](docs/AI_PROVIDER.md)
 - [评论评测集](docs/EVALUATION_DATASET.md)
 - [部署](docs/DEPLOYMENT.md)
 - [Demo 脚本](docs/DEMO_SCRIPT.md)
 - [12 天路线图](docs/ROADMAP_12_DAYS.md)
+- [夜间冲刺报告](docs/OVERNIGHT_SPRINT_REPORT.md)
+- [早晨验收清单](docs/MORNING_ACCEPTANCE_CHECKLIST.md)

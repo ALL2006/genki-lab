@@ -5,7 +5,9 @@ import type {
   AIAnalysisRecord,
   AIAnalysisRun,
   AIResultImport,
+  AutomationRun,
   DataSource,
+  DataSourceRoleHint,
   EvaluationRun,
   JobRun,
   ProductConcept,
@@ -13,6 +15,8 @@ import type {
   RawItem,
   ReviewStatus,
   TrendSignal,
+  SystemReadiness,
+  ValidationFlag,
   ValidationSummary,
 } from '../../shared/types'
 
@@ -28,6 +32,27 @@ export interface AIImportResult {
   idempotent: boolean
   resultImport: AIResultImport
   records: AIAnalysisRecord[]
+}
+
+export interface AIBatchCandidate {
+  itemId: string
+  summary: string
+  originalTitle: string
+  originalTextPreview: string
+  source: string
+  sourceName: string
+  dataType: 'public_material' | 'consumer_comment'
+  dataLayer: 'live' | 'demo'
+  dataset: 'development' | 'holdout' | null
+  processingStatus: 'pending' | 'processed' | 'quality_issue'
+  modelStatus: 'unanalyzed' | 'demo_result' | 'batched' | 'awaiting_import' | 'pending_review' | 'completed' | 'rejected'
+  selectable: boolean
+  disabledReason: string | null
+  activeBatchId: string | null
+  roleHint: DataSourceRoleHint | null
+  selectionRole: DataSourceRoleHint | null
+  roleGuidance: string | null
+  isDemo: boolean
 }
 
 export class ApiClientError extends Error {
@@ -77,6 +102,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   getDashboard: () => request<DashboardSummary>('/api/dashboard'),
+  getAutomationRuns: () => request<AutomationRun[]>('/api/automation-runs'),
+  getSystemReadiness: () => request<SystemReadiness>('/api/system/readiness'),
+  getValidationFlags: () => request<ValidationFlag[]>('/api/validation-flags'),
   getJobRuns: () => request<JobRun[]>('/api/job-runs'),
   getDataSources: () => request<DataSource[]>('/api/data-sources'),
   getRawItems: () => request<RawItem[]>('/api/raw-items'),
@@ -84,7 +112,8 @@ export const api = {
   getAIAnalysisRecords: () => request<AIAnalysisRecord[]>('/api/ai-analysis-records'),
   getAIAnalysisRuns: () => request<AIAnalysisRun[]>('/api/ai-analysis-runs'),
   getPendingAIBatches: () => request<AIBatch[]>('/api/ai-batches/pending'),
-  createAIBatch: (itemIds: string[]) => request<AIBatch>('/api/ai-batches', { method: 'POST', body: JSON.stringify({ itemIds }) }),
+  getAIBatchCandidates: () => request<AIBatchCandidate[]>('/api/ai-batches/candidates'),
+  createAIBatch: (itemIds: string[]) => request<AIBatch>('/api/ai-batches', { method: 'POST', body: JSON.stringify({ itemIds, provider: 'manual-doubao' }) }),
   exportAIBatch: (id: string) => request<AIBatchExport>(`/api/ai-batches/${id}/export`),
   importAIResults: (payload: { batchId: string; provider: 'manual-doubao'; model?: string | null; mode: 'manual_import'; results: unknown[]; rawModelResponse: unknown }) =>
     request<AIImportResult>('/api/ai-results/import', { method: 'POST', body: JSON.stringify(payload) }),

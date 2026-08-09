@@ -1,0 +1,226 @@
+{
+  "batchName": "B2-DEV-02",
+  "dataset": "development",
+  "promptVersion": "evidence-analysis-v1",
+  "schemaVersion": "evidence-analysis-v1",
+  "instructions": [
+    "逐条分析items，禁止改变itemId。",
+    "evidenceQuotes.quote必须是rawText中的连续原文。",
+    "只返回JSON对象 {\"results\": [...]}。"
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "results"
+    ],
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "itemId",
+            "evidenceRole",
+            "relevanceScore",
+            "relevanceReason",
+            "brands",
+            "productCategories",
+            "flavors",
+            "consumerNeeds",
+            "scenes",
+            "positiveSignals",
+            "negativeSignals",
+            "riskSignals",
+            "signalType",
+            "evidenceQuotes",
+            "confidence",
+            "eligibleForConceptGeneration"
+          ],
+          "properties": {
+            "itemId": {
+              "type": "string"
+            },
+            "evidenceRole": {
+              "type": "string",
+              "enum": [
+                "consumer_evidence",
+                "market_evidence",
+                "background_evidence",
+                "irrelevant"
+              ]
+            },
+            "relevanceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "relevanceReason": {
+              "type": "string"
+            },
+            "brands": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "productCategories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "flavors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "consumerNeeds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scenes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "negativeSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "riskSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "signalType": {
+              "type": "string",
+              "enum": [
+                "consumer_preference",
+                "product_launch",
+                "category_trend",
+                "safety_context",
+                "other"
+              ]
+            },
+            "evidenceQuotes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "supports"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "supports": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "eligibleForConceptGeneration": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "R012",
+      "title": "什么值得买评论 · 元气森林气泡水",
+      "rawText": "好喝的气泡水",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R013",
+      "title": "什么值得买评论 · 元气森林气泡水",
+      "rawText": "喝过老包装的感觉也就那么回事，没有传说中的那么好喝，喝过两次就不买了",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R014",
+      "title": "什么值得买评论 · 元气森林气泡水",
+      "rawText": "酸梅汁停产不知道想啥，仙人掌也是[无语]",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R015",
+      "title": "什么值得买评论 · 元气森林气泡水",
+      "rawText": "山楂第一 酸梅汤第二 其他一般 。。。。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R016",
+      "title": "什么值得买评论 · 元气森林气泡水",
+      "rawText": "最好喝的优酸乳味也停产了，搞不懂。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R017",
+      "title": "Weee中文站评论 · 元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "rawText": "白桃味还是熟悉的配方，和听装基本是一个味道，白桃香气自然，清清甜甜的，喝起来很清爽，刚拧开的时候气特别足，第一口很过瘾，气泡感甚至比听装还明显，不过如果开盖后放一会儿，气消得会比听装快一些",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R018",
+      "title": "Weee中文站评论 · 元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "rawText": "半甜清爽，非常美味！ 零卡路里真是太棒了 我很喜欢。肯定会回购。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R019",
+      "title": "Weee中文站评论 · 元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "rawText": "元气森林 苏打气泡水 夏黑葡萄味 330 毫升*6 罐 会回购",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R020",
+      "title": "Weee中文站评论 · 元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "rawText": "口感清爽，味道好。低卡路里，深受大孩子喜爱。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R021",
+      "title": "京东优评评论 · 可口可乐（Coca-Cola）可口可乐益生元气泡水 汽水饮料 零糖零卡零脂 200ml*12瓶装",
+      "rawText": "这款可口可乐益生元，简直是夏日必备神器！红色罐身，经典又吸睛，拿在手里超有范儿。打开一听，气泡丰富，口感清爽，甜度刚刚好，喝一口就停不下来！关键是它还添加了益生元，对肠道友好，畅饮无负担。无论是宅家刷剧，还是外出聚会，带上它，快乐加倍！",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    }
+  ]
+}

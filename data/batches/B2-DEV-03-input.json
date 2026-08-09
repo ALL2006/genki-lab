@@ -1,0 +1,226 @@
+{
+  "batchName": "B2-DEV-03",
+  "dataset": "development",
+  "promptVersion": "evidence-analysis-v1",
+  "schemaVersion": "evidence-analysis-v1",
+  "instructions": [
+    "逐条分析items，禁止改变itemId。",
+    "evidenceQuotes.quote必须是rawText中的连续原文。",
+    "只返回JSON对象 {\"results\": [...]}。"
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "results"
+    ],
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "itemId",
+            "evidenceRole",
+            "relevanceScore",
+            "relevanceReason",
+            "brands",
+            "productCategories",
+            "flavors",
+            "consumerNeeds",
+            "scenes",
+            "positiveSignals",
+            "negativeSignals",
+            "riskSignals",
+            "signalType",
+            "evidenceQuotes",
+            "confidence",
+            "eligibleForConceptGeneration"
+          ],
+          "properties": {
+            "itemId": {
+              "type": "string"
+            },
+            "evidenceRole": {
+              "type": "string",
+              "enum": [
+                "consumer_evidence",
+                "market_evidence",
+                "background_evidence",
+                "irrelevant"
+              ]
+            },
+            "relevanceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "relevanceReason": {
+              "type": "string"
+            },
+            "brands": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "productCategories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "flavors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "consumerNeeds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scenes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "negativeSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "riskSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "signalType": {
+              "type": "string",
+              "enum": [
+                "consumer_preference",
+                "product_launch",
+                "category_trend",
+                "safety_context",
+                "other"
+              ]
+            },
+            "evidenceQuotes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "supports"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "supports": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "eligibleForConceptGeneration": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "R022",
+      "title": "京东优评评论 · 可口可乐（Coca-Cola）可口可乐益生元气泡水 汽水饮料 零糖零卡零脂 200ml*12瓶装",
+      "rawText": "这款可乐的口感确实令人满意，气泡充足且甜度适中，喝起来清爽解渴。包装完好，物流配送也很及时，整体购物体验顺畅。作为日常饮品，它符合我的预期，会考虑再次购买。感谢商家提供优质的产品与服务。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R024",
+      "title": "京东优评评论 · 可口可乐（Coca-Cola）檀健次代言 雪碧Sprite零卡无糖饮料 330ml*24摩登罐",
+      "rawText": "这饮料包装看着清爽，绿色瓶身像极了夏天的凉风，但喝起来却有点“平淡无奇”。甜味确实不腻，但清爽感不足，像是被稀释过的快乐水。冰镇后稍微好点，但还是少了点让人惊艳的滋味。适合不爱太甜的朋友，但要是追求刺激口感，可能要失望了。总体来说，无功无过，解渴还行，但别指望它能带来惊喜。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R026",
+      "title": "京东优评评论 · 可口可乐（Coca-Cola）【520我爱宁-3】零度+经典口味330ml*24罐各1箱+定制纪念品套组",
+      "rawText": "冰可乐入喉气泡感很足，瞬间就把夏天的闷热感冲散了，喝完整个人都清爽不少，冰过的口感比常温好太多，每次喝都觉得很解暑，性价比也合适",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R027",
+      "title": "京东优评评论 · 可口可乐（Coca-Cola）檀健次代言 雪碧Sprite零卡无糖饮料 330ml*24摩登罐",
+      "rawText": "这罐雪碧喝起来气很足，一口下去特别爽，碳酸感挺强的，喜欢这种刺激感🥤。瓶盖设计得不错，轻轻一拧就开了，很方便，不用费劲。包装也是熟悉的绿色，看着就很清爽，夏天来一罐刚刚好。整体体验挺满意的，推荐给爱喝汽水的朋友～👍👍",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R028",
+      "title": "豆瓣小组评论 · 可口可乐无糖/零度/健怡系列",
+      "rawText": "都是可口可乐的无糖版本，用的代糖不一样，一个是阿斯巴甜，一个是安赛蜜，所以口味有些区别。不知道为什么有人不懂装懂。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R029",
+      "title": "豆瓣小组评论 · 可口可乐无糖/零度/健怡系列",
+      "rawText": "我记得看谁说过健怡可乐（diet）是为了女性消费者研发的牌子 零度可乐（zero）是后来为了男性消费者推出的新品牌 因为喝健怡在很多男人看起来是有点“娘”的 所以实际上只是大公司为了多收割消费者用了两种不同的包装……",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R030",
+      "title": "豆瓣小组评论 · 可口可乐无糖/零度/健怡系列",
+      "rawText": "都是可口可乐吧应该产品线不同？(不懂)但健怡diet coke比无糖好喝!!!",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R031",
+      "title": "京东优评评论 · 百事可乐Pepsi 无糖可乐 碳酸饮料汽水 300ml*24瓶 迷你瓶整箱装",
+      "rawText": "喝起来很清爽，气泡挺足的，冰镇后更爽口 🍹 包装严实，物流快，配送员态度也好 👍 整体体验不错，值得回购 💯 💯",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R035",
+      "title": "什么值得买评论 · 百事可乐无糖系列",
+      "rawText": "经常买碳酸饮料，但是可乐一直不是首选。感觉中日可乐原味的差不太多，但是无糖型就能明显感觉到差距，日本的无糖感觉比国内的自然。我也觉得国内的甜味素给多了。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R036",
+      "title": "什么值得买评论 · 百事可乐无糖系列",
+      "rawText": "口感这东西见仁见智，如果强行把自己的口味作为评判的标准说百事的无糖可乐口感不佳的话，就有点太主观了。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    }
+  ]
+}

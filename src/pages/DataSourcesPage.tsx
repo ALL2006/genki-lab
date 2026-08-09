@@ -9,6 +9,13 @@ import { useApiResource } from '../hooks/useApiResource'
 import { api } from '../services/api'
 import { formatDateTime } from '../utils/format'
 
+const healthLabels = {
+  healthy: '健康',
+  warning: '需关注',
+  failing: '异常',
+  disabled: '已停用',
+} as const
+
 export function DataSourcesPage() {
   const loader = useCallback(async () => {
     const [sources, rawItems] = await Promise.all([api.getDataSources(), api.getRawItems()])
@@ -49,8 +56,8 @@ export function DataSourcesPage() {
             <article className="source-table" key={source.id}>
               <div><strong>{source.name}</strong><a href={source.entryUrl} target="_blank" rel="noreferrer">{source.entryUrl}</a><small>{source.notes}</small></div>
               <div><div className="badge-row"><StatusBadge tone={source.collectionMode === 'live' ? 'accent' : 'neutral'}>{source.collectionMode.toUpperCase()}</StatusBadge><StatusBadge>{source.type}</StatusBadge></div><span>{source.collectorType}</span><small>{source.schedule}</small></div>
-              <div><StatusBadge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? '已启用' : '已停用'}</StatusBadge><span>连续失败 {source.failureCount} 次</span><small>{source.lastError ?? '最近无错误'}</small></div>
-              <div>{formatDateTime(source.lastSuccessAt)}<small>最近新增 {source.lastRunNewCount}</small></div>
+              <div><StatusBadge tone={source.healthStatus === 'healthy' ? 'success' : source.healthStatus === 'warning' || source.healthStatus === 'failing' ? 'warning' : 'neutral'}>{healthLabels[source.healthStatus ?? (source.enabled ? 'healthy' : 'disabled')]}</StatusBadge><span>连续失败 {source.consecutiveFailures ?? source.failureCount} 次</span><small>{source.lastError ?? '最近无错误'}</small></div>
+              <div>{formatDateTime(source.lastSuccessAt)}<small>最近新增 {source.lastRunNewCount} · HTTP {source.lastHttpStatus ?? '—'}</small></div>
               <div><button disabled={!source.enabled || runningId !== null} onClick={() => void runSource(source.id, source.collectionMode)}><Play size={15} />{runningId === source.id ? '运行中…' : '手动运行'}</button></div>
             </article>
           ))}
