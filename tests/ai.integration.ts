@@ -132,7 +132,7 @@ try {
     ...rawItem,
     id: `pilot-raw-${index + 1}`,
     title: `Pilot 公开资料 ${index + 1}`,
-    rawText: index === 0 ? '品牌发布ＡI饮料新品，作为市场背景资料。' : `公开资料${index + 1}用于说明饮料市场背景。`,
+    rawText: index === 0 ? '品牌发布ＡI饮料新品 作为市场背景资料。' : `公开资料${index + 1}用于说明饮料市场背景。`,
     summary: `Pilot 公开资料 ${index + 1}`,
     originalUrl: `https://example.com/pilot-${index + 1}`,
     normalizedUrl: `https://example.com/pilot-${index + 1}`,
@@ -150,7 +150,10 @@ try {
     async analyzeEvidence(items) {
       const outputs = items.map((item) => {
         const consumer = item.sourceKind === 'consumer_comment'
-        const quote = item.id === 'pilot-raw-1' ? '品牌发布AI饮料新品' : item.rawText.slice(0, Math.min(24, item.rawText.length))
+        const text = item.analysisText ?? item.rawText
+        // a real model quotes the normalized analysisText; pilot-raw-1 uses a
+        // double-space typography variant to exercise the deterministic repair path
+        const quote = item.id === 'pilot-raw-1' ? '品牌发布AI饮料新品  作为市场背景资料。' : text.slice(0, Math.min(24, text.length))
         return {
           itemId: item.id,
           evidenceRole: consumer ? 'consumer_evidence' : 'background_evidence',
