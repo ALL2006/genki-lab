@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Comment collectors that run on GitHub Actions (international network).",
   "dependencies": {
-    "cheerio": "^1.2.0"
+    "cheerio": "^1.2.0",
+    "google-play-scraper": "^9.0.1"
   }
 }
