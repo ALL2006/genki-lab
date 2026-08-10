@@ -42,7 +42,9 @@ B1 使用火山方舟 OpenAI 兼容的 Responses 路径：
 
 STRICT模式下任一条失败会拒绝整次导入；失败仍写 `AIAnalysisRun`。AUTOMATED模式按条校验，唯一Unicode/空白等价命中可保存RawItem中的真实连续原文并标记auto_repaired，0次命中拒绝，多次命中进入needs_review。原始 AI JSON保存在 `originalAIOutput`，人工审核版本另存为 `finalHumanVersion`，不能覆盖原输出。
 
-确定性规则将可判断异常写入 `ValidationFlag`，包括quote_mismatch、role_conflict与weak_relevance。当前没有第二模型审核Agent；用户只需优先检查open flags。
+确定性规则将可判断异常写入 `ValidationFlag`，包括quote_mismatch、role_conflict与weak_relevance。机器 `validationStatus` 与人工 `reviewStatus` 是两个独立维度。当前没有第二模型审核Agent；用户只需优先检查open flags。
+
+Ark 自动证据分析当前 Prompt 版本为 `evidence-analysis-v2.1`，Schema 继续为 `evidence-analysis-v2`。Prompt 依据来源性质区分消费者、市场和背景证据，并要求引文为 rawText 的连续逐字片段；Structured Output 已约束的字段不在 prompt 中重复枚举。
 
 ## 超时与重试
 

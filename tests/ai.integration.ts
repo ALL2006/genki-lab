@@ -4,7 +4,7 @@ import { mkdir, readFile, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import type { EvidenceAnalysisData, RawItem } from '../shared/types.js'
 import { validateEvidenceAnalysis } from '../server/ai/evidenceSchema.js'
-import { ArkDoubaoAIProvider } from '../server/providers/ArkDoubaoAIProvider.js'
+import { ArkDoubaoAIProvider, EVIDENCE_ANALYSIS_SYSTEM_PROMPT } from '../server/providers/ArkDoubaoAIProvider.js'
 import type { AIProvider } from '../server/providers/AIProvider.js'
 import { ManualJsonAIProvider } from '../server/providers/ManualJsonAIProvider.js'
 import { MockAIProvider } from '../server/providers/MockAIProvider.js'
@@ -43,6 +43,10 @@ assert.equal(validateEvidenceAnalysis({ ...validOutput, evidenceQuotes: [{ quote
 assert.equal(validateEvidenceAnalysis({ ...validOutput, evidenceQuotes: [] }, context).quoteValid, false)
 assert.ok(validateEvidenceAnalysis({ ...validOutput, evidenceRole: 'irrelevant', signalType: 'category_trend' }, context).errors.length > 0)
 assert.ok(validateEvidenceAnalysis({ ...validOutput, evidenceRole: 'background_evidence', eligibleForConceptGeneration: true }, context).errors.length > 0)
+assert.match(EVIDENCE_ANALYSIS_SYSTEM_PROMPT, /来源性质决定/)
+assert.match(EVIDENCE_ANALYSIS_SYSTEM_PROMPT, /brand_news/)
+assert.match(EVIDENCE_ANALYSIS_SYSTEM_PROMPT, /连续字符串/)
+assert.doesNotMatch(EVIDENCE_ANALYSIS_SYSTEM_PROMPT, /R001|R006|Keurig|Coca-Cola|曲靖/)
 
 const arkPayload = {
   output_text: JSON.stringify({ results: [validOutput] }),
@@ -164,15 +168,21 @@ try {
   }
   const pilotService = new AIAnalysisService(repository, pilotProvider, new InMemoryEvaluationDataLoader(evaluationDataset, evaluationSplit))
   const pilotResult = await pilotService.runComparisonPilot('pilot-manual-source')
-  assert.equal(pilotResult.batch.promptVersion, 'evidence-analysis-v2')
+  assert.equal(pilotResult.batch.promptVersion, 'evidence-analysis-v2.1')
   assert.equal(pilotResult.batch.schemaVersion, 'evidence-analysis-v2')
   assert.equal(pilotResult.records.length, 6)
   assert.equal(pilotResult.records.filter((record) => record.validationStatus === 'auto_repaired').length, 1)
   assert.equal(pilotResult.records.every((record) => record.schemaValid), true)
   assert.equal(pilotResult.records.filter((record) => record.quoteValid).length, 5)
   assert.equal(pilotResult.records.filter((record) => record.validationStatus === 'rejected').length, 1)
+  assert.equal(pilotResult.records.find((record) => record.validationStatus === 'rejected')?.reviewStatus, 'pending')
   assert.equal((await repository.getAIAnalysisRuns()).find((run) => run.batchId === 'B2-AUTO-PILOT-01')?.itemIdValidCount, 6)
   assert.equal((await repository.getValidationFlags()).filter((flag) => pilotResult.records.some((record) => record.id === flag.analysisRecordId)).length, 2)
+  const pilot02 = await pilotService.createComparisonPilot('pilot-manual-source', 'B2-AUTO-PILOT-02')
+  assert.equal(pilot02.id, 'B2-AUTO-PILOT-02')
+  assert.deepEqual(pilot02.itemIds, pilotResult.batch.itemIds)
+  assert.equal(pilot02.promptVersion, 'evidence-analysis-v2.1')
+  await assert.rejects(() => pilotService.createComparisonPilot('pilot-manual-source', 'DEV-01'), /只允许执行/)
 
   const evaluation = new EvaluationService(
     repository,

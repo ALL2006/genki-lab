@@ -19,7 +19,7 @@ import type { AIProvider, AIProviderExecution, EvidenceInputItem } from '../prov
 import type { DataRepository } from '../repositories/DataRepository.js'
 import type { EvaluationDataLoader } from '../evaluation/EvaluationDataLoader.js'
 
-const PROMPT_VERSION = 'evidence-analysis-v2'
+const PROMPT_VERSION = 'evidence-analysis-v2.1'
 const SCHEMA_VERSION = 'evidence-analysis-v2'
 
 export type BatchCandidateDataType = 'public_material' | 'consumer_comment'
@@ -145,7 +145,9 @@ export class AIAnalysisService {
       })
       const activeBatch = batches.find((batch) => ['pending', 'dispatched'].includes(batch.status) && batch.itemIds.includes(entry.input.id))
       let modelStatus: BatchCandidateModelStatus = 'unanalyzed'
-      if (realRecord) modelStatus = realRecord.reviewStatus === 'rejected' ? 'rejected' : realRecord.reviewStatus === 'confirmed' ? 'completed' : 'pending_review'
+      if (realRecord) modelStatus = realRecord.validationStatus === 'rejected' || realRecord.reviewStatus === 'rejected'
+        ? 'rejected'
+        : realRecord.reviewStatus === 'confirmed' ? 'completed' : 'pending_review'
       else if (activeBatch) modelStatus = activeBatch.status === 'dispatched' ? 'awaiting_import' : 'batched'
       else if (demoRecord) modelStatus = 'demo_result'
 
@@ -172,7 +174,7 @@ export class AIAnalysisService {
   }
 
   async createComparisonPilot(sourceBatchId: string, pilotId = 'B2-AUTO-PILOT-01') {
-    if (pilotId !== 'B2-AUTO-PILOT-01') throw new Error('只允许执行已批准的 B2-AUTO-PILOT-01。')
+    if (!['B2-AUTO-PILOT-01', 'B2-AUTO-PILOT-02'].includes(pilotId)) throw new Error('只允许执行已批准的 B2 AUTO Pilot。')
     if (this.provider.name !== 'ark-doubao' || !this.provider.isAutomated || this.provider.delivery !== 'synchronous' || !this.provider.model) {
       throw new Error('Ark Doubao Provider 尚未就绪。')
     }
@@ -524,7 +526,9 @@ export class AIAnalysisService {
         quoteValid: validationStatus === 'validated' || validationStatus === 'auto_repaired',
         validationStatus,
         quoteRepairs: repairs,
-        reviewStatus: validationStatus === 'rejected' ? 'rejected' : 'pending',
+        // Machine rejection belongs to validationStatus. Human review remains
+        // pending until a reviewer explicitly records a decision.
+        reviewStatus: 'pending',
         reviewer: null,
         reviewedAt: null,
         reviewComment: null,

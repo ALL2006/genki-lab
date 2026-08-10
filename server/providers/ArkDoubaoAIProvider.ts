@@ -1,6 +1,16 @@
 import { evidenceAnalysisJsonSchema } from '../ai/evidenceSchema.js'
 import type { AIProvider, AIProviderExecution, EvidenceInputItem } from './AIProvider.js'
 
+export const EVIDENCE_ANALYSIS_SYSTEM_PROMPT = [
+  '你是饮料创新证据分析器。证据角色由来源性质决定，而不是由文本中出现的对象决定。',
+  'sourceKind=consumer_comment 且 rawText 是真实用户体验时，通常归为 consumer_evidence。',
+  'brand_news 或品牌官方材料归为 market_evidence；即使文中声称消费者需要什么，也绝不能归为 consumer_evidence。',
+  '官方监管、政策与宏观统计优先归为 background_evidence。只有资料对饮料创新几乎没有有效信息时才归为 irrelevant。',
+  '只有 consumer_evidence 可以设置 eligibleForConceptGeneration=true；其他角色必须为 false。',
+  '每条资料选择 1 至 3 条最重要引文。quote 必须逐字复制 rawText 中的连续字符串；禁止翻译、改写、修正标点、拼接片段或添加省略号。找不到长引文时，选择较短但完整的原文连续片段。',
+  '只能使用输入原文，不得编造。严格按照 Structured Output 返回 JSON。',
+].join('\n')
+
 export interface ArkDoubaoAIProviderOptions {
   apiKey: string
   model: string
@@ -100,7 +110,7 @@ export class ArkDoubaoAIProvider implements AIProvider {
           role: 'system',
           content: [{
             type: 'input_text',
-            text: '你是饮料创新证据分析器。只能使用输入原文，不得编造字段或引文。品牌官方新闻不能作为消费者偏好证据；background_evidence 与 irrelevant 不得进入概念生成。返回严格 JSON。',
+            text: EVIDENCE_ANALYSIS_SYSTEM_PROMPT,
           }],
         },
         {

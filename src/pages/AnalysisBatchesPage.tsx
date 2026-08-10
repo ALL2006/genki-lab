@@ -69,6 +69,13 @@ const reviewStatusLabels: Record<AIAnalysisRecord['reviewStatus'], string> = {
   rejected: '已拒绝',
 }
 
+const validationStatusLabels = {
+  validated: '已校验',
+  auto_repaired: '已自动修复',
+  needs_review: '需复核',
+  rejected: '已拒绝',
+} as const
+
 const batchStatusLabels: Record<AIBatch['status'], string> = {
   pending: '待处理',
   dispatched: '已派发',
@@ -565,9 +572,9 @@ export function AnalysisBatchesPage() {
     <section className="analysis-results-panel">
       <div className="analysis-panel-heading"><div><h2>结果列表</h2><span>{batchRecords.length} 条 · 点击进入分析详情</span></div></div>
       {batchRecords.length === 0 ? <EmptyState compact title="当前批次尚无分析结果" description="导入JSON并通过后端Schema、itemId和引文校验后显示。" /> : <div className="analysis-table-scroll"><table className="analysis-table analysis-results-table">
-        <thead><tr><th>itemId</th><th>evidenceRole</th><th>relevanceScore</th><th>引文数量</th><th>confidence</th><th>Provider</th><th>自动化</th><th>审核状态</th><th /></tr></thead>
+        <thead><tr><th>itemId</th><th>evidenceRole</th><th>relevanceScore</th><th>引文数量</th><th>confidence</th><th>Provider</th><th>自动化</th><th>机器校验</th><th>人工审核</th><th /></tr></thead>
         <tbody>{batchRecords.map((record) => <tr key={record.id} tabIndex={0} onClick={() => navigate(`/trends?analysisRecordId=${record.id}`)} onKeyDown={(event) => { if (event.key === 'Enter') navigate(`/trends?analysisRecordId=${record.id}`) }}>
-          <td><code>{record.itemId}</code></td><td>{evidenceRoleLabels[record.parsedAIOutput.evidenceRole]}</td><td>{Math.round(record.parsedAIOutput.relevanceScore * 100)}%</td><td>{record.parsedAIOutput.evidenceQuotes.length}</td><td>{Math.round(record.parsedAIOutput.confidence * 100)}%</td><td>{record.provider}</td><td>{record.isAutomated ? '是' : '否'}</td><td>{reviewStatusLabels[record.reviewStatus]}</td><td><ExternalLink size={11} /></td>
+          <td><code>{record.itemId}</code></td><td>{evidenceRoleLabels[record.parsedAIOutput.evidenceRole]}</td><td>{Math.round(record.parsedAIOutput.relevanceScore * 100)}%</td><td>{record.parsedAIOutput.evidenceQuotes.length}</td><td>{Math.round(record.parsedAIOutput.confidence * 100)}%</td><td>{record.provider}</td><td>{record.isAutomated ? '是' : '否'}</td><td>{record.validationStatus ? validationStatusLabels[record.validationStatus] : '未记录'}</td><td>{reviewStatusLabels[record.reviewStatus]}</td><td><ExternalLink size={11} /></td>
         </tr>)}</tbody>
       </table></div>}
     </section>

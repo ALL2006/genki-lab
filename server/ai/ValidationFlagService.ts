@@ -16,6 +16,9 @@ export class ValidationFlagService {
     if (context.sourceKind === 'raw_item' && data.evidenceRole === 'consumer_evidence') {
       add('role_conflict', 'high', '公开资料不能作为消费者真实偏好证据。', 'evidenceRole')
     }
+    if (context.sourceKind === 'consumer_comment' && data.evidenceRole !== 'consumer_evidence') {
+      add('role_conflict', 'high', '真实消费者评论不能归为市场、背景或无关证据。', 'evidenceRole')
+    }
     if (data.evidenceRole !== 'consumer_evidence' && data.eligibleForConceptGeneration) {
       add('role_conflict', 'high', '市场或背景证据不能直接进入概念生成。', 'eligibleForConceptGeneration')
     }

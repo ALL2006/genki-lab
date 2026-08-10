@@ -27,7 +27,7 @@
 | GET | `/api/ai-batches/candidates` | 查询RawItem与冻结评论的批次资格、两类状态和禁用原因 |
 | GET | `/api/ai-batches/:id/export` | 导出固定 prompt、Schema、原文与编号 |
 | POST | `/api/ai-batches/:id/execute` | 用当前同步 Provider 执行，或向妙搭 Webhook 派发 |
-| POST | `/api/ai-pilots/b2-auto` | 受 `X-JOB-SECRET` 保护；仅复制已完成的原 6 条 Manual Pilot 到 `B2-AUTO-PILOT-01` 并用 Ark 执行，不扩大到 development/holdout |
+| POST | `/api/ai-pilots/b2-auto` | 受 `X-JOB-SECRET` 保护；仅复制已完成的原 6 条 Manual Pilot 到获准的 `B2-AUTO-PILOT-01/02` 并用 Ark 执行，不扩大到 development/holdout |
 | POST | `/api/evaluations/run` | `{split:"development"|"holdout"}`，运行受保护评测 |
 
 缺少或错误密钥返回 `401 INVALID_JOB_SECRET`。
@@ -65,6 +65,8 @@
 | GET | `/api/validation-summary` | 模拟验证汇总 |
 | GET | `/api/ai-analysis-records` | AI 原始输出、解析结果、人工最终版本与来源标记 |
 | PATCH | `/api/ai-analysis-records/:id/review` | `{reviewStatus,reviewer,reviewComment?,finalHumanVersion?}` |
+
+AI 分析记录包含两个独立状态维度：`validationStatus` 是机器校验状态，只能为 `validated / auto_repaired / needs_review / rejected`；`reviewStatus` 是人工审核状态，只能为 `pending / confirmed / needs_revision / rejected`。机器校验通过不等于人工已确认，API 与页面不得将两者合并统计。
 | GET | `/api/ai-analysis-runs` | AI 调用、导入、耗时、重试、Schema/引文与错误日志 |
 | GET | `/api/evaluations` | 冻结评测集摘要与 development / holdout 运行记录 |
 | GET | `/api/trend-candidates` | B1 趋势候选数据契约；当前不批量生成 |
