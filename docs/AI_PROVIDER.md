@@ -23,7 +23,7 @@ B1 使用火山方舟 OpenAI 兼容的 Responses 路径：
 - 模型：由 `ARK_MODEL_ID` 显式配置，不在代码中写死“最新模型”
 - 结构化输出：请求体使用 `text.format.type=json_schema` 与 strict Schema
 
-依据是火山方舟[官方快速入门](https://www.volcengine.com/docs/82379/1795150)和[官方 Structured Output 文档](https://www.volcengine.com/docs/82379/1958523)。Cloudflare 生产现已配置 Ark，并完成 `B2-AUTO-PILOT-01` 六条真实调用；详见 `B2_AUTO_AI_REPORT.md`。Pilot 为 partial_success，不能据此扩大到 development 或宣称模型质量门槛已通过。
+依据是火山方舟[官方快速入门](https://www.volcengine.com/docs/82379/1795150)和[官方 Structured Output 文档](https://www.volcengine.com/docs/82379/1958523)。Cloudflare 生产已配置 Ark，并完成三轮独立的六条真实 Pilot；详见 `B2_AUTO_AI_REPORT.md` 与 `B2_AUTO_PILOT_DIAGNOSIS.md`。Pilot-03 已消除角色硬错，但因一条引文漏掉原文脚注字符而未达到 Quote 门槛，因此尚未运行 `B2-DEV-01`。
 
 ## 证据 Schema
 
@@ -44,7 +44,7 @@ STRICT模式下任一条失败会拒绝整次导入；失败仍写 `AIAnalysisRu
 
 确定性规则将可判断异常写入 `ValidationFlag`，包括quote_mismatch、role_conflict与weak_relevance。机器 `validationStatus` 与人工 `reviewStatus` 是两个独立维度。当前没有第二模型审核Agent；用户只需优先检查open flags。
 
-Ark 自动证据分析当前 Prompt 版本为 `evidence-analysis-v2.1`，Schema 继续为 `evidence-analysis-v2`。Prompt 依据来源性质区分消费者、市场和背景证据，并要求引文为 rawText 的连续逐字片段；Structured Output 已约束的字段不在 prompt 中重复枚举。
+Ark 自动证据分析当前 Prompt 版本为 `evidence-analysis-v2.2`，Schema 继续为 `evidence-analysis-v2`。Prompt 先依据来源性质判断证据角色，再独立判断相关性，明确“相关性低不等于无关”；引文仍必须是 rawText 的连续逐字片段。Structured Output 已约束的字段不在 prompt 中重复枚举。
 
 ## 超时与重试
 

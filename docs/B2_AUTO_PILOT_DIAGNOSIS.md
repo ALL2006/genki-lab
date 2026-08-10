@@ -94,3 +94,30 @@ Pilot-02 的 15 条引文全部为 rawText 中的 exact 连续字符串，Quote 
 ## Gate 结论
 
 **NOT_READY_FOR_DEV**。Quote、Schema、itemId 和概念生成边界均达标，但仍有 1 个明确的角色硬冲突（FSA）。按任务约束停止，不运行 development、holdout，也不创建第三个自动 Pilot。
+
+## Pilot-03：evidence-analysis-v2.2
+
+执行时间：2026-08-10。批次 `B2-AUTO-PILOT-03`，run `ai-run-7a9673c8-9ad3-412b-b954-8c9cb180f3f6`，真实模型 `doubao-seed-2-1-pro-260628`。输入仍为同一组六条，Manual、Pilot-01 和 Pilot-02 未覆盖。
+
+v2.2 只分离两个概念：`evidenceRole` 回答资料属于什么性质，`relevanceScore` 回答它对当前问题有多大直接价值。模型必须先判来源性质，再独立评分，低相关不再自动等同于 irrelevant。Prompt 不包含具体 itemId、URL、品牌、标题或 Pilot 答案；Quote、Schema、D1、Collector 均未改动。
+
+| itemId | evidenceRole | relevanceScore | eligible | validationStatus | 结论 |
+| --- | --- | ---: | --- | --- | --- |
+| R001 | consumer_evidence | 0.85 | true | validated | 通过 |
+| R006 | consumer_evidence | 0.80 | true | validated | 通过 |
+| raw-07d8beea6ce57283 | market_evidence | 0.95 | false | rejected | 角色正确；1 条 quote 失败 |
+| raw-46e9ad9f8081cf10 | background_evidence | 0.25 | false | validated | FSA 角色已修正 |
+| raw-5b2dcbb100894040 | background_evidence | 0.20 | false | validated | 允许 |
+| raw-ae96ad5170086080 | market_evidence | 0.70 | false | validated | 通过 |
+
+硬角色错误为 0：消费者评论误判非 consumer=0，品牌/市场资料误判 consumer=0，监管/宏观资料误判 consumer=0，market/background eligible=true=0。
+
+工程指标：Schema 6/6，itemId 6/6，Quote 5/6，rejected 1，validated 5，auto_repaired 0，needs_review 0，高风险 flag 1。人工审核状态仍为 pending 6 条，其中 5 条机器 validated、1 条机器 rejected。
+
+失败 quote 为：`Zero sugar continues to outpace the CSD category, driving 6x more dollar growth than regular varieties, as consumers look for balance without sacrificing flavor.` 原文对应位置是 `regular varieties5, as consumers...`，模型漏掉脚注字符 `5`，属于 `exact_text_changed`。QuoteRepair 正确返回 not_found，没有进行模糊修复。
+
+Token：input 9,079，output 2,476，total 11,555；耗时 38,212ms；按 12,000 字符确定性分片为 2 个 Ark subrequests，retry 0，未见 Cloudflare CPU 或 subrequest 限制错误。
+
+### Pilot-03 Gate
+
+**未通过**。角色问题已消除，但 Quote 只有 83.3%，且存在 rejected 1，均属于明确的 DEV 阻断条件。因此未创建或运行 `B2-DEV-01`，没有生成 `B2_DEV01_REPORT.md`，也未读取或运行 holdout。依照“这是最后一次 Pilot Prompt 调整”的约束，不继续针对六条样本修改 Prompt或重跑 Pilot。

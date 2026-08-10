@@ -19,7 +19,7 @@ import type { AIProvider, AIProviderExecution, EvidenceInputItem } from '../prov
 import type { DataRepository } from '../repositories/DataRepository.js'
 import type { EvaluationDataLoader } from '../evaluation/EvaluationDataLoader.js'
 
-const PROMPT_VERSION = 'evidence-analysis-v2.1'
+const PROMPT_VERSION = 'evidence-analysis-v2.2'
 const SCHEMA_VERSION = 'evidence-analysis-v2'
 
 export type BatchCandidateDataType = 'public_material' | 'consumer_comment'
@@ -174,7 +174,7 @@ export class AIAnalysisService {
   }
 
   async createComparisonPilot(sourceBatchId: string, pilotId = 'B2-AUTO-PILOT-01') {
-    if (!['B2-AUTO-PILOT-01', 'B2-AUTO-PILOT-02'].includes(pilotId)) throw new Error('只允许执行已批准的 B2 AUTO Pilot。')
+    if (!['B2-AUTO-PILOT-01', 'B2-AUTO-PILOT-02', 'B2-AUTO-PILOT-03'].includes(pilotId)) throw new Error('只允许执行已批准的 B2 AUTO Pilot。')
     if (this.provider.name !== 'ark-doubao' || !this.provider.isAutomated || this.provider.delivery !== 'synchronous' || !this.provider.model) {
       throw new Error('Ark Doubao Provider 尚未就绪。')
     }
