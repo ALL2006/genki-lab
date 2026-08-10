@@ -1,0 +1,48 @@
+name: Google Play Reviews
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 1' # weekly, Monday 02:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install collector dependencies
+        run: npm install --no-audit --no-fund --prefix tools/comment-collectors
+
+      - name: Collect Google Play reviews
+        run: node tools/comment-collectors/google-play.mjs
+
+      - name: Commit collected data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/comments/google-play/google-play-reviews.jsonl
+          if git diff --cached --quiet; then
+            echo "no data changes"
+          else
+            git commit -m "chore: update Google Play reviews $(date -u +%F)"
+            git push
+          fi
+
+      - name: Upload raw HTML fallback
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-play-raw
+          path: tmp/gp-raw
+          if-no-files-found: ignore
