@@ -5,7 +5,8 @@
 
 ## Google Play 评论采集
 
-`google-play.mjs` 匿名调用 Google Play 公开接口（详情页 + `getreviews`），无需登录。
+`google-play.mjs` 基于 `google-play-scraper` 匿名调用 Google Play 公开的
+`batchexecute` RPC 接口，无需登录。
 
 ### 手动触发
 
@@ -16,7 +17,6 @@
 ### 结果
 
 - 数据写入 `data/comments/google-play/google-play-reviews.jsonl`（workflow 自动提交回仓库，无变化时不提交）。
-- 每次运行的原始 HTML 存为 artifact（`google-play-raw`），解析异常时用于调试。
 - 默认每周一 02:00 UTC 自动运行；不需要定时可在 workflow 里删掉 `schedule` 段。
 
 ### 本地运行
