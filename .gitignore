@@ -10,3 +10,8 @@ video-remotion/build/
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+.env
+data/mock-db.json
+data/*.tmp
+data/migrations/generated/
+.wrangler/

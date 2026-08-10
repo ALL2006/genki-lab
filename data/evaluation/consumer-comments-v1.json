@@ -1,0 +1,1113 @@
+{
+  "version": "consumer-comments-v1",
+  "generatedAt": "2026-08-05T12:00:00.000Z",
+  "itemCount": 49,
+  "sourceFiles": [
+    {
+      "path": "E:/飞书大赛/数据分析样本.xlsx",
+      "sha256": "5a1ea281cd7a6bdc74d426d1fffaf2405334ff26e565dec1a2f8ea5f4c76cdc5",
+      "role": "manual-revised-labels"
+    },
+    {
+      "path": "E:/飞书大赛/多平台饮料真实评论数据.xlsx",
+      "sha256": "d5ffad193555b2129c157961ea655113270c137da0bd7db7f3cc907609f49093",
+      "role": "pre-revision-labels-and-verification"
+    }
+  ],
+  "exclusion": {
+    "id": "R038",
+    "reason": "分析纳入=否；来源产品标注与评论中的口味描述疑似错配。"
+  },
+  "revisionMethod": "revisionNotes 由两份工作簿中同编号字段逐项对比生成；源文件没有独立修订记录表。",
+  "disclaimer": "本评测仅用于GENKI LAB原型阶段内部回归和工作流质量验证，不代表模型总体能力。此评测集来自已收集并人工修订的评论样本，不代表总体市场。",
+  "items": [
+    {
+      "id": "R001",
+      "rawText": "元气森林所有饮料的包装感觉比别的瓶身更厚实些，用量也很健康，这款小朋友不太喜欢喝，因为不是特别甜，但是气泡很足，创作空间比较大，可以尝试做气泡咖啡等",
+      "platform": "京东优评",
+      "brand": "元气森林",
+      "product": "元气森林【含气苏打水】茉莉青柠味500mL*15瓶0糖0甜（新老版本随机发货）",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [
+        "甜味不足",
+        "气泡感强"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "甜味不足"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.jd.com/phb/key_1320cb63d5440a45771d.html",
+      "revisionNotes": [
+        "口味评价：气泡感强 → 甜味不足；气泡感强",
+        "饮用场景：下午茶 → 未提及",
+        "包装评价：中性 → 正面",
+        "情绪倾向：正面 → 中性",
+        "备注：提到包装 → 瓶身厚实；甜度较低；气泡感强"
+      ]
+    },
+    {
+      "id": "R002",
+      "rawText": "夏日必备，京东就是快，昨晚下单，今日已送达，环保包装其实挺好的 小朋友最喜欢葡萄口味（之前点外卖也是一样最爱葡萄味，但是水果却不太吃因为吐皮麻烦~）",
+      "platform": "京东优评",
+      "brand": "元气森林",
+      "product": "元气森林气泡水0糖0脂0卡 480ml*18瓶 夏黑6+白桃6+橙6 京东独家",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.jd.com/phb/key_1320cb63d5440a45771d.html",
+      "revisionNotes": [
+        "口味评价：未提及 → 其他",
+        "饮用场景：未提及 → 日常解渴",
+        "包装评价：中性 → 正面",
+        "备注：提到包装 → 偏好葡萄口味；环保包装"
+      ]
+    },
+    {
+      "id": "R003",
+      "rawText": "我老公爱喝饮料导致血糖高，目前只能喝元气森林，他最爱卡曼橘味。我喜欢喝紫葡萄，海盐菠萝和苹果味。梨味和石榴味没喝过，有机会想尝尝，其实我最喜欢的水果是樱桃，有点期待将来能出个樱桃味的！！！！ps:樱桃味可口可乐我很喜欢喝，以前都是整箱买的。现在戒糖了不买了。",
+      "platform": "B站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [
+        "控糖减脂"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "可能复购",
+      "humanHealthTags": [
+        "控糖"
+      ],
+      "sourceUrl": "https://www.bilibili.com/video/BV16M4y1V7Rq",
+      "revisionNotes": [
+        "口味评价：果味自然 → 其他",
+        "饮用场景：未提及 → 控糖减脂",
+        "健康诉求：未提及 → 控糖",
+        "购买意愿：仅尝鲜 → 可能复购",
+        "情绪倾向：负面 → 正面",
+        "备注：负面分类：其他 → 因血糖与戒糖需求选择无糖饮料；偏好紫葡萄等果味"
+      ]
+    },
+    {
+      "id": "R004",
+      "rawText": "我三个都喝过，生可乐有股奇怪的生味但是味道还可以，元气森林就是水加多的无糖可乐寡淡无味非常难喝",
+      "platform": "B站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "后味明显",
+        "口味寡淡"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "后味明显",
+        "口味寡淡"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "无糖"
+      ],
+      "sourceUrl": "https://www.bilibili.com/video/BV17c411N7vs",
+      "revisionNotes": [
+        "口味评价：后味明显；香精感明显；口味寡淡 → 后味明显；口味寡淡",
+        "备注：负面分类：香精感；口味寡淡 → 负面分类：后味问题；口味寡淡"
+      ]
+    },
+    {
+      "id": "R005",
+      "rawText": "元气森林的我买了苹果和西瓜味的气泡水，难喝，推荐屈臣氏原味气泡水[笑哭]",
+      "platform": "B站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确不复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1YMKK69EVE",
+      "revisionNotes": [
+        "口味评价：果味自然 → 其他",
+        "购买意愿：可能复购 → 明确不复购",
+        "备注：负面分类：其他 → 负面分类：口味不佳"
+      ]
+    },
+    {
+      "id": "R006",
+      "rawText": "元气森林可乐味喝起来就感觉是小时候五毛钱的那种山寨可乐的味道，然后就是在这个的基础上加多了气泡[doge]",
+      "platform": "B站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "后味明显",
+        "气泡感强"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "后味明显"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1dw411n7pu",
+      "revisionNotes": [
+        "口味评价：其他 → 后味明显；气泡感强",
+        "情绪倾向：中性 → 负面",
+        "备注：未提及 → 负面分类：后味问题"
+      ]
+    },
+    {
+      "id": "R007",
+      "rawText": "我品了很久无糖饮料，终于发现特点：半甜不甜的，消散得很快。 有糖饮料甜味能从口腔蔓延到喉咙，无糖的甜味别说在口腔，在舌头甜感都已经消散完了。(这个就是有糖无糖体验上最最最最大的区别) 我的形容是——虚甜。始终和真糖不一样。 听懂掌声[doge][doge][doge]",
+      "platform": "B站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "甜味不足"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "甜味不足",
+        "关注甜味剂"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "无糖",
+        "关注甜味剂"
+      ],
+      "sourceUrl": "https://www.bilibili.com/video/BV1hE4m1R78o",
+      "revisionNotes": [
+        "健康诉求：无糖 → 无糖；关注甜味剂",
+        "情绪倾向：中性 → 负面",
+        "备注：未提及 → 负面分类：甜味剂感；甜味不足"
+      ]
+    },
+    {
+      "id": "R008",
+      "rawText": "我就问一句！元气森林你的乳酸菌味气泡水去哪了？怎么给我下架了？！[辣眼睛]乳酸菌味气泡水真的脱颖而出的好喝，结果你给下架了真是步臭棋啊！[微笑]",
+      "platform": "B站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1rHoWByE4o",
+      "revisionNotes": [
+        "口味评价：果味自然 → 其他",
+        "购买意愿：未提及 → 明确复购",
+        "情绪倾向：负面 → 正面",
+        "备注：负面分类：其他 → 偏好乳酸菌口味；对停产表达不满"
+      ]
+    },
+    {
+      "id": "R009",
+      "rawText": "元气森林整个就是网红产品，营销使劲砸钱，有段时间全小破站都是它的广告，各种吹的，买来喝是真的难喝，价格有一大半是给广告买单了，喝过一次就不会买的东西[微笑]",
+      "platform": "B站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "价格偏高"
+      ],
+      "humanPurchaseIntent": "明确不复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1yg411S7oo",
+      "revisionNotes": [
+        "价格评价：未提及 → 价格偏高",
+        "购买意愿：未提及 → 明确不复购",
+        "备注：负面分类：其他 → 负面分类：口味不佳；价格问题"
+      ]
+    },
+    {
+      "id": "R010",
+      "rawText": "只要是元气森林，都不好喝，更重要的是价格太贵了，味道和一块吧钱的气泡水差不多。",
+      "platform": "什么值得买",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "价格偏高"
+      ],
+      "humanPurchaseIntent": "明确不复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://post.m.smzdm.com/p/a85mzkxl/",
+      "revisionNotes": [
+        "购买意愿：未提及 → 明确不复购",
+        "备注：负面分类：价格问题 → 负面分类：口味不佳；价格问题"
+      ]
+    },
+    {
+      "id": "R011",
+      "rawText": "喝了很多品牌气泡水，只能感叹，健康和味道真的不能兼得，本身代糖的口感就不好，大多都一股子香精味，菠萝控表示元气森林海盐菠萝也不可避免的香精味，唯一喝的菠萝味过得去的，好像是汉口二厂的盐渍凤梨",
+      "platform": "什么值得买",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "代糖味明显",
+        "香精感明显"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "代糖味明显",
+        "香精感明显",
+        "关注甜味剂"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "关注甜味剂"
+      ],
+      "sourceUrl": "https://post.m.smzdm.com/p/a85mzkxl/",
+      "revisionNotes": [
+        "情绪倾向：中性 → 负面"
+      ]
+    },
+    {
+      "id": "R012",
+      "rawText": "好喝的气泡水",
+      "platform": "什么值得买",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://post.m.smzdm.com/p/a8poxdk7/",
+      "revisionNotes": []
+    },
+    {
+      "id": "R013",
+      "rawText": "喝过老包装的感觉也就那么回事，没有传说中的那么好喝，喝过两次就不买了",
+      "platform": "什么值得买",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确不复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://post.m.smzdm.com/p/an9ok6p3/",
+      "revisionNotes": []
+    },
+    {
+      "id": "R014",
+      "rawText": "酸梅汁停产不知道想啥，仙人掌也是[无语]",
+      "platform": "什么值得买",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "果味自然"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://post.m.smzdm.com/p/apvodoqx/",
+      "revisionNotes": []
+    },
+    {
+      "id": "R015",
+      "rawText": "山楂第一 酸梅汤第二 其他一般 。。。。",
+      "platform": "什么值得买",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "果味自然"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://post.m.smzdm.com/p/apvodoqx/",
+      "revisionNotes": []
+    },
+    {
+      "id": "R016",
+      "rawText": "最好喝的优酸乳味也停产了，搞不懂。",
+      "platform": "什么值得买",
+      "brand": "元气森林",
+      "product": "元气森林气泡水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://post.m.smzdm.com/p/apvodoqx/",
+      "revisionNotes": []
+    },
+    {
+      "id": "R017",
+      "rawText": "白桃味还是熟悉的配方，和听装基本是一个味道，白桃香气自然，清清甜甜的，喝起来很清爽，刚拧开的时候气特别足，第一口很过瘾，气泡感甚至比听装还明显，不过如果开盖后放一会儿，气消得会比听装快一些",
+      "platform": "Weee中文站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "果味自然",
+        "气泡感强"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.sayweee.com/zh/grocery-near-me/chinese-lang/explore/%E5%85%83%E6%B0%94%E6%A3%AE%E6%9E%97%E6%B0%94%E6%B3%A1%E6%B0%B4",
+      "revisionNotes": [
+        "口味评价：清爽 → 清爽；果味自然；气泡感强",
+        "备注：未提及 → 白桃香气自然；开盖后气泡消散较快"
+      ]
+    },
+    {
+      "id": "R018",
+      "rawText": "半甜清爽，非常美味！ 零卡路里真是太棒了 我很喜欢。肯定会回购。",
+      "platform": "Weee中文站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [
+        "低卡"
+      ],
+      "sourceUrl": "https://www.sayweee.com/zh/grocery-near-me/chinese-lang/explore/%E5%85%83%E6%B0%94%E6%A3%AE%E6%9E%97%E6%B0%94%E6%B3%A1%E6%B0%B4",
+      "revisionNotes": [
+        "购买意愿：未提及 → 明确复购"
+      ]
+    },
+    {
+      "id": "R019",
+      "rawText": "元气森林 苏打气泡水 夏黑葡萄味 330 毫升*6 罐 会回购",
+      "platform": "Weee中文站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.sayweee.com/zh/grocery-near-me/chinese-lang/explore/%E5%85%83%E6%B0%94%E6%A3%AE%E6%9E%97%E6%B0%94%E6%B3%A1%E6%B0%B4",
+      "revisionNotes": [
+        "购买意愿：未提及 → 明确复购"
+      ]
+    },
+    {
+      "id": "R020",
+      "rawText": "口感清爽，味道好。低卡路里，深受大孩子喜爱。",
+      "platform": "Weee中文站",
+      "brand": "元气森林",
+      "product": "元气森林气泡水元气森林气泡水一站比较·配送到家 | Weee!",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "低卡"
+      ],
+      "sourceUrl": "https://www.sayweee.com/zh/grocery-near-me/chinese-lang/explore/%E5%85%83%E6%B0%94%E6%A3%AE%E6%9E%97%E6%B0%94%E6%B3%A1%E6%B0%B4",
+      "revisionNotes": []
+    },
+    {
+      "id": "R021",
+      "rawText": "这款可口可乐益生元，简直是夏日必备神器！红色罐身，经典又吸睛，拿在手里超有范儿。打开一听，气泡丰富，口感清爽，甜度刚刚好，喝一口就停不下来！关键是它还添加了益生元，对肠道友好，畅饮无负担。无论是宅家刷剧，还是外出聚会，带上它，快乐加倍！",
+      "platform": "京东优评",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐（Coca-Cola）可口可乐益生元气泡水 汽水饮料 零糖零卡零脂 200ml*12瓶装",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "甜度适中",
+        "气泡感强"
+      ],
+      "humanSceneTags": [
+        "聚会",
+        "其他"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://yp.jd.com/1316a95b00d5c83fb3ee.html",
+      "revisionNotes": [
+        "饮用场景：聚会；控糖减脂 → 聚会；其他",
+        "健康诉求：减脂 → 未提及",
+        "备注：包装设计或完好 → 包装设计吸睛；宅家刷剧与聚会场景"
+      ]
+    },
+    {
+      "id": "R022",
+      "rawText": "这款可乐的口感确实令人满意，气泡充足且甜度适中，喝起来清爽解渴。包装完好，物流配送也很及时，整体购物体验顺畅。作为日常饮品，它符合我的预期，会考虑再次购买。感谢商家提供优质的产品与服务。",
+      "platform": "京东优评",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐（Coca-Cola）可口可乐益生元气泡水 汽水饮料 零糖零卡零脂 200ml*12瓶装",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "甜度适中",
+        "气泡感强"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "可能复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://yp.jd.com/1316a95b00d5c83fb3ee.html",
+      "revisionNotes": []
+    },
+    {
+      "id": "R023",
+      "rawText": "这款雪碧的口感非常清爽，柠檬风味鲜明，气泡感十足，喝起来十分畅快。包装完好，送货及时，价格也很合理。整体来说是一次很满意的购物体验，会考虑再次购买。",
+      "platform": "京东优评",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐（Coca-Cola）[黄子弘凡代言]雪碧益生元气泡水 汽水饮料 零糖零卡200ml*12瓶装",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "气泡感强",
+        "果味自然"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "可能复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://yp.jd.com/1316a95b00d5c83fb3ee.html",
+      "revisionNotes": [
+        "口味评价：清爽 → 清爽；气泡感强；果味自然",
+        "饮用场景：未提及 → 日常解渴"
+      ]
+    },
+    {
+      "id": "R024",
+      "rawText": "这饮料包装看着清爽，绿色瓶身像极了夏天的凉风，但喝起来却有点“平淡无奇”。甜味确实不腻，但清爽感不足，像是被稀释过的快乐水。冰镇后稍微好点，但还是少了点让人惊艳的滋味。适合不爱太甜的朋友，但要是追求刺激口感，可能要失望了。总体来说，无功无过，解渴还行，但别指望它能带来惊喜。",
+      "platform": "京东优评",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐（Coca-Cola）檀健次代言 雪碧Sprite零卡无糖饮料 330ml*24摩登罐",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "甜度适中",
+        "口味寡淡",
+        "冰镇后更好喝"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [
+        "口味寡淡"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://yp.jd.com/1320e157c644bb6c1113.html",
+      "revisionNotes": [
+        "口味评价：清爽；甜度适中；过甜；口味寡淡；冰镇后更好喝 → 甜度适中；口味寡淡；冰镇后更好喝",
+        "备注：包装设计或完好；负面分类：过甜；口味寡淡 → 包装正面；负面分类：口味寡淡"
+      ]
+    },
+    {
+      "id": "R025",
+      "rawText": "这款可口可乐零度无糖柠檬汽水碳酸饮料，零糖零脂零卡，非常的好喝。柠檬味十足，酸甜可口，让人百喝不腻，而且可乐的气泡充足绵密，冰镇后口感更佳。",
+      "platform": "京东优评",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐（Coca-Cola）零度无糖柠檬汽水碳酸饮料0糖0脂330ml*24摩登罐京东专供",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "甜度适中",
+        "气泡感强",
+        "果味自然",
+        "酸味适中",
+        "冰镇后更好喝"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "无糖",
+        "低卡"
+      ],
+      "sourceUrl": "https://yp.jd.com/1320e157c644bb6c1113.html",
+      "revisionNotes": []
+    },
+    {
+      "id": "R026",
+      "rawText": "冰可乐入喉气泡感很足，瞬间就把夏天的闷热感冲散了，喝完整个人都清爽不少，冰过的口感比常温好太多，每次喝都觉得很解暑，性价比也合适",
+      "platform": "京东优评",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐（Coca-Cola）【520我爱宁-3】零度+经典口味330ml*24罐各1箱+定制纪念品套组",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "气泡感强"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://yp.jd.com/1320e157c644bb6c1113.html",
+      "revisionNotes": []
+    },
+    {
+      "id": "R027",
+      "rawText": "这罐雪碧喝起来气很足，一口下去特别爽，碳酸感挺强的，喜欢这种刺激感🥤。瓶盖设计得不错，轻轻一拧就开了，很方便，不用费劲。包装也是熟悉的绿色，看着就很清爽，夏天来一罐刚刚好。整体体验挺满意的，推荐给爱喝汽水的朋友～👍👍",
+      "platform": "京东优评",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐（Coca-Cola）檀健次代言 雪碧Sprite零卡无糖饮料 330ml*24摩登罐",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "气泡感强"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "可能复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://yp.jd.com/1320e157c644bb6c1113.html",
+      "revisionNotes": []
+    },
+    {
+      "id": "R028",
+      "rawText": "都是可口可乐的无糖版本，用的代糖不一样，一个是阿斯巴甜，一个是安赛蜜，所以口味有些区别。不知道为什么有人不懂装懂。",
+      "platform": "豆瓣小组",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐无糖/零度/健怡系列",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "关注甜味剂"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "无糖",
+        "关注甜味剂"
+      ],
+      "sourceUrl": "https://m.douban.com/group/topic/224295621/",
+      "revisionNotes": [
+        "口味评价：代糖味明显 → 其他",
+        "备注：负面分类：甜味剂感；配料担忧 → 关注不同甜味剂带来的口味差异"
+      ]
+    },
+    {
+      "id": "R029",
+      "rawText": "我记得看谁说过健怡可乐（diet）是为了女性消费者研发的牌子 零度可乐（zero）是后来为了男性消费者推出的新品牌 因为喝健怡在很多男人看起来是有点“娘”的 所以实际上只是大公司为了多收割消费者用了两种不同的包装……",
+      "platform": "豆瓣小组",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐无糖/零度/健怡系列",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://m.douban.com/group/topic/224295621/",
+      "revisionNotes": [
+        "饮用场景：工作学习 → 未提及"
+      ]
+    },
+    {
+      "id": "R030",
+      "rawText": "都是可口可乐吧应该产品线不同？(不懂)但健怡diet coke比无糖好喝!!!",
+      "platform": "豆瓣小组",
+      "brand": "可口可乐无糖系列",
+      "product": "可口可乐无糖/零度/健怡系列",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "无糖"
+      ],
+      "sourceUrl": "https://m.douban.com/group/topic/224295621/",
+      "revisionNotes": []
+    },
+    {
+      "id": "R031",
+      "rawText": "喝起来很清爽，气泡挺足的，冰镇后更爽口 🍹 包装严实，物流快，配送员态度也好 👍 整体体验不错，值得回购 💯 💯",
+      "platform": "京东优评",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐Pepsi 无糖可乐 碳酸饮料汽水 300ml*24瓶 迷你瓶整箱装",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "气泡感强",
+        "冰镇后更好喝"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.jd.com/phb/key_1320b375db67807ecae6.html",
+      "revisionNotes": [
+        "口味评价：清爽；冰镇后更好喝 → 清爽；气泡感强；冰镇后更好喝",
+        "包装评价：中性 → 正面",
+        "购买意愿：未提及 → 明确复购"
+      ]
+    },
+    {
+      "id": "R032",
+      "rawText": "家里常备可乐，尤其是炎炎夏日更应享受凉爽的冰镇可乐。百事可乐的无糖生可乐价格实惠，京东商城处理迅速发货及时，下午单后第二天就送到家里，非常满意！",
+      "platform": "京东优评",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐Pepsi 无糖生可乐 碳酸饮料汽水 330ml*24听 细长罐整箱装",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "冰镇后更好喝"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [
+        "无糖"
+      ],
+      "sourceUrl": "https://www.jd.com/phb/key_1320b375db67807ecae6.html",
+      "revisionNotes": []
+    },
+    {
+      "id": "R033",
+      "rawText": "昨天晚上下的单 今天上午就马不停蹄的送过来了 京东自营还是一如既往的快啊👍🏻已经是多次回购了 好喝不贵 经济实惠 好评👍🏻",
+      "platform": "京东优评",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐Pepsi 无糖可乐 碳酸饮料汽水 2L*6大瓶 家庭聚会分享",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.jd.com/phb/key_1320b375db67807ecae6.html",
+      "revisionNotes": [
+        "价格评价：未提及 → 性价比高",
+        "购买意愿：未提及 → 明确复购"
+      ]
+    },
+    {
+      "id": "R034",
+      "rawText": "京东自营购买物流非常快，基本上第一天下的单第二天就送到了，快递小哥送上门，包装完整没有损坏，很好。这次购买的大瓶百事可乐，配合优惠券使用非常划算，比店里便宜很多，物美价廉。",
+      "platform": "京东优评",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐Pepsi 无糖可乐 青柠味碳酸饮料汽水 2L*6大瓶 家庭聚会分享",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.jd.com/phb/key_1320b375db67807ecae6.html",
+      "revisionNotes": [
+        "包装评价：中性 → 正面",
+        "情绪倾向：中性 → 正面"
+      ]
+    },
+    {
+      "id": "R035",
+      "rawText": "经常买碳酸饮料，但是可乐一直不是首选。感觉中日可乐原味的差不太多，但是无糖型就能明显感觉到差距，日本的无糖感觉比国内的自然。我也觉得国内的甜味素给多了。",
+      "platform": "什么值得买",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐无糖系列",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "代糖味明显"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "代糖味明显",
+        "关注甜味剂"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "无糖",
+        "关注甜味剂"
+      ],
+      "sourceUrl": "https://post.m.smzdm.com/p/670230/",
+      "revisionNotes": [
+        "口味评价：果味自然 → 代糖味明显",
+        "健康诉求：无糖 → 无糖；关注甜味剂",
+        "情绪倾向：中性 → 负面",
+        "备注：未提及 → 负面分类：甜味剂感"
+      ]
+    },
+    {
+      "id": "R036",
+      "rawText": "口感这东西见仁见智，如果强行把自己的口味作为评判的标准说百事的无糖可乐口感不佳的话，就有点太主观了。",
+      "platform": "什么值得买",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐无糖系列",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [
+        "无糖"
+      ],
+      "sourceUrl": "https://post.m.smzdm.com/p/670230/",
+      "revisionNotes": []
+    },
+    {
+      "id": "R037",
+      "rawText": "总之，这饮料太好喝了！味道不像我担心的那样浓烈。虽然是长途运输过来的，但口感依然很棒，气泡也很完美。五星好评，下次还会买。",
+      "platform": "Weee中文站",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐无糖青柠百事可乐无糖青柠一站比较·配送到家 | Weee!",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "气泡感强",
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "可能复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.sayweee.com/zh/grocery-near-me/chinese-lang/explore/%E7%99%BE%E4%BA%8B%E5%8F%AF%E4%B9%90%E6%97%A0%E7%B3%96%E9%9D%92%E6%9F%A0",
+      "revisionNotes": [
+        "口味评价：口味浓郁 → 气泡感强；其他",
+        "备注：未提及 → 口味不浓烈；气泡表现正面"
+      ]
+    },
+    {
+      "id": "R039",
+      "rawText": "我超爱这款汽水，我觉得甜度刚刚好，而且有淡淡的果香和花香。我会回购的。五星好评！",
+      "platform": "Weee中文站",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐无糖青柠百事可乐无糖青柠一站比较·配送到家 | Weee!",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "甜度适中",
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.sayweee.com/zh/grocery-near-me/chinese-lang/explore/%E7%99%BE%E4%BA%8B%E5%8F%AF%E4%B9%90%E6%97%A0%E7%B3%96%E9%9D%92%E6%9F%A0",
+      "revisionNotes": [
+        "口味评价：甜度适中 → 甜度适中；其他",
+        "购买意愿：未提及 → 明确复购",
+        "备注：未提及 → 淡淡果香与花香"
+      ]
+    },
+    {
+      "id": "R040",
+      "rawText": "我以为这应该是西柚味的百事可乐，不管怎样，味道还是超级棒，但绝对不是西柚味的百事可乐。",
+      "platform": "Weee中文站",
+      "brand": "百事可乐无糖系列",
+      "product": "百事可乐无糖青柠百事可乐无糖青柠一站比较·配送到家 | Weee!",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.sayweee.com/zh/grocery-near-me/chinese-lang/explore/%E7%99%BE%E4%BA%8B%E5%8F%AF%E4%B9%90%E6%97%A0%E7%B3%96%E9%9D%92%E6%9F%A0",
+      "revisionNotes": []
+    },
+    {
+      "id": "R041",
+      "rawText": "又有活动，价格还比较实惠，折下来大概一瓶两块五左右就又囤了两箱日炎炎，喝点糖水提神，当然不能喝太多不健康其实对比过去适合其他品牌的饮料，就是屈臣氏家的是没有那些奇奇怪怪的原料，好像是什么糖素啊，甜蜜素啊之类的东西，虽然可能单位值热量偏高，但是还是合格，放心吧，谢谢快递师傅不远千里somgdao 六楼",
+      "platform": "京东优评",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏（Watsons）康普茶味苏打水饮料低糖0脂低卡聚会调酒气泡水325ml*24罐整箱装",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [
+        "关注甜味剂",
+        "关注添加剂"
+      ],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [
+        "关注甜味剂",
+        "关注添加剂"
+      ],
+      "sourceUrl": "https://yp.jd.com/13208949846c697a8b34.html",
+      "revisionNotes": [
+        "口味评价：后味明显 → 未提及",
+        "饮用场景：未提及 → 日常解渴",
+        "健康诉求：关注添加剂 → 关注甜味剂；关注添加剂",
+        "购买意愿：未提及 → 明确复购",
+        "情绪倾向：负面 → 正面",
+        "备注：负面分类：香精感；配料担忧 → 价格实惠并重复囤货；关注配料与甜味剂"
+      ]
+    },
+    {
+      "id": "R042",
+      "rawText": "包装很好，绝了绝了，很舒服，一箱很合适。赞赞赞！口味很不错，好喝，调酒也不错，喜欢喜欢，谁都可以推荐一下，男女老少皆宜。 气泡细腻度：不错 口感清爽度：不错 成分纯净度：不错",
+      "platform": "京东优评",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏（Watsons）莫吉托味苏打水饮料0脂低糖低卡调酒含汽气泡水330mL*24罐整箱",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽"
+      ],
+      "humanSceneTags": [
+        "其他"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "可能复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://yp.jd.com/13208949846c697a8b34.html",
+      "revisionNotes": []
+    },
+    {
+      "id": "R043",
+      "rawText": "非常不错，长期购买，经常喝无糖起泡细腻，口感清晰，味道不错，日常吃饭在家常备，解腻效果很棒，调酒或者咖啡都不错，很OK的一款气泡水",
+      "platform": "京东优评",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏（Watsons）苏打水柠檬草味含汽气泡水饮料0脂低糖解腻调酒330mL*24罐整箱",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽"
+      ],
+      "humanSceneTags": [
+        "日常解渴",
+        "吃饭佐餐",
+        "下午茶",
+        "其他"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [
+        "无糖"
+      ],
+      "sourceUrl": "https://yp.jd.com/13208949846c697a8b34.html",
+      "revisionNotes": []
+    },
+    {
+      "id": "R044",
+      "rawText": "好喝，这个系列已经多次复购了，暂时来说最喜欢这一款的味道，微甜、低糖喝起来很舒服，不会堵喉咙。夏天放在冰箱里面拿出来喝非常解渴。",
+      "platform": "京东优评",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏（Watsons）康普茶味苏打水饮料低糖0脂低卡聚会调酒气泡水325ml*24罐整箱装",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "清爽",
+        "甜度适中",
+        "冰镇后更好喝"
+      ],
+      "humanSceneTags": [
+        "日常解渴"
+      ],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [
+        "低糖"
+      ],
+      "sourceUrl": "https://yp.jd.com/13208949846c697a8b34.html",
+      "revisionNotes": [
+        "购买意愿：未提及 → 明确复购"
+      ]
+    },
+    {
+      "id": "R045",
+      "rawText": "怎么硕呢，我现在买的最多的就是黑色原味款式，当年上学时候在学校超市里边就见过这个，卖的挺贵，好奇心驱使买了一瓶尝尝，emmm，那瓶我是带着痛苦面具喝的，喝了一半实在喝不下去了就撇了。后面又几次不信邪买了一两次，都是喝半瓶就撇了，觉得卖的死贵还难喝，我真是欠得慌。后续有几年就算碰到卖这玩意的我也没买过了。直到前几个月吧，我医院查出有中度脂肪肝和嘌呤七百多的问题，就是因为我爱喝饮料，自高中开始，可乐，美年达之类的，一天几罐的整，每天白开水喝的没饮料多。没办法，开始戒饮料，但是嘴就是馋，一两天不喝带点气儿的饮料浑身不舒坦，无糖可乐一个不好喝，再一个就是一样涨嘌呤，这时候就突然想到了当年喝的这破玩意儿了，虽说它没味儿，但是它有气啊，气还挺足都辣舌头了，而且配料表也算干净，就水，二氧化碳，碳酸氢钠，没了。我嘴馋了就整这玩意儿，要不是卖的有点略贵，当水喝都没问题，干净呐，味道不好喝，我眼睛一闭，一口抽半罐，没尝出啥味儿就吞进去了，气泡感也满足了，比可乐还足的气儿，挺过瘾的。这玩意吧，其他带味道的我也唱过，emmm，个人感觉不如原味，也可能是因为它本身就是调酒用的，纯饮的确就是差差点，如果有喜欢喝带气饮料的朋友，又怕长胖或者糖尿病啥的，可以尝试一下，冰镇一下口感更过瘾，记住一条，别尝味儿，进嘴里别品，就是吞就完事了，嘎嘎得劲。",
+      "platform": "B站",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏气泡水/苏打水",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [
+        "气泡感强",
+        "口味寡淡",
+        "冰镇后更好喝"
+      ],
+      "humanSceneTags": [
+        "日常解渴",
+        "控糖减脂"
+      ],
+      "humanPainPointTags": [
+        "口味寡淡",
+        "价格偏高"
+      ],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [
+        "无糖",
+        "控糖",
+        "减脂",
+        "关注配料表"
+      ],
+      "sourceUrl": "https://www.bilibili.com/video/BV1bbXyYjE3A",
+      "revisionNotes": [
+        "口味评价：果味自然；冰镇后更好喝 → 气泡感强；口味寡淡；冰镇后更好喝",
+        "饮用场景：控糖减脂；其他 → 日常解渴；控糖减脂",
+        "健康诉求：无糖；减脂；关注配料表 → 无糖；控糖；减脂；关注配料表",
+        "购买意愿：仅尝鲜 → 明确复购",
+        "情绪倾向：负面 → 中性",
+        "备注：负面分类：价格问题；配料担忧 → 虽认为口味寡淡且价格偏高，但作为含气饮料替代品持续购买"
+      ]
+    },
+    {
+      "id": "R046",
+      "rawText": "我重新排名一下： 1 原味 2 柠檬草味 3 汤力水、盐味（并列） 5香草味 6 干姜味 7 莫吉托味 你们觉得哪个味道最好喝呢？点个赞吧！点个赞吧 求求了❤️❤️",
+      "platform": "B站",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏气泡水/苏打水",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1bbXyYjE3A",
+      "revisionNotes": [
+        "口味评价：果味自然 → 其他",
+        "情绪倾向：正面 → 中性",
+        "备注：未提及 → 口味排名型评论"
+      ]
+    },
+    {
+      "id": "R047",
+      "rawText": "康普茶是最好喝的",
+      "platform": "B站",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏气泡水/苏打水",
+      "humanSentiment": "positive",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1bbXyYjE3A",
+      "revisionNotes": [
+        "口味评价：果味自然 → 其他"
+      ]
+    },
+    {
+      "id": "R048",
+      "rawText": "中肯的评价，原味和柠檬草味贼难喝，简直就是毒药味。但是原味喝着难喝，喝完还想喝。陆陆续续买了好几箱。盐味最容易被接受，感觉就是为了戒可乐而喝的汽水代替品。",
+      "platform": "B站",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏气泡水/苏打水",
+      "humanSentiment": "neutral",
+      "humanFlavorTags": [
+        "后味明显",
+        "香精感明显"
+      ],
+      "humanSceneTags": [
+        "控糖减脂"
+      ],
+      "humanPainPointTags": [
+        "后味明显",
+        "香精感明显"
+      ],
+      "humanPurchaseIntent": "明确复购",
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1dT411T7d4",
+      "revisionNotes": [
+        "口味评价：果味自然 → 后味明显；香精感明显",
+        "购买意愿：未提及 → 明确复购",
+        "情绪倾向：负面 → 中性",
+        "备注：负面分类：其他 → 口味评价负面，但已多次购买；盐味接受度较高"
+      ]
+    },
+    {
+      "id": "R049",
+      "rawText": "因为黑的太难喝来搜索",
+      "platform": "B站",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏气泡水/苏打水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "其他"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1dT411T7d4",
+      "revisionNotes": []
+    },
+    {
+      "id": "R050",
+      "rawText": "只有香草味能喝，莫吉托味一股牙膏味，柠檬味一股消毒水味",
+      "platform": "B站",
+      "brand": "屈臣氏气泡水/苏打水",
+      "product": "屈臣氏气泡水/苏打水",
+      "humanSentiment": "negative",
+      "humanFlavorTags": [
+        "后味明显",
+        "香精感明显"
+      ],
+      "humanSceneTags": [],
+      "humanPainPointTags": [
+        "后味明显",
+        "香精感明显"
+      ],
+      "humanPurchaseIntent": null,
+      "humanHealthTags": [],
+      "sourceUrl": "https://www.bilibili.com/video/BV1dT411T7d4",
+      "revisionNotes": [
+        "口味评价：后味明显；果味自然；香精感明显 → 后味明显；香精感明显"
+      ]
+    }
+  ]
+}

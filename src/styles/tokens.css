@@ -1,0 +1,61 @@
+:root {
+  font-family: "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  color: #26292e;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  /* Product-neutral system palette */
+  --canvas: #ffffff;
+  --surface: #ffffff;
+  --surface-subtle: #f7f7f8;
+  --surface-muted: #f0f1f2;
+  --surface-overlay: #ffffff;
+  --sidebar: #f7f7f8;
+  --ink: #26292e;
+  --text-strong: #17191d;
+  --muted: #6f747c;
+  --muted-strong: #555b64;
+  --line: #e4e6e8;
+  --line-strong: #d4d7db;
+
+  /* Muted blue-gray is reserved for actions and selection. */
+  --action: #62758b;
+  --action-hover: #51657b;
+  --action-strong: #40566d;
+  --action-soft: #edf1f5;
+  --action-softest: #f6f8fa;
+  --action-border: #d3dbe3;
+  --action-border-strong: #b7c3cf;
+  --focus-ring: rgba(98, 117, 139, 0.24);
+
+  /* Green is a semantic success color, never the system accent. */
+  --success: #2f7d5b;
+  --success-soft: #e8f3ed;
+  --success-line: #bcd9ca;
+  --warning: #95672f;
+  --warning-soft: #fbf2e7;
+  --warning-line: #ead4b8;
+  --danger: #b14b49;
+  --danger-soft: #fbeceb;
+  --danger-line: #ebc7c5;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --shadow-sm: none;
+  --shadow: none;
+
+  /* Compatibility aliases for dormant prototype styles. All map to neutral system colors. */
+  --green-950: var(--text-strong);
+  --green-900: var(--action-strong);
+  --green-800: var(--action-hover);
+  --green-700: var(--action);
+  --green-600: var(--action-hover);
+  --green-300: var(--action-border-strong);
+  --green-200: var(--action-border);
+  --green-100: var(--action-soft);
+  --green-50: var(--action-softest);
+  --red: var(--danger);
+  --red-soft: var(--danger-soft);
+}

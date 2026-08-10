@@ -1,0 +1,219 @@
+{
+  "batchName": "B2-DEV-04",
+  "dataset": "development",
+  "promptVersion": "evidence-analysis-v1",
+  "schemaVersion": "evidence-analysis-v1",
+  "instructions": [
+    "逐条分析items，禁止改变itemId。",
+    "evidenceQuotes.quote必须是rawText中的连续原文。",
+    "只返回JSON对象 {\"results\": [...]}。"
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "results"
+    ],
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "itemId",
+            "evidenceRole",
+            "relevanceScore",
+            "relevanceReason",
+            "brands",
+            "productCategories",
+            "flavors",
+            "consumerNeeds",
+            "scenes",
+            "positiveSignals",
+            "negativeSignals",
+            "riskSignals",
+            "signalType",
+            "evidenceQuotes",
+            "confidence",
+            "eligibleForConceptGeneration"
+          ],
+          "properties": {
+            "itemId": {
+              "type": "string"
+            },
+            "evidenceRole": {
+              "type": "string",
+              "enum": [
+                "consumer_evidence",
+                "market_evidence",
+                "background_evidence",
+                "irrelevant"
+              ]
+            },
+            "relevanceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "relevanceReason": {
+              "type": "string"
+            },
+            "brands": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "productCategories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "flavors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "consumerNeeds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scenes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "negativeSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "riskSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "signalType": {
+              "type": "string",
+              "enum": [
+                "consumer_preference",
+                "product_launch",
+                "category_trend",
+                "safety_context",
+                "other"
+              ]
+            },
+            "evidenceQuotes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "supports"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "supports": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "eligibleForConceptGeneration": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "R039",
+      "title": "Weee中文站评论 · 百事可乐无糖青柠百事可乐无糖青柠一站比较·配送到家 | Weee!",
+      "rawText": "我超爱这款汽水，我觉得甜度刚刚好，而且有淡淡的果香和花香。我会回购的。五星好评！",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R040",
+      "title": "Weee中文站评论 · 百事可乐无糖青柠百事可乐无糖青柠一站比较·配送到家 | Weee!",
+      "rawText": "我以为这应该是西柚味的百事可乐，不管怎样，味道还是超级棒，但绝对不是西柚味的百事可乐。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R041",
+      "title": "京东优评评论 · 屈臣氏（Watsons）康普茶味苏打水饮料低糖0脂低卡聚会调酒气泡水325ml*24罐整箱装",
+      "rawText": "又有活动，价格还比较实惠，折下来大概一瓶两块五左右就又囤了两箱日炎炎，喝点糖水提神，当然不能喝太多不健康其实对比过去适合其他品牌的饮料，就是屈臣氏家的是没有那些奇奇怪怪的原料，好像是什么糖素啊，甜蜜素啊之类的东西，虽然可能单位值热量偏高，但是还是合格，放心吧，谢谢快递师傅不远千里somgdao 六楼",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R043",
+      "title": "京东优评评论 · 屈臣氏（Watsons）苏打水柠檬草味含汽气泡水饮料0脂低糖解腻调酒330mL*24罐整箱",
+      "rawText": "非常不错，长期购买，经常喝无糖起泡细腻，口感清晰，味道不错，日常吃饭在家常备，解腻效果很棒，调酒或者咖啡都不错，很OK的一款气泡水",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R045",
+      "title": "B站评论 · 屈臣氏气泡水/苏打水",
+      "rawText": "怎么硕呢，我现在买的最多的就是黑色原味款式，当年上学时候在学校超市里边就见过这个，卖的挺贵，好奇心驱使买了一瓶尝尝，emmm，那瓶我是带着痛苦面具喝的，喝了一半实在喝不下去了就撇了。后面又几次不信邪买了一两次，都是喝半瓶就撇了，觉得卖的死贵还难喝，我真是欠得慌。后续有几年就算碰到卖这玩意的我也没买过了。直到前几个月吧，我医院查出有中度脂肪肝和嘌呤七百多的问题，就是因为我爱喝饮料，自高中开始，可乐，美年达之类的，一天几罐的整，每天白开水喝的没饮料多。没办法，开始戒饮料，但是嘴就是馋，一两天不喝带点气儿的饮料浑身不舒坦，无糖可乐一个不好喝，再一个就是一样涨嘌呤，这时候就突然想到了当年喝的这破玩意儿了，虽说它没味儿，但是它有气啊，气还挺足都辣舌头了，而且配料表也算干净，就水，二氧化碳，碳酸氢钠，没了。我嘴馋了就整这玩意儿，要不是卖的有点略贵，当水喝都没问题，干净呐，味道不好喝，我眼睛一闭，一口抽半罐，没尝出啥味儿就吞进去了，气泡感也满足了，比可乐还足的气儿，挺过瘾的。这玩意吧，其他带味道的我也唱过，emmm，个人感觉不如原味，也可能是因为它本身就是调酒用的，纯饮的确就是差差点，如果有喜欢喝带气饮料的朋友，又怕长胖或者糖尿病啥的，可以尝试一下，冰镇一下口感更过瘾，记住一条，别尝味儿，进嘴里别品，就是吞就完事了，嘎嘎得劲。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R046",
+      "title": "B站评论 · 屈臣氏气泡水/苏打水",
+      "rawText": "我重新排名一下： 1 原味 2 柠檬草味 3 汤力水、盐味（并列） 5香草味 6 干姜味 7 莫吉托味 你们觉得哪个味道最好喝呢？点个赞吧！点个赞吧 求求了❤️❤️",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R047",
+      "title": "B站评论 · 屈臣氏气泡水/苏打水",
+      "rawText": "康普茶是最好喝的",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R048",
+      "title": "B站评论 · 屈臣氏气泡水/苏打水",
+      "rawText": "中肯的评价，原味和柠檬草味贼难喝，简直就是毒药味。但是原味喝着难喝，喝完还想喝。陆陆续续买了好几箱。盐味最容易被接受，感觉就是为了戒可乐而喝的汽水代替品。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R049",
+      "title": "B站评论 · 屈臣氏气泡水/苏打水",
+      "rawText": "因为黑的太难喝来搜索",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    }
+  ]
+}

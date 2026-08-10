@@ -1,100 +1,146 @@
 # GENKI LAB｜元气创新引擎
 
-GENKI LAB 是面向“2026 AI先锋未来人才大赛——元气森林命题”的前端系统原型，覆盖“趋势洞察—产品定义—营销内容—用户验证—数据回流”的饮品创新链路。
+面向“2026 AI先锋未来人才大赛｜元气森林企业命题”的可运行 MVP。本地继续使用 React/Vite + Express + JSON；生产目标为 Cloudflare Workers Static Assets + Worker API + D1 + Cron。
 
-> 当前版本为开题阶段前端框架，不代表完整市场研究和真实产品研发结果。
+Cloudflare 生产地址：[https://genki-lab.genki-lab.workers.dev](https://genki-lab.genki-lab.workers.dev)
 
-## 当前阶段目标
+> 真实性边界：`MockCollector`、`MockAIProvider` 和验证反馈仍为 DEMO；真实采集资料标记为 LIVE。当前环境未配置 Ark 密钥，因此没有声称已经完成豆包在线调用。公开资料、消费者评论证据和市场背景严格分层；青提茉莉仍是待验证的概念产品。
 
-- 建立视觉完整、结构清晰、响应式的前端框架。
-- 明确页面、组件、数据类型和服务层边界。
-- 为后续研究资料、候选产品、内容资产和验证结果提供可替换接口。
-- 保持零 API Key 依赖，避免使用任何虚构行业数据、评论和结论。
+## 当前完成范围
 
-## 页面结构
+- 六个 API 驱动页面：运行、数据源、趋势、产品概念、用户验证、模型评测。旧路由保持不变。
+- Express + TypeScript API，统一成功/失败响应格式。
+- JSON 文件持久化的 `MockRepository`，刷新与重启后数据仍保留。
+- 可替换采集层：保留 `MockCollector`，新增 RSS/Atom、普通文章、配置式列表页采集器。
+- 实时采集安全边界：超时、有限重试与退避、按域名间隔、明确 User-Agent、HTTP 状态检查、2 MB 响应上限、单源失败隔离。
+- 公开来源配置：英国食品标准局研究 RSS、The Coca-Cola Company 官方媒体中心、政府公开统计文章。
+- 四种 AI 路径：Mock、Ark Responses API、妙搭 Webhook、Manual JSON 批次导出/导入。
+- Zod strict Schema、itemId 对齐、逐字引文、证据角色与概念资格校验；整批拒绝与内容哈希幂等。
+- 49 条冻结人工评论评测集，固定 39 条 development / 10 条 holdout，记录质量、耗时、失败与重试指标。
+- 趋势人工审核与产品人工评分/入围机制。
+- 每次任务记录状态、数量、异常与 `durationMs`。
+- 可替换的 Repository、Collector、AI Provider 接口及飞书/豆包占位实现。
 
-| 路由 | 页面 | 当前内容 |
-| --- | --- | --- |
-| `#/dashboard` | 首页 | 系统流程和五个模块入口 |
-| `#/research` | 资料与洞察 | 报告、竞品、评论和洞察空状态 |
-| `#/trends` | 趋势雷达 | 趋势分析图表框架与三张机会卡 |
-| `#/concepts` | 产品概念工坊 | 概念列表、详情、对比和评分框架 |
-| `#/content` | 营销内容工厂 | 内容生产流程和资产占位区 |
-| `#/validation` | 用户验证与结果 | 测试表单和结果面板框架 |
-
-项目使用 HashRouter，部署到 GitHub Pages 后无需额外配置服务端路由回退。
-
-## 安装
-
-建议使用 Node.js 20 或更高版本。
-
-```bash
-npm install
-```
-
-## 本地运行
-
-```bash
-npm run dev
-```
-
-根据终端显示的本地地址在浏览器中打开项目。
-
-## 构建
-
-```bash
-npm run build
-```
-
-构建产物位于 `dist` 目录。可用以下命令本地预览：
-
-```bash
-npm run preview
-```
-
-## GitHub Pages 部署
-
-仓库已包含 `.github/workflows/deploy-pages.yml`：
-
-1. 将本项目作为仓库根目录推送到 GitHub，并确保默认分支为 `main`。
-2. 在仓库 **Settings → Pages** 中将 Source 设为 **GitHub Actions**。
-3. 推送到 `main`，工作流会安装依赖、构建并部署 `dist`。
-4. 也可以在 Actions 页面手动运行该工作流。
-
-`vite.config.ts` 使用相对资源路径，因此无需提前知道仓库名。
-
-## 替换研究数据
-
-1. 核对资料来源并确定团队可以使用。
-2. 依据 `src/types/index.ts` 中的 `ResearchSource` 或 `UserComment` 接口整理字段。
-3. 将数据加入 `src/data/researchSources.ts` 或 `src/data/comments.ts`。
-4. 文件素材放入对应的 `public/assets` 子目录。
-5. 后续改为 CSV、飞书或数据库时，只替换 `src/services/researchService.ts`，页面组件可保持不变。
-
-更详细的来源和内容要求见 `docs/CONTENT_GUIDE.md`。
-
-## 添加产品概念
-
-1. 在趋势研究和团队评审完成后，按 `ProductConcept` 接口整理字段。
-2. 将候选概念加入 `src/data/products.ts`，每个概念使用唯一 `id`。
-3. 包装或产品素材放入 `public/assets/products`。
-4. 通过 `productService` 读取，不要在页面组件内硬编码产品数据。
-
-当前“示例产品占位卡”只展示结构，不代表任何具体新品方向。
-
-## 后续接入飞书数据
-
-建议先由飞书多维表格导出 CSV，并在服务层完成字段映射和校验。确认权限、合规、加载状态和错误处理后，再评估飞书开放平台 API。规划详见 `docs/FEISHU_PLAN.md`。
-
-## 当前尚未实现
-
-- 真实行业报告、竞品资料和用户评论。
-- 爬虫、真实 AI 模型 API 和真实数据库。
-- 飞书开放平台 API、飞书表单连接和 WorkBuddy 自动化。
-- 具体研究结论、候选新品和市场模拟数据。
-- 海报成品、营销视频、视频播放器、脚本成品和 HyperFrames 工程。
-- 真实用户测试提交、统计和结果回流。
+本阶段没有接入飞书多维表格、用户问卷、产品转视频或妙搭云端编排；Ark 适配器已实现，但因本机没有凭证尚未完成在线 smoke。没有修改 `video-remotion` 或 `video`。
 
 ## 技术栈
 
-React、Vite、TypeScript、React Router、Lucide React、Recharts、普通 CSS，以及为后续本地测试预留的 localStorage 工具。
+- 前端：React、Vite、TypeScript、React Router、Lucide React、普通 CSS。
+- 后端：Node.js、Express、TypeScript。
+- 采集：Node 原生 Fetch、Cheerio、fast-xml-parser。
+- 持久化：本地 JSON 文件（默认 `data/mock-db.json`）。
+- 生产持久化：Cloudflare D1；Worker 运行路径不依赖 `fs`、`DATA_DIR` 或 Express `listen()`。
+- 验证：TypeScript、ESLint、Node 集成测试、Vite production build。
+
+## 快速启动
+
+环境要求：Node.js 20+，npm 10+。
+
+```bash
+npm install
+copy .env.example .env
+npm run dev
+```
+
+默认地址：
+
+- 网页：`http://localhost:5173`
+- API：`http://localhost:8787`
+
+`npm run dev` 同时启动网页与 API。Vite 将 `/api` 代理到 8787 端口。
+
+### 启用真实采集
+
+在 `.env` 中设置 `ENABLE_LIVE_COLLECTION=true`，并把 `LIVE_COLLECTION_USER_AGENT` 改成带有团队联系信息的标识。界面上的实时数据源按钮会调用服务端采集，密钥不会进入前端。生产或外部演示环境应关闭 `/api/demo/jobs/*`，由受保护正式端点触发。
+
+## 正式任务密钥
+
+以下任务端点必须携带 `X-JOB-SECRET`：
+
+```bash
+curl -X POST http://localhost:8787/api/jobs/collect \
+  -H "Content-Type: application/json" \
+  -H "X-JOB-SECRET: your-secret" \
+  -d '{"mode":"live","sourceIds":["source-rss-fsa-research"]}'
+```
+
+密钥只读取服务端环境变量 `X_JOB_SECRET`，不会进入前端源码。网页中的按钮调用 `/api/demo/jobs/*`，仅用于本地演示；部署前应设置 `ENABLE_DEMO_ACTIONS=false`。
+
+## 推荐演示顺序
+
+1. 在“运行”页点击“运行采集”，看到新增 5 条。
+2. 再运行一次采集，看到重复 5 条、新增 0 条。
+3. 点击“运行分析”，进入“趋势”查看证据并人工确认。
+4. 进入“产品概念”，生成 3 款候选，人工评分并选择入围。
+5. 进入“用户验证”，展示明确标记的模拟反馈、V1/V2 和保留/修改/淘汰建议。
+
+完整 3—5 分钟脚本见 [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)。
+
+## 工程命令
+
+```bash
+npm run dev          # 同时启动 API 与 Vite
+npm run dev:api      # 仅 API
+npm run dev:web      # 仅网页
+npm run lint         # ESLint
+npm run typecheck    # 前端、服务端和测试类型检查
+npm run test:api     # API 闭环集成测试
+npm run test:collectors # 本地 fixtures 与采集安全测试（不联网）
+npm run test:ai      # Schema、引文、Ark 重试/超时、导入幂等、39/10 隔离
+npm run test:live    # 可选公网冒烟测试，要求显式启用 LIVE
+npm run test:automation # 自动化、幂等、校验、批次与holdout保护测试
+npm run automation:daily:dry # 只读展示每日自动化计划
+npm run automation:daily # 执行每日真实自动化链路
+npm run ai:prepare-development # 固定生成39条development的4个批次文件
+npm run ai:evaluate-holdout # 仅在显式解锁后运行holdout
+npm run start:prod   # Express托管dist与API
+npm run build        # TypeScript + Vite production build
+npm run check        # 依次执行全部检查
+npm run cf:dev       # Worker + Static Assets + 本地 D1
+npm run cf:dev:scheduled # 同上，并开放本地 /__scheduled 测试
+npm run cf:test      # production build、Worker bundle、本地 D1/API/Cron 验收
+npm run d1:prepare-import # JSON生成幂等D1导入SQL（生成目录不提交）
+npm run cloudflare:setup  # 登录后自动建库、迁移、导入、验证、构建和部署
+npm run cloudflare:verify # 验收真实 workers.dev 与远端D1
+```
+
+## 目录
+
+```text
+shared/                 前后端共享数据契约
+server/                 API、任务服务、适配器与工具
+src/                    React 页面、组件和 API 客户端
+data/mock-db.json       运行时 DEMO 数据（已 gitignore）
+tests/                  API 闭环集成测试
+docs/                   复赛背景、架构、接口、部署与演示文档
+video-remotion/         现有正式视频工程，本阶段不修改
+video/                  历史 HyperFrames 工程，独立保留
+```
+
+## 文档索引
+
+- [比赛背景](docs/COMPETITION_BACKGROUND.md)
+- [系统架构](docs/ARCHITECTURE.md)
+- [总工作台视觉与文案规范](docs/WORKSPACE_VISUAL_COPY_GUIDE.md)
+- [真实采集运行说明](docs/LIVE_COLLECTION.md)
+- [数据源配置指南](docs/DATA_SOURCE_CONFIG.md)
+- [数据合规边界](docs/DATA_COMPLIANCE.md)
+- [API](docs/API.md)
+- [数据模型](docs/DATA_MODEL.md)
+- [飞书表结构](docs/FEISHU_TABLE_SCHEMA.md)
+- [妙搭自动化](docs/MIAODA_AUTOMATION.md)
+- [妙搭每日配置手册](docs/MIAODA_DAILY_AUTOMATION_SETUP.md)
+- [妙搭早晨清单](docs/MIAODA_MORNING_CHECKLIST.md)
+- [AI Provider](docs/AI_PROVIDER.md)
+- [评论评测集](docs/EVALUATION_DATASET.md)
+- [部署](docs/DEPLOYMENT.md)
+- [Cloudflare 部署](docs/CLOUDFLARE_DEPLOY.md)
+- [D1 Schema](docs/D1_SCHEMA.md)
+- [D1 迁移报告](docs/D1_MIGRATION_REPORT.md)
+- [Cloudflare Free 限制](docs/CLOUDFLARE_FREE_LIMITS.md)
+- [Cloudflare 验收](docs/CLOUDFLARE_ACCEPTANCE.md)
+- [Cloudflare 迁移报告](docs/CLOUDFLARE_MIGRATION_REPORT.md)
+- [Demo 脚本](docs/DEMO_SCRIPT.md)
+- [12 天路线图](docs/ROADMAP_12_DAYS.md)
+- [夜间冲刺报告](docs/OVERNIGHT_SPRINT_REPORT.md)
+- [早晨验收清单](docs/MORNING_ACCEPTANCE_CHECKLIST.md)

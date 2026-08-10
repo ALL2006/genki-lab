@@ -1,0 +1,220 @@
+{
+  "exportVersion": "ai-batch-export-v1",
+  "batch": {
+    "id": "ai-batch-5b688cdb-c90b-4e1f-9360-789aa6805587",
+    "provider": "manual-json",
+    "model": null,
+    "status": "pending",
+    "itemIds": [
+      "raw-07d8beea6ce57283",
+      "raw-ae96ad5170086080",
+      "raw-46e9ad9f8081cf10",
+      "raw-5b2dcbb100894040",
+      "R001",
+      "R006"
+    ],
+    "createdAt": "2026-08-06T02:24:55.352Z",
+    "updatedAt": "2026-08-06T02:24:55.352Z",
+    "promptVersion": "evidence-analysis-v1",
+    "schemaVersion": "evidence-analysis-v1",
+    "importedResultHashes": [],
+    "isDemo": false
+  },
+  "instructions": [
+    "逐条分析 items，禁止改变 itemId。",
+    "evidenceQuotes.quote 必须是 rawText 的连续原文片段。",
+    "公开资料 RawItem 不得标为 consumer_evidence。",
+    "只返回 {\"results\": [...]}，每个字段都必须存在。"
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "results"
+    ],
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "itemId",
+            "evidenceRole",
+            "relevanceScore",
+            "relevanceReason",
+            "brands",
+            "productCategories",
+            "flavors",
+            "consumerNeeds",
+            "scenes",
+            "positiveSignals",
+            "negativeSignals",
+            "riskSignals",
+            "signalType",
+            "evidenceQuotes",
+            "confidence",
+            "eligibleForConceptGeneration"
+          ],
+          "properties": {
+            "itemId": {
+              "type": "string"
+            },
+            "evidenceRole": {
+              "type": "string",
+              "enum": [
+                "consumer_evidence",
+                "market_evidence",
+                "background_evidence",
+                "irrelevant"
+              ]
+            },
+            "relevanceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "relevanceReason": {
+              "type": "string"
+            },
+            "brands": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "productCategories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "flavors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "consumerNeeds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scenes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "negativeSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "riskSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "signalType": {
+              "type": "string",
+              "enum": [
+                "consumer_preference",
+                "product_launch",
+                "category_trend",
+                "safety_context",
+                "other"
+              ]
+            },
+            "evidenceQuotes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "supports"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "supports": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "eligibleForConceptGeneration": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "raw-07d8beea6ce57283",
+      "title": "Keurig Dr Pepper Announces Flavorful New Innovation Across Its Refreshment Portfolio",
+      "rawText": "Brand News Keurig Dr Pepper Announces Flavorful New Innovation Across Its Refreshment Portfolio 02/18/2026 Line-up includes the return of fan-favorite Dr Pepper Creamy Coconut BURLINGTON, Mass. and FRISCO, Texas, Feb. 18, 2026 /PRNewswire/ — Keurig Dr Pepper (NASDAQ: KDP) is entering 2026 with an unrivaled commitment to flavor leadership, debuting innovations across its carbonated soft drinks (CSDs), teas, waters, energy and juice drinks portfolios. Building on the success of 2025’s hits—like Dr Pepper Blackberry, last year’s top CSD innovation1—the lineup of more than 35 new varieties across owned and partner brands delivers what consumers want most: bold new flavors, twists on nostalgic favorites, more zero sugar options and expanded energy offerings. “Consumers want beverages that fit every need throughout their day, and our 2026 lineup does exactly that while offering even more ways to enjoy the brands they love,” said Katie Webb, VP of Innovation at Keurig Dr Pepper. “Our State of Beverages 2025 Trend Report uncovered that 44% of Americans, and an impressive 72% of Gen Z, try new beverages each month, underscoring the tremendous opportunity for flavor exploration and fan‑driven innovation. In fact, Dr Pepper Creamy Coconut was inspired by viral social media trends and its comeback is powered by pure consumer love – when fans rally this hard for a flavor, we listen.” Sips Inspired by the MomentFrom dirty soda culture to throwback sips, playful concoctions and ‘newstalgia’ are helping consumers make the most of every moment. This year’s lineup leans into that energy with limited-time drops of bold, indulgent flavor mashups that feel familiar yet fresh, perfectly timed for summer moments and seasonal celebrations. Dr Pepper Creamy Coconut: A decadently “dirty” fan‑favorite returns – Dr Pepper’s iconic 23‑flavor blend combined with refreshing, summery coconut flavor for a smooth, creamy indulgence available for a limited time starting in April. Snapple Two Hundred Fif‑TEA Party: This limited‑time summer blend pairs juicy raspberry flavored tea with lemonade for a berry‑meets‑citrus refresh in celebration of America’s 250th birthday. 7UP Shirley Temple: Returning nationwide for the holiday season, this festive favorite pairs sweet pomegranate and crisp lemon-lime flavors for a playful twist on the nostalgic mocktail. A&W Root Beer Float: Enjoy all the creamy, vanilla‑kissed flavor of a classic float without the fuss: no spoon, no ice cream, mess – just pop and enjoy. Available for a limited time from beginning in July. Modern Twists on Iconic ClassicsSome of our familiar favorites are evolving with contemporary flavor innovation and bold new looks, including expanding our fruit-forward spin on a timeless ginger ale and a modernized visual identity for a cultural icon. Canada Dry Fruit Splash Strawberry: The Fruit Splash line, the #1 new CSD innovation launch of 20242, is adding a new Strawberry flavor made with a splash of real juice, combining fruity brightness with signature ginger ale, rolling out nationally in February. Snapple Brand Refresh: Snapple is unveiling a refreshed visual identity—bringing to life new colorful graphics and a logo that gives a nod to the brand’s classic trademark. Built to boldly jump off the shelf, spotlight real ingredients and return the Snapple brand to icon-status, the new look starts rolling out across packaging and other visual identity markers in March. Bloom Pop: Nutrabolt and KDP are serving up a trio of feel-good, nostalgia-rich favorites for the brand – Root Beer Float, a classic soda shop blend topped with creamy vanilla; Peach Pineapple, a juicy tropical escape; and Rocket Blast, a vibrant burst of ice pop flavor this summer. Citrus-Inspired InnovationCitrus continues to dominate as the #1 preferred flavor profile among younger shoppers3, who crave refreshing, flavor‑forward beverages. This year’s lineup leans into that momentum with vibrant, juicy flavor profiles designed to stand out on shelf. Bai Barù Blood Orange: A nationwide launch in February, Bai introduces a tangy, vibrant blood orange water beverage that taps one of the fastest‑rising citrus flavors4 while delivering the antioxidant-infused experience Bai is known for – It’s WonderWater®. 7UP Endless Summer Mandarin Orange (Kroger exclusive): A bright mix of mandarin and classic lemon‑lime flavors, this seasonal flavor delivers a crisp, refreshing taste inspired by easy, carefree summer moments. More Choice, Less SugarZero sugar continues to outpace the CSD category, driving 6x more dollar growth than regular varieties5, as consumers look for balance without sacrificing flavor. All 2026 CSD innovations will be offered in both regular and zero sugar options. And now, more zero sugar options are hitting the juice aisle. Mott’s Zero Sugar Juice Drinks: For the first time ever, Mott’s is introducing a Zero Sugar juice drink line, expanding Zero-sugar options for families. Launching nationwide in March alongside refreshed packaging and new sauce pouch innovations, Mott’s brings its trusted taste into a lighter, modern format. Flavor‑Driven Fuel Energy shoppers, especially younger consumers, are leaning into recognizable, irresistible flavors and right‑sized formats that fit more moments, and our owned and partner brands are ready with a strong lineup to meet that demand this year. GHOST Energy: This year’s lineup includes the debut of new 8.4 oz. cans in OG, OG COLADA, STRAWBERRY WATERMELON and WELCH’S® GRAPE to spark trial and introduce the brand to new consumers. The brand also expands its 16 oz. innovation slate with: BLUE RASPBERRY, which transforms a fan-favorite powder flavor into a sweet, fizzy RTD with a bright citrus twist; ICED TEA LEMONADE, a Walmart and Circle K-exclusive delivering bold lemonade balanced by a smooth, sweet tea finish; STRAWBANGO™, a breakout favorite expanding nationwide, combining strawberry with sweet-and-sour mango and subtle citrus notes; BUBBLICIOUS® STRAWBERRY SPLASH™, a Kroger exclusive pairing juicy strawberry with classic bubble gum nostalgia; and, WELCH’S® GRAPE-CRAN, blending sweet grape with tart cranberry for a balanced, fruit-forward flavor. C4 Energy: Rolling out a dynamic lineup that includes Mango Fuego, where sweet mango collides with subtle heat; Hawaiian Punch Berry Blue Typhoon, a nostalgic island blue burst available exclusively at Circle K; Pink Lemonade, a limited time offer with a bright, refreshing mix of raspberry and zesty lemonade that’s tangy and fruity without being too sweet; and Casey’s exclusive Cherry Cola, infused with fizzy, soda shop flair. Bloom Sparkling Energy: Introducing tangy strawberry lemonade Summer Splash, which is sure to win the taste buds. Black Rifle Energy: Offering bold, high‑impact flavor from new GrapeX – a sweet, punchy grape profile – and Tiger Strike, a limited‑time summer fusion of bright citrus and tropical notes. Additional Partner-Driven VarietyAcross our partner portfolio, additional new flavors showcase the best of what we help to deliver nationwide, including vibrant flavor innovation and wellness‑minded refreshment. Electrolit: Expanding its hydration lineup with Cherry Ice, a cool and refreshing cherry flavor with an icy finish, coming soon to stores nationwide; Strawberry Kiwi, a bright and balanced blend of sweet strawberry and tangy kiwi, now conveniently available in a 6-pack multipack; and a 7 Eleven-exclusive flavor to be revealed ahead of summer. La Colombe Draft Latte: Seasonal favorites return in single‑serve and 4‑pack formats, beginning with two café-inspired Draft Latte® coffee drinks, Strawberry Mocha and S’mores. Strawberry Mocha features chocolate‑dipped strawberry notes while S’mores blends toasted marshmallow and rich cocoa notes for sips of decadent goodness. Fall and winter Draft Latte® flavors follow with Pumpkin Spice, a sippable slice of pumpkin pie made with perfectly roasted coffee, frothy farm‑fresh milk, and real pumpkin purée, and Peppermint Mocha, a festive blend of cool mint and chocolate crafted for the holiday season. Polar Seltzer: Bringing back fan ‑favorite Strawberry Créme, pairing juicy strawberry with a silky crème twist for a lightly sweet, dessert ‑inspired sparkle, alongside the nationally returning Toasted Coconut, known for its smooth coconut flavor and warm toasted finish. Keep an eye out in stores to discover what’s new across the full Keurig Dr Pepper portfolio, with even more surprises to come throughout the year – so stay tuned! About Keurig Dr Pepper Keurig Dr Pepper (Nasdaq: KDP) is a leading beverage company in North America, with a portfolio of more than 125 owned, licensed and partner brands and powerful distribution capabilities to provide a beverage for every need, anytime, anywhere. With annual revenue of more than $15 billion, we hold leadership positions in beverage categories including carbonated soft drinks, coffee, tea, water, juice and mixers, and have the #1 single serve coffee brewing system in the U.S. and Canada. Our innovative partnership model builds emerging growth platforms in categories such as premium coffee, energy, sports hydration and ready-to-drink coffee. Our brands include Keurig®, Dr Pepper®, Canada Dry®, Mott’s®, A&W®, Peñafiel®, Snapple®, 7UP®, Green Mountain Coffee Roasters®, GHOST®, Clamato®, Core Hydration® and The Original Donut Shop®. Driven by a purpose to Drink Well. Do Good., our 29,000 employees aim to enhance the experience of every beverage occasion and to make a positive impact for people, communities and the planet. For more information, visit www.keurigdrpepper.com and follow us @KeurigDrPepper on LinkedIn and Instagram. Investor Contact:Investor RelationsT: 888-340-5287 / IR@kdrp.com Media Contact:Katie GilroyT: 781-418-3345 / katie.gilroy@kdrp.com 1 Source: Circana Total US – Multi Outlet + Conv Time: Calendar Year 2024 Ending 12-31-252 Source: Circana Total US – Multi Outlet + Conv Time: Calendar Year 2024 Ending 12-29-243 Source: Circana Panel Data Total US Beverage & Sauce 52 weeks ending 12.29.20244 Source: Mintel, Spring/Summer Flavors on the Menu 20245 Source: Circana, MULO+ w/ Convenience L52W ending 12.28.25 SOURCE Keurig Dr Pepper Download Article",
+      "sourceKind": "raw_item",
+      "dataSourceType": "brand_news",
+      "isDemo": false
+    },
+    {
+      "id": "raw-ae96ad5170086080",
+      "title": "Coca‑Cola Marks America’s 250th Anniversary With Nationwide Celebration and Community Initiatives",
+      "rawText": "As the United States approaches its 250th anniversary, The Coca‑Cola Company is unveiling a yearlong, nationwide celebration designed to honor the country’s history, highlight local communities and inspire optimism for the future. An America250 signature partner, Coca‑Cola announced plans to commemorate the milestone through a combination of limited-edition packaging, creative storytelling and community impact initiatives that will roll out throughout 2026. The collaboration reflects both the Company’s deep roots in American culture and its ongoing commitment to bringing people together in meaningful ways. Commemorative Packaging and a National Creative Platform At the center of the celebration is a new collection of limited-edition America250 packaging, including custom bottles and Coca‑Cola’s first-ever America250 collectible mini-cans. Each mini-can features a design unique to one of the 50 states, as well as Puerto Rico and the District of Columbia, highlighting iconic local symbols—from Georgia’s peach to California’s surfer culture. Designed for collecting and sharing, the America250 packaging also connects consumers to interactive experiences. By scanning participating products, fans can unlock prizes and rewards, including the opportunity to win a new Jeep and other experiences inspired by exploring the country. The campaign is anchored by a new creative anthem, “Drink in America,” which celebrates the spirit of American communities—capturing everyday moments, local traditions and shared experiences, all refreshed with a Coca‑Cola. “For nearly 140 years, Coca‑Cola has been part of the American experience,” said Stacy Jackson, Vice President of Coca‑Cola Trademark, North America. “From our collectible America250 mini-cans to our community outreach initiatives, our goal is to uplift Americans throughout every zip code and create optimism for the future.” A Legacy Rooted in American History Coca‑Cola has played a visible role during many pivotal moments in U.S. history, from supporting American troops during World War II to commemorating the nation’s Bicentennial with collectible bottles in 1976. The America250 partnership builds on that legacy, reinforcing the Company’s belief that honoring the past can help shape a more connected future. “Coca‑Cola has always reflected the times we live in while helping bring people together,” Jackson added. “This milestone is an opportunity to celebrate where we’ve been—and where we’re going.” Driving Community Impact Across the Country Beyond packaging and creative, Coca‑Cola’s America250 efforts place a strong emphasis on community engagement and service. A cornerstone of the initiative is an ambitious goal to generate 250,000 volunteer hours in 2026, working alongside local bottlers and community partners nationwide. Volunteer and cause-marketing programs will focus on areas including food insecurity, disaster relief, sustainability, youth empowerment, and honoring military members and veterans. The Company’s local bottling system will play a key role in bringing these initiatives to life at the community level. Coca‑Cola will also launch “Paint the Nation,” a large-scale public art initiative that will result in dozens of murals created in collaboration with local artists. Each mural will reflect local culture and community pride, creating a lasting visual legacy that extends beyond the anniversary year. Design and development will begin this month and continue through the end of 2026. “Our America250 partnership is an open invitation for communities to participate in this historic moment,” said Shakir Moin, President, Marketing for Coca‑Cola North America. “We designed this program to be inclusive and impactful. Initiatives like ‘Paint the Nation’ and our volunteer efforts empower employees, bottlers and fans to create meaningful memories and lasting contributions.” Celebrating the Milestone Throughout 2026 Coca‑Cola’s America250 celebration will continue throughout the year, with brand presence at marquee events including the NASCAR Coca‑Cola 600, the PGA Tour Championship, major music festivals and other large-scale cultural moments. Additional Coca‑Cola brands—such as BODYARMOR, Gold Peak, vitaminwater and smartwater—will also introduce commemorative packaging as part of the broader celebration. The America250 campaign was created by WPP Open X and led by Ogilvy, with support from Burson, VML, Mayan Productions, Optimus Chicago, and VAST/Keith Harris.",
+      "sourceKind": "raw_item",
+      "dataSourceType": "brand_news",
+      "isDemo": false
+    },
+    {
+      "id": "raw-46e9ad9f8081cf10",
+      "title": "Small and Micro Food Business Operator (FBO) Tracking Survey: Wave 5",
+      "rawText": "Wave 5 of the biennial survey tracking views of small and micro food businesses on regulatory issues and trust in the FSA.",
+      "sourceKind": "raw_item",
+      "dataSourceType": "rss",
+      "isDemo": false
+    },
+    {
+      "id": "raw-5b2dcbb100894040",
+      "title": "2024年曲靖市经济运行情况",
+      "rawText": "中央人民政府 | 云南省人民政府 无障碍浏览 长者模式 本站支持IPv6 曲靖市人民政府 政策 文件 规章 行政规范性文件 其他文件 曲政发 曲政函 曲政任 曲政办发 曲政办函 政府信息 公开指南 政府信息公开指南 政府部门公开指南 政府信息 公开制度 法定主动 公开内容 市政府领导 组织机构 人事任免 会议信息 市政府常务会议 市政府党组会议 其他会议 公示公告 政策解读 建议提案办理 人大建议办理结果 政协提案办理结果 规划计划 财政信息 预算/决算 市级部门财政预决算 市本级政府财政预决算 财政收支 行政事业性收费项目 财政资金直达基层 统计信息 审计公开 审计问题整改情况 审计结果 行政事项 行政事项办事指南 行政许可 行政许可事项 行政许可结果公示 行政许可实施规范 行政处罚 行政处罚依据 行政处罚结果公示 行政强制 行政强制依据 执法事项清单 重大决策预公开 决策目录和决策标准 决策目录 决策标准 意见征集 重大决策听证事项 重大建设项目 批准服务信息 批准结果信息 招标投标信息 征收土地信息 重大设计变更信息 施工有关信息 质量安全监督信息 竣工有关信息 项目监管有关信息 项目环境影响评价 社会公益事业建设 乡村振兴 衔接资金公开 振兴工作 社会救助 社会福利 社会事务 教育 基本医疗卫生 医疗卫生 医疗保障 生态环境 环境质量 执法监管 环境保护 排污许可证管理信息 灾害事故救援 公共文化体育 公共企事业单位信息 适用主体清单 公开目录 卫生健康 供水 供气 环境保护 公共交通 公共资源配置信息公开 住房保障 国有土地使用权 矿产权出让 政府采购 药品（疫苗）及高值医用耗材和乙类大型医用设备集中采购 国有产权交易 工程建设项目招标投标 矿产资源管理信息公开 公共资源交易 其他 重点领域信息公开 稳经济 增动能 惠民生 应急管理 安全生产 应急预案 自然资源 市政建设 治安管理 稳岗就业 食品药品监管 产品质量监管 旅游市场监管 价格和收费 科技及专利信息 信用信息 不动产登记信息 公务员招录 减税降费 三服务清单 政府信息公开基本目录 基层政务公开标准目录 麒麟区 沾益区 马龙区 宣威市 陆良县 师宗县 罗平县 富源县 会泽县 曲靖经济技术开发区 政府网站监管（工作）年度报表 政府信息 公开年报 2025年 2024年 2023年 2022年 2021年 2020年 2019年 2018年 2017年 2017年以前 依申请 公开 县市区和部门 平台链接 首页 > 法定主动公开内容 > 统计信息 > 列表 2024年曲靖市经济运行情况 发布时间:2025-01-22 17:07:11 索引号： 文号: 来源：曲靖市统计局 曲靖市统计局 国家统计局曲靖调查队 （2025年1月22日） 2024年，在以习近平同志为核心的党中央坚强领导下，市委、市政府团结带领全市各级各部门深入学习贯彻党的二十大和二十届二中、三中全会精神，深入贯彻落实习近平总书记考察云南重要讲话精神，全面贯彻新发展理念，坚持稳中求进工作总基调，扎实推动高质量发展和产业转型升级，但受外部环境的不确定性以及新旧动能转换影响，全年经济发展总体呈现承压下行、小幅收窄态势，经济回升仍需提质增效。 根据地区生产总值统一核算结果，2024年全市实现地区生产总值3677.22亿元，比上年下降0.9%。其中，第一产业实现增加值556.35亿元，增长1.0%；第二产业实现增加值1275.14亿元，下降7.1%；第三产业实现增加值1845.73亿元，增长3.0%。 一、农业生产基本平稳，特色作物增势良好、 2024年，全市农林牧渔业总产值899.16亿元，比上年增长1.1%。 粮食产量再创新高。全市粮食总产量338.08万吨，比上年增加3.19万吨，增长1.0%。其中，夏粮产量38.29万吨，增长1.1%；秋粮产量299.79万吨，增长0.9%。分品种看，稻谷产量32.26万吨，下降9.9%；小麦产量7.98万吨，增长0.3%；玉米产量187.8万吨，增长5.1%；大豆产量6.92万吨，增长2.6%。 2024年，全市猪牛羊禽肉产量121.54万吨，比上年下降5.5%。其中，猪肉产量下降6.2%，牛肉产量下降1.9%，羊肉产量下降8.8%，禽肉产量增长2.9%。牛奶产量增长17.7%，禽蛋产量增长13.9%。2024年末，全市生猪出栏1133.58万头，比上年下降8.6%；生猪存栏694.31万头，比上年下降9.2%。 特色作物增势良好。蔬菜种植面积297.83万亩，增长1.3%；产量433.98万吨，增长3.7%。水果种植面积52.73万亩，增长3.2%；产量52.63万吨，增长10.7%。鲜切花产量57232.42万枝，增长22.7%；中药材产量12.15万吨，增长15%。 二、工业产能释放不足，新兴产业保持增长 2024年，受煤炭产能释放、火电出力不足、电子信息行业深度调整、价格持续低位运行等因素影响，全市规模以上工业增加值比上年下降6.6%。分门类看，采矿业下降18.1%；制造业下降2.3%；电力、热力、燃气及水生产和供应业下降10.1%。制造业门类中，烟草制品业增长2.1%，高技术制造业增长8.8%，其中计算机、通信和其他电子设备制造业增长9.4%；装备制造业增长9.4%。 从传统产业看，钢铁和有色金属产业（不含稀贵）下降8.8%，煤炭开采和洗选业下降19.3%，电力、热力生产和供应业下降8.4%。 从新兴产业看，绿色硅光伏产业（不含光伏发电）增长13.6%；新能源电池产业下降4.1%；新材料产业增长10.7%，其中，稀贵和液态金属下降2.0%，有机硅增长25.1%。三类新兴产业合计增长7.0%。 三、能源供应保障有力，清洁能源占比稳步提升 2024年，全市规模以上工业发电量398.45亿千瓦时，比上年增长6.9%。其中，火力发电量238.05亿千瓦时，下降10.2%；水力发电量53.55亿千瓦时，增长23.8%；风力发电量81.49亿千瓦时，增长47.4%；太阳能发电量25.35亿千瓦时，增长186.3%。新能源发电量合计增长65.6%，占规上工业发电量比重达27.6%，比上年提高9.8个百分点。 四、重点服务业快速回升，现代服务业较快增长 1—11月份，全市规模以上服务业（错月指标）实现营业收入132.34亿元，同比增长长长1.7%。重点服务业营业收入增长10.0%，比1—10月份提升10个百分点。 现代服务业较快增长。多式联运和运输代理业增长28.2%，租赁和商务服务业增长16.6%，科学研究和技术服务业增长16.7%，互联网及相关服务业增长16.4%，信息传输、软件和信息技术服务业增长5.0%。 五、市场消费保持平稳，“两新”政策持续显效 2024年，全市实现社会消费品零售总额1282.46亿元，比上年增长0.9%。按经营单位所在地分，城镇消费品零售额832.08亿元，增长0.7%，乡村消费品零售额450.38亿元，增长1.4%。按消费形态分，商品零售1142.95亿元，增长0.8%；餐饮收入139.51亿元，增长2.1%。 “两新”政策持续显效。全年限额以上单位通讯器材类商品零售额增长34.5%，比1—11月份提升7.9个百分点，12月份通讯器材类商品零售额增长17.8%，较11月份提升19个百分点；家用电器和音像器材类商品零售额增长1.1%，比1—11月份回升1.5个百分点。全年限额以上单位新能源汽车零售额增长38.5%，继续保持快速增长。 基本生活类消费增势良好。全年限额以上单位粮油食品类、饮料类和烟酒类商品零售额分别增长21.8%、21.1%、13.3%。 能源类大宗商品消费平稳增长。全年限额以上单位石油及制品类增长4.7%，煤炭及制品类增长7.3%，比1—11月份提升4.1个百分点。 六、投资结构进一步优化，部分重点行业降幅收窄 2024年，全市固定资产投资比上年下降26.9%。分产业看，第一产业投资增长11.9%；第二产业投资下降34.4%；第三产业投资下降25.7%。从投资领域看，民间投资下降17.3%，产业投资下降24.1%。 从重点行业看，交通投资下降11.4%，数字经济投资下降3.3%，旅游业投资下降7.9%，降幅比1—11月份分别收窄3.3、0.7、1.7个百分点。工业投资下降34.5%，农业投资增长4.8%。 投资结构进一步优化。交通投资占全部投资比重为19.9%，比上年提高8.4个百分点；房地产开发投资占比7.9%，比上年提高1.5个百分点；数字经济投资占比1.9%，比上年提高0.6个百分点；第三产业投资占比55.8%，比上年提高4.4个百分点。 七、居民消费价格同比上涨 2024年，曲靖市居民消费价格指数（CPI）同比上涨0.5%。从八大类商品及服务价格指数分类别看，食品烟酒、衣着、居住、生活用品及服务、教育文化娱乐、医疗保健、其他用品及服务价格分别上涨 0.4%、2.9%、0.6%、0.9%、1.4%、0.3%、3.3%；交通通信价格下降1.6%。 八、居民收入、居民消费平稳增长 2024年，全市居民人均可支配收入31977元，比上年增长4.7%。按常住地分，城镇居民人均可支配收入46763元，增长3.8%；农村居民人均可支配收入20083元，增长6.3%。全市居民人均消费支出22886元，比上年增长5.3%。按常住地分，城镇居民人均消费支出27404元，增长4.1%；农村居民人均消费支出19251元，增长6.7%。 总的来看，2024年，全市经济结构调整和转型升级继续推进，经济运行长期向好的基本趋势没有改变。但也要看到，新旧动能转换存在阵痛，有效需求不足、市场预期偏弱等问题依然存在，促进经济持续回升向好仍需加力提效。下阶段，全市各级各部门要坚持以习近平新时代中国特色社会主义思想为指导，深入贯彻落实市委六届六次全会精神和省委、市委经济工作会议精神，围绕建设“一中心一样板两区”奋斗目标，着力优存量、扩增量、促变量，加快新旧动能转换，推动优势产业延链补链强链，培育发展新优势，全力推动全市经济企稳回升。 注：根据我国国民经济核算制度和第五次全国经济普查结果，2023年曲靖市地区生产总值修订为3723.97亿元。 曲靖市人大常委会 | 政协曲靖市委员会 | 曲靖市纪委监委 | 曲靖市中级人民法院 | 曲靖市人民检察院 国务院部门网站 外交部 国防部 国家发展和改革委员会 教育部 科学技术部 工业和信息化部 国家民族事务委员会 公安部 国家安全部 民政部 司法部 财政部 人力资源和社会保障部 自然资源部 生态环境部 住房和城乡建设部 交通运输部 水利部 农业农村部 商务部 文化和旅游部 国家卫生健康委员会 退役军人事务部 应急管理部 人民银行 审计署 国家语言文字工作委员会 国家外国专家局 国家航天局 国家原子能机构 国家海洋局 国家核安全局 国务院国有资产监督管理委员会 海关总署 国家税务总局 国家市场监督管理总局 国家广播电视总局 国家体育总局 国家统计局 国家国际发展合作署 国家医疗保障局 国务院参事室 国家机关事务管理局 国家认证认可监督管理委员会 国家标准化管理委员会 国家新闻出版署（国家版权局） 国家宗教事务局 国务院港澳事务办公室 国务院研究室 国务院侨务办公室 国务院台湾事务办公室 国家互联网信息办公室 国务院新闻办公室 新华通讯社 中国科学院 中国社会科学院 中国工程院 国务院发展研究中心 中央广播电视总台 中国气象局 国家金融监督管理总局 中国证券监督管理委员会 国家行政学院 国家信访局 国家粮食和物资储备局 国家能源局 国家国防科技工业局 国家烟草专卖局 国家移民管理局 国家林业和草原局 国家铁路局 中国民用航空局 国家邮政局 国家文物局 国家中医药管理局 国家矿山安全监察局 国家外汇管理局 国家药品监督管理局 国家知识产权局 出入境管理局 国家公园管理局 国家公务员局 国家档案局 国家保密局 国家密码管理局 各省市政府网站 北京 天津 河北 山西 内蒙古 辽宁 吉林 黑龙江 上海 江苏 浙江 安徽 福建 江西 山东 河南 湖北 湖南 广东 广西 海南 重庆 四川 贵州 云南 西藏 陕西 甘肃 青海 宁夏 新疆 香港 澳门 台湾 新疆生产建设兵团 州市政府网站 昆明市政府 昭通市政府 曲靖市政府 玉溪市政府 保山市政府 楚雄州政府 红河州政府 文山州政府 普洱市政府 西双版纳州政府 大理州政府 德宏州政府 丽江市政府 怒江州政府 迪庆州政府 临沧市政府 市政府部门网站 信用中国（云南曲靖） 曲靖市人力资源和社会保障局 曲靖市财政局 县市区政府网站 宣威市 罗平县 师宗县 富源县 会泽县 陆良县 曲靖经开区 马龙区 沾益区 麒麟区 网站地图 服务热线： 0874-12345 主办单位： 曲靖市人民政府办公室 运维： 曲靖珠江网 滇ICP备07000267号-1 政府网站标识码: 5303000026 滇公网安备 53030202000253号",
+      "sourceKind": "raw_item",
+      "dataSourceType": "industry_article",
+      "isDemo": false
+    },
+    {
+      "id": "R001",
+      "title": "京东优评评论 · 元气森林【含气苏打水】茉莉青柠味500mL*15瓶0糖0甜（新老版本随机发货）",
+      "rawText": "元气森林所有饮料的包装感觉比别的瓶身更厚实些，用量也很健康，这款小朋友不太喜欢喝，因为不是特别甜，但是气泡很足，创作空间比较大，可以尝试做气泡咖啡等",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R006",
+      "title": "B站评论 · 元气森林气泡水",
+      "rawText": "元气森林可乐味喝起来就感觉是小时候五毛钱的那种山寨可乐的味道，然后就是在这个的基础上加多了气泡[doge]",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    }
+  ]
+}

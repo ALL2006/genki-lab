@@ -28,7 +28,7 @@ export function MobileNavigation({ items, open, onClose }: MobileNavigationProps
             </NavLink>
           ))}
         </nav>
-        <div className="mobile-navigation__footer">开题原型 · DEMO</div>
+        <div className="mobile-navigation__footer">复赛 MVP · DEMO DATA</div>
       </aside>
     </div>
   )

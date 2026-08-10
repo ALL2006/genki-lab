@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "types": ["node", "@cloudflare/workers-types"],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo"
+  },
+  "include": [
+    "worker",
+    "shared",
+    "server/ai",
+    "server/analysis-text",
+    "server/collectors/Collector.ts",
+    "server/evaluation/EvaluationDataLoader.ts",
+    "server/notifications",
+    "server/providers/AIProvider.ts",
+    "server/providers/ArkDoubaoAIProvider.ts",
+    "server/providers/ManualJsonAIProvider.ts",
+    "server/providers/MiaodaWebhookAIProvider.ts",
+    "server/providers/MockAIProvider.ts",
+    "server/repositories/D1Repository.ts",
+    "server/repositories/D1Types.ts",
+    "server/repositories/DataRepository.ts",
+    "server/services/AIAnalysisService.ts",
+    "server/services/AnalysisTextBackfillService.ts",
+    "server/services/DailyAutomationOrchestrator.ts",
+    "server/services/JobService.ts",
+    "server/services/TrendAggregationService.ts",
+    "server/utils/content.ts",
+    "data/evaluation/*.json"
+  ]
+}

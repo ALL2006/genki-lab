@@ -1,0 +1,226 @@
+{
+  "batchName": "B2-DEV-01",
+  "dataset": "development",
+  "promptVersion": "evidence-analysis-v1",
+  "schemaVersion": "evidence-analysis-v1",
+  "instructions": [
+    "逐条分析items，禁止改变itemId。",
+    "evidenceQuotes.quote必须是rawText中的连续原文。",
+    "只返回JSON对象 {\"results\": [...]}。"
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "results"
+    ],
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "itemId",
+            "evidenceRole",
+            "relevanceScore",
+            "relevanceReason",
+            "brands",
+            "productCategories",
+            "flavors",
+            "consumerNeeds",
+            "scenes",
+            "positiveSignals",
+            "negativeSignals",
+            "riskSignals",
+            "signalType",
+            "evidenceQuotes",
+            "confidence",
+            "eligibleForConceptGeneration"
+          ],
+          "properties": {
+            "itemId": {
+              "type": "string"
+            },
+            "evidenceRole": {
+              "type": "string",
+              "enum": [
+                "consumer_evidence",
+                "market_evidence",
+                "background_evidence",
+                "irrelevant"
+              ]
+            },
+            "relevanceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "relevanceReason": {
+              "type": "string"
+            },
+            "brands": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "productCategories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "flavors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "consumerNeeds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scenes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "negativeSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "riskSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "signalType": {
+              "type": "string",
+              "enum": [
+                "consumer_preference",
+                "product_launch",
+                "category_trend",
+                "safety_context",
+                "other"
+              ]
+            },
+            "evidenceQuotes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "supports"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "supports": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "eligibleForConceptGeneration": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "R001",
+      "title": "京东优评评论 · 元气森林【含气苏打水】茉莉青柠味500mL*15瓶0糖0甜（新老版本随机发货）",
+      "rawText": "元气森林所有饮料的包装感觉比别的瓶身更厚实些，用量也很健康，这款小朋友不太喜欢喝，因为不是特别甜，但是气泡很足，创作空间比较大，可以尝试做气泡咖啡等",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R002",
+      "title": "京东优评评论 · 元气森林气泡水0糖0脂0卡 480ml*18瓶 夏黑6+白桃6+橙6 京东独家",
+      "rawText": "夏日必备，京东就是快，昨晚下单，今日已送达，环保包装其实挺好的 小朋友最喜欢葡萄口味（之前点外卖也是一样最爱葡萄味，但是水果却不太吃因为吐皮麻烦~）",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R003",
+      "title": "B站评论 · 元气森林气泡水",
+      "rawText": "我老公爱喝饮料导致血糖高，目前只能喝元气森林，他最爱卡曼橘味。我喜欢喝紫葡萄，海盐菠萝和苹果味。梨味和石榴味没喝过，有机会想尝尝，其实我最喜欢的水果是樱桃，有点期待将来能出个樱桃味的！！！！ps:樱桃味可口可乐我很喜欢喝，以前都是整箱买的。现在戒糖了不买了。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R004",
+      "title": "B站评论 · 元气森林气泡水",
+      "rawText": "我三个都喝过，生可乐有股奇怪的生味但是味道还可以，元气森林就是水加多的无糖可乐寡淡无味非常难喝",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R005",
+      "title": "B站评论 · 元气森林气泡水",
+      "rawText": "元气森林的我买了苹果和西瓜味的气泡水，难喝，推荐屈臣氏原味气泡水[笑哭]",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R006",
+      "title": "B站评论 · 元气森林气泡水",
+      "rawText": "元气森林可乐味喝起来就感觉是小时候五毛钱的那种山寨可乐的味道，然后就是在这个的基础上加多了气泡[doge]",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R007",
+      "title": "B站评论 · 元气森林气泡水",
+      "rawText": "我品了很久无糖饮料，终于发现特点：半甜不甜的，消散得很快。 有糖饮料甜味能从口腔蔓延到喉咙，无糖的甜味别说在口腔，在舌头甜感都已经消散完了。(这个就是有糖无糖体验上最最最最大的区别) 我的形容是——虚甜。始终和真糖不一样。 听懂掌声[doge][doge][doge]",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R009",
+      "title": "B站评论 · 元气森林气泡水",
+      "rawText": "元气森林整个就是网红产品，营销使劲砸钱，有段时间全小破站都是它的广告，各种吹的，买来喝是真的难喝，价格有一大半是给广告买单了，喝过一次就不会买的东西[微笑]",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R010",
+      "title": "什么值得买评论 · 元气森林气泡水",
+      "rawText": "只要是元气森林，都不好喝，更重要的是价格太贵了，味道和一块吧钱的气泡水差不多。",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    },
+    {
+      "id": "R011",
+      "title": "什么值得买评论 · 元气森林气泡水",
+      "rawText": "喝了很多品牌气泡水，只能感叹，健康和味道真的不能兼得，本身代糖的口感就不好，大多都一股子香精味，菠萝控表示元气森林海盐菠萝也不可避免的香精味，唯一喝的菠萝味过得去的，好像是汉口二厂的盐渍凤梨",
+      "sourceKind": "consumer_comment",
+      "isDemo": false
+    }
+  ]
+}

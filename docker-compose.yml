@@ -1,0 +1,19 @@
+services:
+  genki-lab:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      PORT: 8787
+      DATA_DIR: /data
+      ENABLE_LIVE_COLLECTION: "false"
+      X_JOB_SECRET: ${X_JOB_SECRET}
+      X_AUTOMATION_SECRET: ${X_AUTOMATION_SECRET}
+      AI_IMPORT_SECRET: ${AI_IMPORT_SECRET}
+      FEISHU_NOTIFICATION_WEBHOOK: ${FEISHU_NOTIFICATION_WEBHOOK:-}
+    volumes:
+      - genki-lab-data:/data
+    restart: unless-stopped
+
+volumes:
+  genki-lab-data:
