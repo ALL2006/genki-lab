@@ -1,4 +1,5 @@
-import { access, link, mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { access, copyFile, mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { constants } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { gunzipSync } from 'node:zlib'
@@ -26,7 +27,10 @@ export async function bootstrapDataFile(targetPath: string, seedPath = resolve('
     JSON.parse(seedData.toString('utf8'))
     await writeFile(temporaryPath, seedData, { flag: 'wx' })
     try {
-      await link(temporaryPath, targetPath)
+      // hard links are not supported on every filesystem (e.g. exFAT), so use
+      // an exclusive copy instead; COPYFILE_EXCL keeps the "never overwrite an
+      // existing persistent database" guarantee.
+      await copyFile(temporaryPath, targetPath, constants.COPYFILE_EXCL)
       console.info(`[bootstrap] initialized ${targetPath} from image seed ${seedPath}`)
       return { initialized: true, targetPath, seedPath }
     } catch (error) {
