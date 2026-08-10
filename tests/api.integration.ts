@@ -6,6 +6,7 @@ import { resolve } from 'node:path'
 import type { AIBatch, ApiResponse, ExperimentRun, JobRun, ProductConcept, RawItem, SystemReadiness, TrendSignal } from '../shared/types.js'
 import { createApp } from '../server/app.js'
 import { getConfig } from '../server/config.js'
+import { AnalysisTextNormalizer } from '../server/analysis-text/AnalysisTextNormalizer.js'
 
 const tempDir = resolve('tmp', `api-test-${randomUUID()}`)
 const dbPath = resolve(tempDir, 'mock-db.json')
@@ -68,10 +69,14 @@ try {
   })
   assert.equal(aiBatch.response.status, 201, JSON.stringify(aiBatch.body))
   const batchId = aiBatch.body.success ? aiBatch.body.data.id : ''
+  // quotes must be contiguous substrings of the normalized analysisText
+  // (same contract the model receives); rawText slices with fullwidth
+  // punctuation no longer match by design.
+  const analysisText = new AnalysisTextNormalizer().normalize(firstRaw.rawText).analysisText
   const analysisOutput = {
     itemId: firstRaw.id, evidenceRole: 'background_evidence', relevanceScore: 0.7, relevanceReason: '公开资料仅作为背景证据。',
     brands: [], productCategories: ['饮料'], flavors: [], consumerNeeds: [], scenes: [], positiveSignals: [], negativeSignals: [],
-    riskSignals: ['单条资料不足以代表市场'], signalType: 'category_trend', evidenceQuotes: [{ quote: firstRaw.rawText.slice(0, 20), supports: '原文片段' }],
+    riskSignals: ['单条资料不足以代表市场'], signalType: 'category_trend', evidenceQuotes: [{ quote: analysisText.slice(0, 20), supports: '原文片段' }],
     confidence: 0.65, eligibleForConceptGeneration: false,
   }
   const unauthorizedImport = await call('/api/ai-results/import', { method: 'POST', body: JSON.stringify({ batchId, results: [analysisOutput] }) })
