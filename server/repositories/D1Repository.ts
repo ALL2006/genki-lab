@@ -74,6 +74,9 @@ export class D1Repository implements DataRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(item.id, item.sourceId, item.status, item.fetchedAt, item.publishedAt, item.contentHash, item.normalizedUrl, bool(item.isDemo), json(item))))
   }
+  async saveRawItem(item: RawItem) {
+    await this.run(this.db.prepare('UPDATE raw_items SET payload = ? WHERE id = ?').bind(json(item), item.id))
+  }
   async setRawItemStatus(ids: string[], status: RawItemStatus) {
     if (!ids.length) return
     const items = await this.getRawItems()
@@ -153,6 +156,15 @@ export class D1Repository implements DataRepository {
       ON CONFLICT(id) DO UPDATE SET provider=excluded.provider, status=excluded.status,
       updated_at=excluded.updated_at, is_demo=excluded.is_demo, payload=excluded.payload`)
       .bind(item.id, item.provider, item.status, item.createdAt, item.updatedAt, bool(item.isDemo), json(item)))
+  }
+  async claimAIBatchExecution(item: AIBatch) {
+    const running = { ...item, status: 'running' as const, updatedAt: new Date().toISOString() }
+    const result = await this.db.prepare(`UPDATE ai_batches
+      SET status = 'running', updated_at = ?, payload = ?
+      WHERE id = ? AND status IN ('pending', 'failed')`)
+      .bind(running.updatedAt, json(running), item.id).run()
+    if (!result.success) throw new Error(result.error ?? 'D1 AI批次执行锁写入失败。')
+    return result.meta?.changes === 1
   }
   async getAIAnalysisRecords() { return this.list<AIAnalysisRecord>('SELECT payload FROM ai_analysis_records ORDER BY created_at DESC') }
   async saveAIAnalysisRecords(items: AIAnalysisRecord[]) {

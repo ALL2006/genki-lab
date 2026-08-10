@@ -1,5 +1,5 @@
 import { evidenceAnalysisJsonSchema } from '../ai/evidenceSchema.js'
-import type { AIProvider, AIProviderExecution, EvidenceInputItem } from './AIProvider.js'
+import { modelAnalysisText, type AIProvider, type AIProviderExecution, type EvidenceInputItem } from './AIProvider.js'
 
 export const EVIDENCE_ANALYSIS_SYSTEM_PROMPT = [
   '你是饮料创新证据分析器。必须独立判断 evidenceRole 与 relevanceScore。',
@@ -9,7 +9,7 @@ export const EVIDENCE_ANALYSIS_SYSTEM_PROMPT = [
   'background_evidence：来源本身提供与食品、饮料或消费品经营环境明确相关的政策、法规、监管、食品安全、公共卫生、技术规范、宏观统计或行业经营环境。即使 relevanceScore 只有 0.1 至 0.4，仍应归为 background_evidence。',
   'irrelevant：只有资料既不能作为 consumer_evidence、market_evidence，也不能作为合理的 background context 时使用。完全无关的政府新闻、社会新闻可归为 irrelevant。',
   '只有 consumer_evidence 可以设置 eligibleForConceptGeneration=true；其他角色必须为 false。',
-  '每条资料选择 1 至 3 条最重要引文。quote 必须逐字复制 rawText 中的连续字符串；禁止翻译、改写、修正标点、拼接片段或添加省略号。找不到长引文时，选择较短但完整的原文连续片段。',
+  '每条资料选择 1 至 3 条最重要引文。quote 必须逐字复制 analysisText 中的连续字符串；禁止翻译、改写、修正标点、拼接片段或添加省略号。找不到长引文时，选择较短但完整的原文连续片段。',
   '只能使用输入原文，不得编造。严格按照 Structured Output 返回 JSON。',
 ].join('\n')
 
@@ -71,11 +71,11 @@ export class ArkDoubaoAIProvider implements AIProvider {
     const chunks: EvidenceInputItem[][] = []
     for (const item of items) {
       const current = chunks.at(-1)
-      const currentCharacters = current?.reduce((sum, entry) => sum + entry.rawText.length, 0) ?? 0
-      if (!current || (current.length > 0 && currentCharacters + item.rawText.length > characterLimit)) chunks.push([item])
+      const currentCharacters = current?.reduce((sum, entry) => sum + modelAnalysisText(entry).length, 0) ?? 0
+      if (!current || (current.length > 0 && currentCharacters + modelAnalysisText(item).length > characterLimit)) chunks.push([item])
       else current.push(item)
     }
-    if (chunks.length === 1) return this.analyzeChunk(chunks[0])
+    if (chunks.length === 1) return { ...await this.analyzeChunk(chunks[0]), subrequestCount: 1 }
     const executions = await Promise.all(chunks.map((chunk) => this.analyzeChunk(chunk)))
     const sumUsage = (key: keyof NonNullable<AIProviderExecution['tokenUsage']>) => {
       const values = executions.map((execution) => execution.tokenUsage?.[key]).filter((value): value is number => typeof value === 'number')
@@ -91,6 +91,7 @@ export class ArkDoubaoAIProvider implements AIProvider {
         totalTokens: sumUsage('totalTokens'),
       },
       outputCharacters: executions.reduce((sum, execution) => sum + execution.outputCharacters, 0),
+      subrequestCount: chunks.length,
     }
   }
 
@@ -99,7 +100,7 @@ export class ArkDoubaoAIProvider implements AIProvider {
     const inputPayload = items.map((item) => ({
       itemId: item.id,
       title: item.title,
-      rawText: item.rawText,
+      analysisText: modelAnalysisText(item),
       sourceKind: item.sourceKind,
       dataSourceType: item.dataSourceType ?? null,
     }))

@@ -3,6 +3,7 @@ import { evidenceAnalysisJsonSchema } from '../ai/evidenceSchema.js'
 import { writeJsonAtomic, readJsonStrict } from '../storage/AtomicJsonFile.js'
 import type { DataPathResolver } from '../storage/DataPathResolver.js'
 import { aiAnalysisVersions } from './AIAnalysisService.js'
+import { ANALYSIS_TEXT_VERSION, AnalysisTextNormalizer } from '../analysis-text/AnalysisTextNormalizer.js'
 
 interface EvaluationDatasetFile {
   version: string
@@ -26,6 +27,7 @@ export interface DevelopmentBatchManifestEntry {
 }
 
 export class DevelopmentBatchPreparationService {
+  private readonly analysisTextNormalizer = new AnalysisTextNormalizer()
   constructor(
     private readonly datasetPath: string,
     private readonly splitPath: string,
@@ -72,17 +74,24 @@ export class DevelopmentBatchPreparationService {
         schemaVersion: entry.schemaVersion,
         instructions: [
           '逐条分析items，禁止改变itemId。',
-          'evidenceQuotes.quote必须是rawText中的连续原文。',
+          'rawText是原始存档，analysisText是模型分析正文。',
+          'evidenceQuotes.quote必须是analysisText中的连续原文。',
           '只返回JSON对象 {"results": [...]}。',
         ],
         schema: { type: 'object', additionalProperties: false, required: ['results'], properties: { results: { type: 'array', items: evidenceAnalysisJsonSchema } } },
-        items: items.map((item) => ({
-          id: item.id,
-          title: `${item.platform ?? '消费者'}评论${item.product ? ` · ${item.product}` : ''}`,
-          rawText: item.rawText,
-          sourceKind: 'consumer_comment',
-          isDemo: false,
-        })),
+        analysisTextVersion: ANALYSIS_TEXT_VERSION,
+        items: items.map((item) => {
+          const analysis = this.analysisTextNormalizer.normalize(item.rawText)
+          return {
+            id: item.id,
+            title: `${item.platform ?? '消费者'}评论${item.product ? ` · ${item.product}` : ''}`,
+            rawText: item.rawText,
+            analysisText: analysis.analysisText,
+            analysisTextVersion: analysis.analysisTextVersion,
+            sourceKind: 'consumer_comment',
+            isDemo: false,
+          }
+        }),
       })
     }
     const output = {

@@ -9,18 +9,53 @@ import type {
   DataSourceRoleHint,
   EvidenceAnalysisData,
   AnalysisValidationStatus,
+  QuoteRepairResult,
   ReviewStatus,
   ValidationMode,
 } from '../../shared/types.js'
 import { evidenceAnalysisJsonSchema, evidenceAnalysisSchema, validateEvidenceAnalysis } from '../ai/evidenceSchema.js'
 import { QuoteRepairService } from '../ai/QuoteRepairService.js'
 import { ValidationFlagService } from '../ai/ValidationFlagService.js'
+import { ANALYSIS_TEXT_VERSION, AnalysisTextNormalizer } from '../analysis-text/AnalysisTextNormalizer.js'
 import type { AIProvider, AIProviderExecution, EvidenceInputItem } from '../providers/AIProvider.js'
 import type { DataRepository } from '../repositories/DataRepository.js'
 import type { EvaluationDataLoader } from '../evaluation/EvaluationDataLoader.js'
 
 const PROMPT_VERSION = 'evidence-analysis-v2.2'
 const SCHEMA_VERSION = 'evidence-analysis-v2'
+
+const normalizedLabels = (values: string[]) => new Set(values.map((value) => value.trim()).filter(Boolean))
+
+function labelMetrics(pairs: Array<{ expected: string[]; predicted: string[] }>) {
+  let truePositive = 0
+  let falsePositive = 0
+  let falseNegative = 0
+  let exact = 0
+  for (const pair of pairs) {
+    const expected = normalizedLabels(pair.expected)
+    const predicted = normalizedLabels(pair.predicted)
+    if (expected.size === predicted.size && [...expected].every((value) => predicted.has(value))) exact += 1
+    for (const value of predicted) {
+      if (expected.has(value)) truePositive += 1
+      else falsePositive += 1
+    }
+    for (const value of expected) if (!predicted.has(value)) falseNegative += 1
+  }
+  const precision = truePositive + falsePositive === 0 ? 0 : truePositive / (truePositive + falsePositive)
+  const recall = truePositive + falseNegative === 0 ? 0 : truePositive / (truePositive + falseNegative)
+  return {
+    exactMatch: pairs.length === 0 ? 0 : exact / pairs.length,
+    microPrecision: precision,
+    microRecall: recall,
+    microF1: precision + recall === 0 ? 0 : 2 * precision * recall / (precision + recall),
+  }
+}
+
+function inferredSentiment(output: EvidenceAnalysisData) {
+  if (output.positiveSignals.length > output.negativeSignals.length) return 'positive'
+  if (output.negativeSignals.length > output.positiveSignals.length) return 'negative'
+  return 'neutral'
+}
 
 export type BatchCandidateDataType = 'public_material' | 'consumer_comment'
 export type BatchCandidateDataset = 'development' | 'holdout' | null
@@ -78,6 +113,7 @@ const changedFields = (before: EvidenceAnalysisData, after: EvidenceAnalysisData
 export class AIAnalysisService {
   private readonly quoteRepair = new QuoteRepairService()
   private readonly validationFlags = new ValidationFlagService()
+  private readonly analysisTextNormalizer = new AnalysisTextNormalizer()
   constructor(
     private readonly repository: DataRepository,
     private readonly provider: AIProvider,
@@ -118,6 +154,7 @@ export class AIAnalysisService {
       updatedAt: now,
       promptVersion: PROMPT_VERSION,
       schemaVersion: SCHEMA_VERSION,
+      analysisTextVersion: ANALYSIS_TEXT_VERSION,
       importedResultHashes: [],
       isDemo: options.manualDoubao ? selected.every((item) => item.isDemo) : this.provider.isDemo || selected.every((item) => item.isDemo),
     }
@@ -143,7 +180,7 @@ export class AIAnalysisService {
           && record.quoteValid
           && batch?.status === 'completed'
       })
-      const activeBatch = batches.find((batch) => ['pending', 'dispatched'].includes(batch.status) && batch.itemIds.includes(entry.input.id))
+      const activeBatch = batches.find((batch) => ['pending', 'running', 'dispatched'].includes(batch.status) && batch.itemIds.includes(entry.input.id))
       let modelStatus: BatchCandidateModelStatus = 'unanalyzed'
       if (realRecord) modelStatus = realRecord.validationStatus === 'rejected' || realRecord.reviewStatus === 'rejected'
         ? 'rejected'
@@ -174,7 +211,7 @@ export class AIAnalysisService {
   }
 
   async createComparisonPilot(sourceBatchId: string, pilotId = 'B2-AUTO-PILOT-01') {
-    if (!['B2-AUTO-PILOT-01', 'B2-AUTO-PILOT-02', 'B2-AUTO-PILOT-03'].includes(pilotId)) throw new Error('只允许执行已批准的 B2 AUTO Pilot。')
+    if (!['B2-AUTO-PILOT-01', 'B2-AUTO-PILOT-02', 'B2-AUTO-PILOT-03', 'B2-AUTO-PILOT-04'].includes(pilotId)) throw new Error('只允许执行已批准的 B2 AUTO Pilot。')
     if (this.provider.name !== 'ark-doubao' || !this.provider.isAutomated || this.provider.delivery !== 'synchronous' || !this.provider.model) {
       throw new Error('Ark Doubao Provider 尚未就绪。')
     }
@@ -204,6 +241,7 @@ export class AIAnalysisService {
       updatedAt: now,
       promptVersion: PROMPT_VERSION,
       schemaVersion: SCHEMA_VERSION,
+      analysisTextVersion: ANALYSIS_TEXT_VERSION,
       importedResultHashes: [],
       validationMode: 'automated',
       isDemo: false,
@@ -221,6 +259,121 @@ export class AIAnalysisService {
     return { ...await this.executeBatch(batch.id), idempotent: false }
   }
 
+  async runDevelopmentBatch01() {
+    if (this.provider.name !== 'ark-doubao' || !this.provider.isAutomated || this.provider.delivery !== 'synchronous' || !this.provider.model) {
+      throw new Error('B2-DEV-01 只允许使用已就绪的 Ark Doubao Provider。')
+    }
+    const evaluationData = await this.loadEvaluationData()
+    if (!evaluationData) throw new Error('development 评测数据未加载。')
+    const itemIds = evaluationData.split.developmentIds.slice(0, 10)
+    const holdout = new Set(evaluationData.split.holdoutIds)
+    if (itemIds.length !== 10 || itemIds.some((id) => holdout.has(id))) throw new Error('B2-DEV-01 必须恰好包含10条development且不得包含holdout。')
+
+    let batch = await this.repository.getAIBatch('B2-DEV-01')
+    if (!batch) {
+      const now = new Date().toISOString()
+      batch = {
+        id: 'B2-DEV-01',
+        provider: 'ark-doubao',
+        model: this.provider.model,
+        status: 'pending',
+        itemIds,
+        createdAt: now,
+        updatedAt: now,
+        promptVersion: PROMPT_VERSION,
+        schemaVersion: SCHEMA_VERSION,
+        analysisTextVersion: ANALYSIS_TEXT_VERSION,
+        importedResultHashes: [],
+        validationMode: 'automated',
+        isDemo: false,
+      }
+      await this.repository.saveAIBatch(batch)
+    } else if (batch.provider !== 'ark-doubao'
+      || batch.itemIds.length !== 10
+      || batch.itemIds.some((id, index) => id !== itemIds[index])
+      || batch.itemIds.some((id) => holdout.has(id))) {
+      throw new Error('已有 B2-DEV-01 配置与冻结的前10条development不一致。')
+    }
+
+    const execution = batch.status === 'completed'
+      ? { batch, records: await this.recordsForBatch(batch.id), validationFlags: [], dispatched: false, idempotent: true }
+      : await this.executeBatch(batch.id)
+    return { ...execution, evaluation: await this.evaluateDevelopmentBatch01() }
+  }
+
+  async evaluateDevelopmentBatch01() {
+    const evaluationData = await this.loadEvaluationData()
+    if (!evaluationData) throw new Error('development 评测数据未加载。')
+    const itemIds = evaluationData.split.developmentIds.slice(0, 10)
+    const itemById = new Map(evaluationData.dataset.items.map((item) => [item.id, item]))
+    const records = await this.recordsForBatch('B2-DEV-01')
+    const recordById = new Map(records.map((record) => [record.itemId, record]))
+    const pairs = itemIds.map((itemId) => {
+      const groundTruth = itemById.get(itemId)
+      if (!groundTruth) throw new Error(`development ground truth不存在：${itemId}`)
+      const record = recordById.get(itemId)
+      const output = record?.parsedAIOutput
+      const sentiment = output ? inferredSentiment(output) : null
+      const predictedPainPoints = output ? [...new Set([...output.negativeSignals, ...output.riskSignals])] : []
+      return {
+        itemId,
+        groundTruth: {
+          evidenceRole: 'consumer_evidence' as const,
+          sentiment: groundTruth.humanSentiment,
+          flavors: groundTruth.humanFlavorTags,
+          scenes: groundTruth.humanSceneTags,
+          painPoints: groundTruth.humanPainPointTags,
+        },
+        modelResult: output ? {
+          evidenceRole: output.evidenceRole,
+          sentiment,
+          flavors: output.flavors,
+          scenes: output.scenes,
+          painPoints: predictedPainPoints,
+        } : null,
+        match: {
+          evidenceRole: output?.evidenceRole === 'consumer_evidence',
+          sentiment: groundTruth.humanSentiment !== null && sentiment === groundTruth.humanSentiment,
+          flavors: output ? labelMetrics([{ expected: groundTruth.humanFlavorTags, predicted: output.flavors }]).exactMatch === 1 : false,
+          scenes: output ? labelMetrics([{ expected: groundTruth.humanSceneTags, predicted: output.scenes }]).exactMatch === 1 : false,
+          painPoints: output ? labelMetrics([{ expected: groundTruth.humanPainPointTags, predicted: predictedPainPoints }]).exactMatch === 1 : false,
+        },
+      }
+    })
+    const flavor = labelMetrics(pairs.map((pair) => ({ expected: pair.groundTruth.flavors, predicted: pair.modelResult?.flavors ?? [] })))
+    const scene = labelMetrics(pairs.map((pair) => ({ expected: pair.groundTruth.scenes, predicted: pair.modelResult?.scenes ?? [] })))
+    const painPoint = labelMetrics(pairs.map((pair) => ({ expected: pair.groundTruth.painPoints, predicted: pair.modelResult?.painPoints ?? [] })))
+    const sentimentPairs = pairs.filter((pair) => pair.groundTruth.sentiment !== null)
+    const run = (await this.repository.getAIAnalysisRuns())
+      .filter((item) => item.batchId === 'B2-DEV-01')
+      .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0] ?? null
+    const recordIds = new Set(records.map((record) => record.id))
+    const flags = (await this.repository.getValidationFlags()).filter((flag) => recordIds.has(flag.analysisRecordId))
+    const traceableCount = records.filter((record) => record.quoteRepairs?.length && record.quoteRepairs.every((repair) => repair.traceable)).length
+    const statuses = { validated: 0, auto_repaired: 0, needs_review: 0, rejected: 0 }
+    for (const record of records) statuses[record.validationStatus ?? 'needs_review'] += 1
+    return {
+      itemIds,
+      sampleCount: itemIds.length,
+      schemaPass: records.filter((record) => record.schemaValid).length,
+      itemIdPass: records.filter((record) => record.parsedAIOutput.itemId === record.itemId).length,
+      quotePass: records.filter((record) => record.quoteValid).length,
+      traceableQuotePass: traceableCount,
+      evidenceRoleAccuracy: pairs.filter((pair) => pair.match.evidenceRole).length / itemIds.length,
+      sentimentAccuracy: sentimentPairs.length === 0 ? 0 : sentimentPairs.filter((pair) => pair.match.sentiment).length / sentimentPairs.length,
+      flavorMicroF1: flavor.microF1,
+      sceneAccuracy: scene.exactMatch,
+      painPointAccuracy: painPoint.exactMatch,
+      statuses,
+      highFlagCount: flags.filter((flag) => flag.severity === 'high').length,
+      flags,
+      tokenUsage: run?.tokenUsage ?? null,
+      latencyMs: run?.durationMs ?? null,
+      arkSubrequests: run?.subrequestCount ?? null,
+      pairs,
+    }
+  }
+
   async exportBatch(id: string) {
     const batch = await this.requireBatch(id)
     const inputs = await this.getInputs(batch)
@@ -229,20 +382,34 @@ export class AIAnalysisService {
       batch,
       instructions: [
         '逐条分析 items，禁止改变 itemId。',
-        'evidenceQuotes.quote 必须是 rawText 的连续原文片段。',
+        'rawText 是不可修改的原始存档；analysisText 是确定性清洗后的模型分析正文。',
+        'evidenceQuotes.quote 必须是 analysisText 的连续原文片段。',
         '公开资料 RawItem 不得标为 consumer_evidence。',
         '只返回 {"results": [...]}，每个字段都必须存在。',
       ],
       schema: { type: 'object', additionalProperties: false, required: ['results'], properties: { results: { type: 'array', items: evidenceAnalysisJsonSchema } } },
-      items: inputs,
+      items: inputs.map((input) => ({
+        id: input.id,
+        title: input.title,
+        rawText: input.rawText,
+        analysisText: input.analysisText ?? input.rawText,
+        analysisTextVersion: input.analysisTextVersion ?? ANALYSIS_TEXT_VERSION,
+        sourceKind: input.sourceKind,
+        dataSourceType: input.dataSourceType ?? null,
+        isDemo: input.isDemo,
+      })),
     }
   }
 
   async executeBatch(id: string) {
     const batch = await this.requireBatch(id)
     if (batch.status === 'completed') throw new Error('批次已经完成。')
+    if (batch.status === 'running') throw new Error('批次正在运行，禁止并发重复执行。')
     if (batch.provider !== this.provider.name) throw new Error('批次 Provider 与当前 AI_PROVIDER 不一致。')
     if (this.provider.delivery === 'manual') throw new Error('Manual JSON 模式请导出批次，再通过导入端点回传结果。')
+    if (!await this.repository.claimAIBatchExecution(batch)) throw new Error('批次执行锁获取失败；可能已有运行正在处理。')
+    batch.status = 'running'
+    batch.updatedAt = new Date().toISOString()
     const inputs = await this.getInputs(batch)
     const startedAt = new Date().toISOString()
     const started = performance.now()
@@ -291,7 +458,11 @@ export class AIAnalysisService {
         this.provider.model,
         this.provider.mode,
         this.provider.isAutomated,
-        { schemaValidCount: records.length, itemIdValidCount: records.length },
+        {
+          schemaValidCount: records.length,
+          itemIdValidCount: records.length,
+          traceableQuoteCount: records.filter((record) => record.quoteRepairs?.length && record.quoteRepairs.every((repair) => repair.traceable)).length,
+        },
       )
       return { batch, records, validationFlags: validationResult.flags, dispatched: false }
     } catch (error) {
@@ -363,7 +534,7 @@ export class AIAnalysisService {
       batch.importedResultHashes = [...batch.importedResultHashes, hash]
       await this.repository.saveAIBatch(batch)
       const successfulRecords = records.filter((record) => record.validationStatus === 'validated' || record.validationStatus === 'auto_repaired')
-      await this.saveRun(batch, { outputs: payload.results, rawResponse: payload.rawModelResponse, retryCount: 0, tokenUsage: null, outputCharacters: canonical(payload.results).length }, startedAt, started, successfulRecords.length, records.filter((record) => record.quoteValid).length, null, provider, model, mode, mode !== 'manual_import', { schemaValidCount: records.length, itemIdValidCount: records.length })
+      await this.saveRun(batch, { outputs: payload.results, rawResponse: payload.rawModelResponse, retryCount: 0, tokenUsage: null, outputCharacters: canonical(payload.results).length }, startedAt, started, successfulRecords.length, records.filter((record) => record.quoteValid).length, null, provider, model, mode, mode !== 'manual_import', { schemaValidCount: records.length, itemIdValidCount: records.length, traceableQuoteCount: records.filter((record) => record.quoteRepairs?.length && record.quoteRepairs.every((repair) => repair.traceable)).length })
       return { idempotent: false, resultImport, records, validationStatus: validationResult.status, validationFlags: validationResult.flags }
     } catch (error) {
       const message = error instanceof Error ? error.message : '未知导入错误'
@@ -382,7 +553,7 @@ export class AIAnalysisService {
     if (patch.finalHumanVersion !== undefined) {
       const validation = validateEvidenceAnalysis(patch.finalHumanVersion, {
         itemId: input.id,
-        rawText: input.rawText,
+        rawText: input.analysisText ?? input.rawText,
         sourceKind: input.sourceKind,
         dataSourceType: input.dataSourceType,
       })
@@ -422,15 +593,28 @@ export class AIAnalysisService {
     const records = inputs.map((input) => {
       const output = outputById.get(input.id)
       if (!output) throw new Error(`结果缺少 itemId=${input.id}。`)
-      const validation = validateEvidenceAnalysis(output, {
+      const parsed = evidenceAnalysisSchema.safeParse(output)
+      if (!parsed.success) throw new Error(`${input.id} Schema校验失败。`)
+      const analysisText = input.analysisText ?? input.rawText
+      const repairs = parsed.data.evidenceQuotes.map((quote) => this.traceRepair(
+        this.quoteRepair.repair(quote.quote, analysisText),
+        input,
+      ))
+      const repairedData: EvidenceAnalysisData = {
+        ...parsed.data,
+        evidenceQuotes: parsed.data.evidenceQuotes.map((quote, index) => ({ ...quote, quote: repairs[index].repairedQuote ?? quote.quote })),
+      }
+      const validation = validateEvidenceAnalysis(repairedData, {
         itemId: input.id,
-        rawText: input.rawText,
+        rawText: analysisText,
         sourceKind: input.sourceKind,
         dataSourceType: input.dataSourceType,
       })
-      if (!validation.data || !validation.schemaValid || !validation.itemIdValid || !validation.quoteValid || validation.errors.length > 0) {
+      if (repairs.some((repair) => !repair.traceable || repair.repairMethod === 'not_found' || repair.repairMethod === 'normalized_multiple')
+        || !validation.data || !validation.schemaValid || !validation.itemIdValid || !validation.quoteValid || validation.errors.length > 0) {
         throw new Error(`${input.id} 校验失败：${validation.errors.join('；')}`)
       }
+      const autoRepaired = repairs.some((repair) => repair.quoteAutoRepaired)
       return {
         id: `ai-analysis-${randomUUID()}`,
         batchId: batch.id,
@@ -439,12 +623,12 @@ export class AIAnalysisService {
         model: metadata.model,
         mode: metadata.mode,
         originalAIOutput: output,
-        parsedAIOutput: validation.data,
+        parsedAIOutput: repairedData,
         finalHumanVersion: null,
         schemaValid: true,
         quoteValid: true,
-        validationStatus: 'validated',
-        quoteRepairs: [],
+        validationStatus: autoRepaired ? 'auto_repaired' : 'validated',
+        quoteRepairs: repairs,
         reviewStatus: 'pending',
         reviewer: null,
         reviewedAt: null,
@@ -491,7 +675,11 @@ export class AIAnalysisService {
         continue
       }
       const recordId = `ai-analysis-${randomUUID()}`
-      const repairs = parsed.data.evidenceQuotes.map((quote) => this.quoteRepair.repair(quote.quote, input.rawText))
+      const analysisText = input.analysisText ?? input.rawText
+      const repairs = parsed.data.evidenceQuotes.map((quote) => this.traceRepair(
+        this.quoteRepair.repair(quote.quote, analysisText),
+        input,
+      ))
       const repairedData: EvidenceAnalysisData = {
         ...parsed.data,
         evidenceQuotes: parsed.data.evidenceQuotes.map((quote, index) => ({
@@ -499,10 +687,11 @@ export class AIAnalysisService {
           quote: repairs[index].repairedQuote ?? quote.quote,
         })),
       }
-      const context = { itemId: input.id, rawText: input.rawText, sourceKind: input.sourceKind, dataSourceType: input.dataSourceType }
+      const context = { itemId: input.id, rawText: analysisText, sourceKind: input.sourceKind, dataSourceType: input.dataSourceType }
       const itemFlags = this.validationFlags.create(recordId, repairedData, context, repairs)
       flags.push(...itemFlags)
-      const hasMissing = parsed.data.evidenceQuotes.length === 0 || repairs.some((repair) => repair.repairMethod === 'not_found')
+      const hasMissing = parsed.data.evidenceQuotes.length === 0 || repairs.some((repair) => repair.repairMethod === 'not_found'
+        || (repair.repairMethod !== 'normalized_multiple' && repair.traceable === false))
       const hasMultiple = repairs.some((repair) => repair.repairMethod === 'normalized_multiple')
       const hasHighConflict = itemFlags.some((flag) => flag.severity === 'high' && flag.type === 'role_conflict')
       const autoRepaired = repairs.some((repair) => repair.quoteAutoRepaired)
@@ -523,7 +712,7 @@ export class AIAnalysisService {
         parsedAIOutput: repairedData,
         finalHumanVersion: null,
         schemaValid: true,
-        quoteValid: validationStatus === 'validated' || validationStatus === 'auto_repaired',
+        quoteValid: !hasMissing && !hasMultiple,
         validationStatus,
         quoteRepairs: repairs,
         // Machine rejection belongs to validationStatus. Human review remains
@@ -557,6 +746,23 @@ export class AIAnalysisService {
     })
   }
 
+  private traceRepair(repair: QuoteRepairResult, input: EvidenceInputItem): QuoteRepairResult {
+    const analysisStart = repair.matchedStart
+    const analysisEnd = repair.matchedEnd
+    if (analysisStart === null || analysisEnd === null || !input.analysisTextSpanMap) {
+      return {
+        ...repair,
+        analysisMatchedStart: analysisStart,
+        analysisMatchedEnd: analysisEnd,
+        rawMatchedStart: null,
+        rawMatchedEnd: null,
+        sourceTransformation: [],
+        traceable: false,
+      }
+    }
+    return { ...repair, ...this.analysisTextNormalizer.traceQuote(analysisStart, analysisEnd, input.analysisTextSpanMap) }
+  }
+
   private async getCatalog(): Promise<CatalogEntry[]> {
     const [rawItems, sources, evaluationData] = await Promise.all([
       this.repository.getRawItems(),
@@ -566,6 +772,13 @@ export class AIAnalysisService {
     const sourceById = new Map(sources.map((source) => [source.id, source]))
     const rawEntries: CatalogEntry[] = rawItems.map((item) => {
       const source = sourceById.get(item.sourceId)
+      const analysis = item.analysisText !== undefined && item.analysisTextSpanMap
+        ? {
+          analysisText: item.analysisText,
+          analysisTextVersion: item.analysisTextVersion ?? ANALYSIS_TEXT_VERSION,
+          analysisTextSpanMap: item.analysisTextSpanMap,
+        }
+        : this.analysisTextNormalizer.normalize(item.rawText, item.rawPayload)
       const qualityIssue = item.qualityStatus === 'low_quality' || item.qualityStatus === 'rejected' || item.status === 'failed'
       const invalidReason = item.qualityStatus === 'rejected' || item.status === 'failed' ? '资料记录无效' : null
       return {
@@ -573,6 +786,7 @@ export class AIAnalysisService {
           id: item.id,
           title: item.title,
           rawText: item.rawText,
+          ...analysis,
           sourceKind: 'raw_item',
           dataSourceType: source?.type,
           isDemo: item.isDemo,
@@ -598,11 +812,14 @@ export class AIAnalysisService {
     })
     const developmentIds = new Set(evaluationData?.split.developmentIds ?? [])
     const holdoutIds = new Set(evaluationData?.split.holdoutIds ?? [])
-    const commentEntries: CatalogEntry[] = (evaluationData?.dataset.items ?? []).map((item) => ({
+    const commentEntries: CatalogEntry[] = (evaluationData?.dataset.items ?? []).map((item) => {
+      const analysis = this.analysisTextNormalizer.normalize(item.rawText)
+      return {
       input: {
         id: item.id,
         title: `${item.platform ?? '消费者'}评论${item.product ? ` · ${item.product}` : ''}`,
         rawText: item.rawText,
+        ...analysis,
         sourceKind: 'consumer_comment',
         isDemo: false,
       },
@@ -623,7 +840,7 @@ export class AIAnalysisService {
         isDemo: false,
       },
       invalidReason: item.rawText.trim() ? null : '原始文本为空',
-    }))
+    }})
     return [...rawEntries, ...commentEntries]
   }
 
@@ -654,7 +871,7 @@ export class AIAnalysisService {
     model = this.provider.model,
     mode = this.provider.mode,
     isAutomated = this.provider.isAutomated,
-    validationCounts?: { schemaValidCount: number; itemIdValidCount: number },
+    validationCounts?: { schemaValidCount: number; itemIdValidCount: number; traceableQuoteCount?: number },
   ) {
     const inputs = await this.getInputs(batch)
     const run: AIAnalysisRun = {
@@ -673,6 +890,8 @@ export class AIAnalysisService {
       schemaValidCount: validationCounts?.schemaValidCount ?? successCount,
       itemIdValidCount: validationCounts?.itemIdValidCount ?? successCount,
       quoteValidCount,
+      traceableQuoteCount: validationCounts?.traceableQuoteCount ?? 0,
+      subrequestCount: execution?.subrequestCount,
       lowConfidenceCount: execution?.outputs.filter((output) => output && typeof output === 'object' && typeof (output as { confidence?: unknown }).confidence === 'number' && (output as { confidence: number }).confidence < 0.6).length ?? 0,
       inputCharacters: inputs.reduce((sum, item) => sum + item.rawText.length, 0),
       outputCharacters: execution?.outputCharacters ?? 0,

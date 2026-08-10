@@ -18,6 +18,8 @@
 - `contentHash` 是规范化正文的 SHA-256。
 - `status` 为 `pending / processed / failed`。
 
+`rawText` 是不可变的原始采集正文。`analysisText`、`analysisTextVersion` 与 `analysisTextSpanMap` 是可重建的确定性分析派生字段：模型读取 `analysisText ?? rawText`，引文在 analysis 坐标中 exact match 后，通过 span map 回溯到 raw 坐标。转换类型包括 Unicode/空白归一、已确认脚注标记移除及有元数据依据的导航或页脚噪声移除。
+
 ## TrendSignal
 
 趋势信号：`id, sourceItemIds, trendName, brand, productCategory, flavors, consumerNeeds, scenes, sentiment, signalType, confidence, evidence, risk, reviewStatus, reviewer, reviewedAt, isDemo`。
@@ -57,6 +59,6 @@ AI 生成默认 `candidate`；只有人工操作可以改成 `selected`。同一
 
 - `AutomationRun`：整条每日工作流，包含triggerType、幂等键、状态、JobRun/分析批次编号、采集/分析汇总、通知状态、错误摘要、耗时和isDemo。它不替代JobRun。
 - `ValidationFlag`：分析记录上的确定性异常，包含type、severity、message、field、status和createdAt。
-- `QuoteRepairResult`：originalQuote、RawItem真实连续原文repairedQuote、repairMethod、唯一匹配位置和是否自动修复。
+- `QuoteRepairResult`：originalQuote、analysisText 连续原文 repairedQuote、repairMethod、analysis/raw 两套唯一匹配位置、sourceTransformation、traceable 和是否自动修复。
 - `ExperimentRun`：experimentType、manual/ai_assisted模式、起止时间、durationMs、样本量、备注与操作者。没有实验就不生成效率结论。
 - `DataSource`健康字段：healthStatus、lastFailureAt、consecutiveFailures、lastHttpStatus，并沿用lastError和lastRunNewCount。

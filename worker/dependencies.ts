@@ -13,6 +13,7 @@ import { AIAnalysisService } from '../server/services/AIAnalysisService.js'
 import { DailyAutomationOrchestrator } from '../server/services/DailyAutomationOrchestrator.js'
 import { JobService } from '../server/services/JobService.js'
 import { TrendAggregationService } from '../server/services/TrendAggregationService.js'
+import { AnalysisTextBackfillService } from '../server/services/AnalysisTextBackfillService.js'
 import { WorkerCollector } from './collectors/WorkerCollector.js'
 import type { Env } from './types.js'
 
@@ -28,7 +29,7 @@ function createProvider(env: Env): { provider: AIProvider; ready: boolean } {
         apiKey: env.ARK_API_KEY,
         model: env.ARK_MODEL_ID,
         baseUrl: env.ARK_BASE_URL ?? 'https://ark.cn-beijing.volces.com/api/v3',
-        timeoutMs: 45_000,
+        timeoutMs: 90_000,
         maxRetries: 0,
         maxInputCharactersPerRequest: 12_000,
       }),
@@ -81,6 +82,7 @@ export function createWorkerDependencies(env: Env) {
     notification,
     automation,
     trendAggregation: new TrendAggregationService(repository),
+    analysisTextBackfill: new AnalysisTextBackfillService(repository),
     automaticProviderReady,
     maxSources: positiveInt(env.MAX_SOURCES_PER_AUTOMATION, 3),
     evaluationDataset,

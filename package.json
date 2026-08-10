@@ -13,6 +13,7 @@
     "automation:daily:dry": "tsx server/cli/automationDaily.ts --dry-run",
     "ai:prepare-development": "tsx server/cli/prepareDevelopment.ts",
     "ai:import-b2-pilot": "tsx server/cli/importB2Pilot.ts",
+    "analysis-text:backfill": "tsx server/cli/backfillAnalysisText.ts",
     "ai:evaluate-holdout": "tsx server/cli/evaluateHoldout.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
@@ -22,6 +23,7 @@
     "test:collectors": "tsx tests/collectors.integration.ts",
     "test:ai": "tsx tests/ai.integration.ts",
     "test:analysis-batches": "tsx tests/analysis-batches.integration.ts",
+    "test:analysis-text": "tsx tests/analysis-text.integration.ts",
     "test:ai:live": "tsx tests/ark-ai.smoke.ts",
     "test:live": "tsx tests/live-collection.smoke.ts",
     "test:automation": "tsx tests/automation.integration.ts",
@@ -41,7 +43,7 @@
     "cloudflare:setup": "tsx scripts/cloudflare-setup.ts",
     "cloudflare:secrets": "tsx scripts/configure-cloudflare-secrets.ts",
     "cloudflare:verify": "tsx scripts/cloudflare-verify.ts",
-    "check": "npm run lint && npm run typecheck && npm run test:collectors && npm run test:api && npm run test:ai && npm run test:analysis-batches && npm run test:automation && npm run test:bootstrap && npm run build"
+    "check": "npm run lint && npm run typecheck && npm run test:collectors && npm run test:api && npm run test:ai && npm run test:analysis-batches && npm run test:analysis-text && npm run test:automation && npm run test:bootstrap && npm run build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

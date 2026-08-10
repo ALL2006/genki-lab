@@ -15,6 +15,7 @@ import type { Collector } from '../collectors/Collector.js'
 import type { AIProvider } from '../providers/AIProvider.js'
 import type { DataRepository } from '../repositories/DataRepository.js'
 import { createContentHash, normalizeUrl } from '../utils/content.js'
+import { AnalysisTextNormalizer } from '../analysis-text/AnalysisTextNormalizer.js'
 
 interface JobMetrics {
   fetchedCount?: number
@@ -43,6 +44,7 @@ export interface JobResult<T> {
 }
 
 export class JobService {
+  private readonly analysisTextNormalizer = new AnalysisTextNormalizer()
   constructor(
     private readonly repository: DataRepository,
     private readonly collector: Collector,
@@ -131,11 +133,13 @@ export class JobService {
             knownUrls.add(normalizedUrl)
             knownHashes.add(contentHash)
             if (item.qualityStatus === 'rejected') sourceFailedCount += 1
+            const analysisText = this.analysisTextNormalizer.normalize(item.rawText, item.rawPayload)
             sourceItems.push({
               id: `raw-${contentHash.slice(0, 16)}`,
               sourceId: source.id,
               title: item.title,
               rawText: item.rawText,
+              ...analysisText,
               summary: item.summary,
               publishedAt: item.publishedAt,
               fetchedAt: new Date().toISOString(),

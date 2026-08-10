@@ -15,10 +15,15 @@ export interface EvidenceInputItem {
   id: string
   title: string
   rawText: string
+  analysisText?: string
+  analysisTextVersion?: import('../../shared/types.js').AnalysisTextVersion
+  analysisTextSpanMap?: import('../../shared/types.js').AnalysisTextSpanMap
   sourceKind: 'raw_item' | 'consumer_comment'
   dataSourceType?: DataSourceType
   isDemo: boolean
 }
+
+export const modelAnalysisText = (item: EvidenceInputItem) => item.analysisText ?? item.rawText
 
 export interface AIProviderExecution {
   outputs: unknown[]
@@ -26,6 +31,7 @@ export interface AIProviderExecution {
   retryCount: number
   tokenUsage: AITokenUsage | null
   outputCharacters: number
+  subrequestCount?: number
 }
 
 export interface AIProvider {

@@ -19,13 +19,19 @@ export class QuoteNormalizer {
     for (const character of value) {
       const start = offset
       offset += character.length
+      const compatibilityNormalized = character.normalize('NFKC')
       const normalized = /\s/u.test(character) || character === '\u00a0'
         ? ' '
         : singleQuotes.has(character)
           ? "'"
           : doubleQuotes.has(character)
             ? '"'
-            : character.normalize('NFKC')
+            // NFKC is safe for compatibility letters/digits, but changing a
+            // Chinese punctuation mark into an ASCII mark would relax the
+            // quote contract beyond the allowed typography equivalences.
+            : /\p{P}/u.test(character) || /\p{P}/u.test(compatibilityNormalized)
+              ? character
+              : compatibilityNormalized
       for (const output of normalized) {
         if (output === ' ' && tokens.at(-1)?.value === ' ') continue
         tokens.push({ value: output, start, end: offset })

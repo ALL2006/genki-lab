@@ -153,6 +153,14 @@ async function api(request: Request, env: Env): Promise<Response> {
       const pilotId = typeof payload.pilotId === 'string' ? payload.pilotId : 'B2-AUTO-PILOT-01'
       return json(await deps.aiAnalysis.runComparisonPilot(sourceBatchId, pilotId), 201, false, requestId)
     }
+    if (method === 'POST' && path === '/api/jobs/analysis-text-backfill') {
+      requireSecret(request, 'X-JOB-SECRET', env.JOB_SECRET, 'INVALID_JOB_SECRET')
+      return json(await deps.analysisTextBackfill.backfill(), 201, false, requestId)
+    }
+    if (method === 'POST' && path === '/api/ai-development/b2-dev-01') {
+      requireSecret(request, 'X-JOB-SECRET', env.JOB_SECRET, 'INVALID_JOB_SECRET')
+      return json(await deps.aiAnalysis.runDevelopmentBatch01(), 201, false, requestId)
+    }
     if (method === 'POST' && path === '/api/jobs/collect') {
       requireSecret(request, 'X-JOB-SECRET', env.JOB_SECRET, 'INVALID_JOB_SECRET')
       const payload = await body(request)

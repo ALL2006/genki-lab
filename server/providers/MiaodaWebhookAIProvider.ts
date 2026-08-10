@@ -1,4 +1,4 @@
-import type { AIProvider, EvidenceInputItem } from './AIProvider.js'
+import { modelAnalysisText, type AIProvider, type EvidenceInputItem } from './AIProvider.js'
 
 export interface MiaodaWebhookAIProviderOptions {
   callbackUrl: string
@@ -28,7 +28,17 @@ export class MiaodaWebhookAIProvider implements AIProvider {
       const response = await this.fetchImplementation(this.options.callbackUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-AI-IMPORT-SECRET': this.options.importSecret },
-        body: JSON.stringify({ provider: this.name, items }),
+        body: JSON.stringify({
+          provider: this.name,
+          items: items.map((item) => ({
+            itemId: item.id,
+            title: item.title,
+            analysisText: modelAnalysisText(item),
+            analysisTextVersion: item.analysisTextVersion ?? null,
+            sourceKind: item.sourceKind,
+            dataSourceType: item.dataSourceType ?? null,
+          })),
+        }),
         signal: controller.signal,
       })
       if (!response.ok) throw new Error(`妙搭 Webhook 返回 HTTP ${response.status}`)

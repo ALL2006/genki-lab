@@ -16,6 +16,7 @@ import { DailyAutomationOrchestrator } from './services/DailyAutomationOrchestra
 import { createNotificationProvider } from './notifications/createNotificationProvider.js'
 import { DataPathResolver } from './storage/DataPathResolver.js'
 import { TrendAggregationService } from './services/TrendAggregationService.js'
+import { AnalysisTextBackfillService } from './services/AnalysisTextBackfillService.js'
 
 export function createDependencies(config: AppConfig) {
   const repository = new MockRepository(config.mockDbPath)
@@ -50,5 +51,6 @@ export function createDependencies(config: AppConfig) {
     config.automationStaleMs,
   )
   const trendAggregation = new TrendAggregationService(repository)
-  return { repository, collector, aiProvider, aiAnalysis, evaluations, jobs, automation, notification, dataPaths, automaticProviderReady, trendAggregation }
+  const analysisTextBackfill = new AnalysisTextBackfillService(repository)
+  return { repository, collector, aiProvider, aiAnalysis, evaluations, jobs, automation, notification, dataPaths, automaticProviderReady, trendAggregation, analysisTextBackfill }
 }

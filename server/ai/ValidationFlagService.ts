@@ -34,6 +34,9 @@ export class ValidationFlagService {
     if (repairs.some((repair) => repair.repairMethod === 'not_found')) {
       add('quote_mismatch', 'high', '引文无法在原文中定位。', 'evidenceQuotes')
     }
+    if (repairs.some((repair) => repair.repairMethod !== 'not_found' && repair.traceable === false)) {
+      add('quote_mismatch', 'high', '引文虽然匹配 analysisText，但无法追溯到 rawText。', 'evidenceQuotes')
+    }
     if (data.relevanceScore < 0.5 || data.confidence < 0.55) {
       add('weak_relevance', 'warning', '相关性或置信度较低，需要人工复核。', data.relevanceScore < 0.5 ? 'relevanceScore' : 'confidence')
     }

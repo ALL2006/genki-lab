@@ -29,6 +29,7 @@ export class FeishuBitableRepository implements DataRepository {
   async saveDataSource(_source: DataSource): Promise<void> { return this.unavailable() }
   async getRawItems(_status?: RawItemStatus): Promise<RawItem[]> { return this.unavailable() }
   async insertRawItems(_items: RawItem[]): Promise<void> { return this.unavailable() }
+  async saveRawItem(_item: RawItem): Promise<void> { return this.unavailable() }
   async setRawItemStatus(_ids: string[], _status: RawItemStatus): Promise<void> { return this.unavailable() }
   async getTrendSignals(_reviewStatus?: ReviewStatus): Promise<TrendSignal[]> { return this.unavailable() }
   async insertTrendSignals(_signals: TrendSignal[]): Promise<void> { return this.unavailable() }
@@ -42,6 +43,7 @@ export class FeishuBitableRepository implements DataRepository {
   async getAIBatches(): Promise<AIBatch[]> { return this.unavailable() }
   async getAIBatch(_id: string): Promise<AIBatch | undefined> { return this.unavailable() }
   async saveAIBatch(_batch: AIBatch): Promise<void> { return this.unavailable() }
+  async claimAIBatchExecution(_batch: AIBatch): Promise<boolean> { return this.unavailable() }
   async getAIAnalysisRecords(): Promise<AIAnalysisRecord[]> { return this.unavailable() }
   async saveAIAnalysisRecords(_records: AIAnalysisRecord[]): Promise<void> { return this.unavailable() }
   async saveAIAnalysisRecord(_record: AIAnalysisRecord): Promise<void> { return this.unavailable() }

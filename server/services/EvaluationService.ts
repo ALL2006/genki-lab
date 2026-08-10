@@ -12,6 +12,7 @@ import type {
 import { validateEvidenceAnalysis } from '../ai/evidenceSchema.js'
 import type { AIProvider, EvidenceInputItem } from '../providers/AIProvider.js'
 import type { DataRepository } from '../repositories/DataRepository.js'
+import { AnalysisTextNormalizer } from '../analysis-text/AnalysisTextNormalizer.js'
 
 interface DatasetFile {
   version: string
@@ -59,6 +60,7 @@ function predictedSentiment(output: EvidenceAnalysisData) {
 }
 
 export class EvaluationService {
+  private readonly analysisTextNormalizer = new AnalysisTextNormalizer()
   constructor(
     private readonly repository: DataRepository,
     private readonly provider: AIProvider,
@@ -83,13 +85,17 @@ export class EvaluationService {
     const selectedIds = new Set(splitName === 'development' ? split.developmentIds : split.holdoutIds)
     const selected = dataset.items.filter((item) => selectedIds.has(item.id))
     if (selected.length !== selectedIds.size) throw new Error('冻结划分引用了评测集中不存在的编号。')
-    const inputs: EvidenceInputItem[] = selected.map((item) => ({
-      id: item.id,
-      title: `${item.platform ?? '未知平台'} · ${item.product ?? '饮料评论'}`,
-      rawText: item.rawText,
-      sourceKind: 'consumer_comment',
-      isDemo: this.provider.isDemo,
-    }))
+    const inputs: EvidenceInputItem[] = selected.map((item) => {
+      const analysis = this.analysisTextNormalizer.normalize(item.rawText)
+      return {
+        id: item.id,
+        title: `${item.platform ?? '未知平台'} · ${item.product ?? '饮料评论'}`,
+        rawText: item.rawText,
+        ...analysis,
+        sourceKind: 'consumer_comment',
+        isDemo: this.provider.isDemo,
+      }
+    })
     const startedAt = new Date().toISOString()
     const started = performance.now()
     let outputs: unknown[] = []
@@ -115,7 +121,7 @@ export class EvaluationService {
     let quoteValid = 0
     let lowConfidence = 0
     for (const item of selected) {
-      const validation = validateEvidenceAnalysis(outputById.get(item.id), { itemId: item.id, rawText: item.rawText, sourceKind: 'consumer_comment' })
+      const validation = validateEvidenceAnalysis(outputById.get(item.id), { itemId: item.id, rawText: this.analysisTextNormalizer.normalize(item.rawText).analysisText, sourceKind: 'consumer_comment' })
       if (validation.schemaValid) schemaValid += 1
       if (validation.itemIdValid) itemIdValid += 1
       if (validation.quoteValid) quoteValid += 1

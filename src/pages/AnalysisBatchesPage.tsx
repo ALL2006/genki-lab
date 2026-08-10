@@ -78,6 +78,7 @@ const validationStatusLabels = {
 
 const batchStatusLabels: Record<AIBatch['status'], string> = {
   pending: '待处理',
+  running: '运行中',
   dispatched: '已派发',
   completed: '已完成',
   failed: '失败',

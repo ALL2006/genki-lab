@@ -123,6 +123,13 @@ export class MockRepository implements DataRepository {
     ;(await this.load()).rawItems.unshift(...items)
     await this.persist()
   }
+  async saveRawItem(item: RawItem) {
+    const db = await this.load()
+    const index = db.rawItems.findIndex((entry) => entry.id === item.id)
+    if (index >= 0) db.rawItems[index] = item
+    else db.rawItems.unshift(item)
+    await this.persist()
+  }
   async setRawItemStatus(ids: string[], status: RawItemStatus) {
     const idSet = new Set(ids)
     for (const item of (await this.load()).rawItems) if (idSet.has(item.id)) item.status = status
@@ -181,6 +188,14 @@ export class MockRepository implements DataRepository {
     if (index >= 0) db.aiBatches[index] = batch
     else db.aiBatches.unshift(batch)
     await this.persist()
+  }
+  async claimAIBatchExecution(batch: AIBatch) {
+    const db = await this.load()
+    const index = db.aiBatches.findIndex((item) => item.id === batch.id)
+    if (index < 0 || !['pending', 'failed'].includes(db.aiBatches[index].status)) return false
+    db.aiBatches[index] = { ...batch, status: 'running', updatedAt: new Date().toISOString() }
+    await this.persist()
+    return true
   }
   async getAIAnalysisRecords() { return [...(await this.load()).aiAnalysisRecords].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) }
   async saveAIAnalysisRecords(records: AIAnalysisRecord[]) {

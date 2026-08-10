@@ -11,7 +11,7 @@ export type EvidenceRole = 'consumer_evidence' | 'market_evidence' | 'background
 export type EvidenceSignalType = 'consumer_preference' | 'product_launch' | 'category_trend' | 'safety_context' | 'other'
 export type AIProviderName = 'mock' | 'ark-doubao' | 'miaoda-webhook' | 'manual-json'
 export type AIAnalysisMode = 'mock' | 'api' | 'webhook' | 'manual_import'
-export type AIBatchStatus = 'pending' | 'dispatched' | 'completed' | 'failed'
+export type AIBatchStatus = 'pending' | 'running' | 'dispatched' | 'completed' | 'failed'
 export type EvaluationSplit = 'development' | 'holdout'
 export type DataSourceRoleHint = 'consumer_candidate' | 'market_candidate' | 'background_candidate'
 export type DataSourceHealthStatus = 'healthy' | 'warning' | 'failing' | 'disabled'
@@ -19,6 +19,14 @@ export type AutomationTriggerType = 'manual' | 'miaoda' | 'local-cron' | 'cloudf
 export type AutomationStatus = 'running' | 'success' | 'partial_success' | 'failed' | 'stale_failed'
 export type NotificationStatus = 'pending' | 'sent' | 'skipped' | 'failed'
 export type AnalysisValidationStatus = 'validated' | 'auto_repaired' | 'needs_review' | 'rejected'
+export type AnalysisTextVersion = 'v1'
+export type AnalysisTextTransformationType =
+  | 'identity'
+  | 'unicode_normalized'
+  | 'whitespace_normalized'
+  | 'footnote_marker_removed'
+  | 'navigation_noise_removed'
+  | 'footer_noise_removed'
 export type ValidationMode = 'strict' | 'automated'
 export type ValidationFlagType = 'quote_mismatch' | 'unsupported_claim' | 'role_conflict' | 'title_only_evidence' | 'weak_relevance' | 'possible_overgeneralization'
 export type ValidationFlagSeverity = 'info' | 'warning' | 'high'
@@ -70,6 +78,9 @@ export interface RawItem {
   sourceId: string
   title: string
   rawText: string
+  analysisText?: string
+  analysisTextVersion?: AnalysisTextVersion
+  analysisTextSpanMap?: AnalysisTextSpanMap
   summary: string
   publishedAt: string | null
   fetchedAt: string
@@ -85,6 +96,16 @@ export interface RawItem {
   failureReason: string | null
   isDemo: boolean
 }
+
+export interface AnalysisTextSpan {
+  analysisStart: number
+  analysisEnd: number
+  rawStart: number
+  rawEnd: number
+  transformationType: AnalysisTextTransformationType
+}
+
+export type AnalysisTextSpanMap = AnalysisTextSpan[]
 
 export interface TrendEvidence {
   sourceItemId: string
@@ -166,6 +187,12 @@ export interface QuoteRepairResult {
   quoteAutoRepaired: boolean
   matchedStart: number | null
   matchedEnd: number | null
+  analysisMatchedStart?: number | null
+  analysisMatchedEnd?: number | null
+  rawMatchedStart?: number | null
+  rawMatchedEnd?: number | null
+  sourceTransformation?: AnalysisTextTransformationType[]
+  traceable?: boolean
 }
 
 export interface ValidationFlag {
@@ -201,6 +228,8 @@ export interface AIAnalysisRun {
   schemaValidCount: number
   itemIdValidCount?: number
   quoteValidCount: number
+  traceableQuoteCount?: number
+  subrequestCount?: number
   lowConfidenceCount: number
   inputCharacters: number
   outputCharacters: number
@@ -221,6 +250,7 @@ export interface AIBatch {
   updatedAt: string
   promptVersion: string
   schemaVersion: string
+  analysisTextVersion?: AnalysisTextVersion
   importedResultHashes: string[]
   validationMode?: ValidationMode
   validationStatus?: 'success' | 'partial_success' | 'failed'

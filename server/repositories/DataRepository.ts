@@ -30,6 +30,7 @@ export interface DataRepository {
   saveDataSource(source: DataSource): Promise<void>
   getRawItems(status?: RawItemStatus): Promise<RawItem[]>
   insertRawItems(items: RawItem[]): Promise<void>
+  saveRawItem(item: RawItem): Promise<void>
   setRawItemStatus(ids: string[], status: RawItemStatus): Promise<void>
   getTrendSignals(reviewStatus?: ReviewStatus): Promise<TrendSignal[]>
   insertTrendSignals(signals: TrendSignal[]): Promise<void>
@@ -46,6 +47,7 @@ export interface DataRepository {
   getAIBatches(): Promise<AIBatch[]>
   getAIBatch(id: string): Promise<AIBatch | undefined>
   saveAIBatch(batch: AIBatch): Promise<void>
+  claimAIBatchExecution(batch: AIBatch): Promise<boolean>
   getAIAnalysisRecords(): Promise<AIAnalysisRecord[]>
   saveAIAnalysisRecords(records: AIAnalysisRecord[]): Promise<void>
   saveAIAnalysisRecord(record: AIAnalysisRecord): Promise<void>

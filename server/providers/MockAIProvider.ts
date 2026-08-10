@@ -1,5 +1,6 @@
 import type { RawItem, TrendSignal } from '../../shared/types.js'
 import type { AIProvider, EvidenceInputItem, GeneratedProductConcept, GeneratedTrendSignal } from './AIProvider.js'
+import { modelAnalysisText } from './AIProvider.js'
 
 function evidence(item: RawItem) {
   return [{ sourceItemId: item.id, quote: item.rawText }]
@@ -18,16 +19,17 @@ export class MockAIProvider implements AIProvider {
     const sceneLabels = ['日常解渴', '吃饭佐餐', '火锅烧烤', '运动健身', '工作学习', '通勤', '聚会', '户外旅行', '下午茶', '控糖减脂', '熬夜']
     const negativeLabels = ['过甜', '甜味不足', '代糖味明显', '后味明显', '气泡感弱', '香精感明显', '口味寡淡', '过酸', '价格偏高', '关注甜味剂', '关注添加剂']
     const outputs = items.map((item) => {
+      const analysisText = modelAnalysisText(item)
       const role = item.sourceKind === 'consumer_comment'
         ? 'consumer_evidence'
         : item.dataSourceType === 'brand_news' || item.dataSourceType === 'public_product'
           ? 'market_evidence'
           : 'background_evidence'
-      const flavors = flavorLabels.filter((label) => item.rawText.includes(label.replace('明显', '').replace('适中', '')))
-      const scenes = sceneLabels.filter((label) => item.rawText.includes(label.slice(0, 2)))
-      const negativeSignals = negativeLabels.filter((label) => item.rawText.includes(label.replace('明显', '').replace('关注', '')))
-      const positiveSignals = ['好喝', '喜欢', '清爽', '满意', '回购'].filter((label) => item.rawText.includes(label))
-      const quote = item.rawText.trim().slice(0, 120)
+      const flavors = flavorLabels.filter((label) => analysisText.includes(label.replace('明显', '').replace('适中', '')))
+      const scenes = sceneLabels.filter((label) => analysisText.includes(label.slice(0, 2)))
+      const negativeSignals = negativeLabels.filter((label) => analysisText.includes(label.replace('明显', '').replace('关注', '')))
+      const positiveSignals = ['好喝', '喜欢', '清爽', '满意', '回购'].filter((label) => analysisText.includes(label))
+      const quote = analysisText.trim().slice(0, 120)
       return {
         itemId: item.id,
         evidenceRole: role,

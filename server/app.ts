@@ -27,7 +27,7 @@ async function useCase<T>(operation: () => Promise<T>): Promise<T> {
 
 export function createApp(config: AppConfig) {
   const app = express()
-  const { repository, aiAnalysis, evaluations, jobs, automation, notification, dataPaths, trendAggregation } = createDependencies(config)
+  const { repository, aiAnalysis, evaluations, jobs, automation, notification, dataPaths, trendAggregation, analysisTextBackfill } = createDependencies(config)
   app.disable('x-powered-by')
   app.use(express.json({ limit: '1mb' }))
 
@@ -137,6 +137,12 @@ export function createApp(config: AppConfig) {
   }))
   app.post('/api/ai-batches/:id/execute', requireJobSecret, asyncHandler(async (request, response) => {
     sendSuccess(response, await useCase(() => aiAnalysis.executeBatch(String(request.params.id))), undefined, 201)
+  }))
+  app.post('/api/jobs/analysis-text-backfill', requireJobSecret, asyncHandler(async (_request, response) => {
+    sendSuccess(response, await useCase(() => analysisTextBackfill.backfill()), false, 201)
+  }))
+  app.post('/api/ai-development/b2-dev-01', requireJobSecret, asyncHandler(async (_request, response) => {
+    sendSuccess(response, await useCase(() => aiAnalysis.runDevelopmentBatch01()), false, 201)
   }))
   app.post('/api/ai-results/import', requireAIImportSecret, asyncHandler(async (request, response) => {
     sendSuccess(response, await useCase(() => aiAnalysis.importResults(request.body)), undefined, 201)
